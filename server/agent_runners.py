@@ -1,5 +1,6 @@
 """Autonomous Courtroom Agent Sessions running over the Switch Room Bus.
 Implements the 5 distinct roles: Clerk, Historian, Prosecutor, Defender, and Rollback Engineer.
+Enforces fierce adversarial cross-examination, evidence-backed debate, and exclusive human gate.
 """
 from __future__ import annotations
 from typing import Dict, Any, Optional
@@ -28,10 +29,11 @@ class CourtClerkAgent:
             case = self.current_case
 
             reply = (
-                f"Case {case.case_id} opened.\n"
-                f"Change: dynamic checkout pricing. Affected services: {', '.join(case.affected_services)}.\n"
-                f"CI: {case.ci_status}. Deployment: {case.deployment_target}.\n"
-                f"@historian: Please search incident memory for relevant precedent."
+                f"[COURT IN SESSION] DOCKET CASE {case.case_id}: PR #{case.pr_url.split('/')[-1]} ({case.repository})\n"
+                f"PETITION: Authorization to deploy '{case.affected_services[0]}' to production canary.\n"
+                f"EVIDENCE DOSSIER: Services: {', '.join(case.affected_services)} | CI: {case.ci_status} | Target: {case.deployment_target}.\n"
+                f"PROCEDURAL RULE: Maximum 4 adversarial rounds. Rubber-stamping is prohibited under penalty of contempt.\n"
+                f"@historian: Subpoena past failure records and incident post-mortems for {case.affected_services[0]} immediately!"
             )
             self.room.post_message(self.name, reply)
 
@@ -60,8 +62,8 @@ class CourtClerkAgent:
 
                 task_summary = "\n".join([f"{i}. {t.description} -- owner: {t.owner}" for i, t in enumerate(self.current_case.tasks, 1)])
                 verdict_announcement = (
-                    f"Verdict recorded: {verdict.type.value}.\n"
-                    f"Tasks created in Switch:\n{task_summary}\n\n"
+                    f"FINAL COURT JUDGMENT RENDERED: {verdict.type.value}.\n"
+                    f"Binding operational tasks created in Switch:\n{task_summary}\n\n"
                     f"Signed Release Brief published:\n\n{brief}"
                 )
                 self.room.post_message(self.name, verdict_announcement)
@@ -81,13 +83,15 @@ class IncidentHistorianAgent:
             if precedents:
                 p = precedents[0]
                 reply = (
-                    f"Relevant precedent found: {p['incident_id']}. "
-                    f"A {p['change_type']}-related change on {p['date']} caused {p['symptom']}. "
-                    f"Impact: {p['impact']}. Required lesson: {p['lesson']}.\n"
-                    f"@prosecutor: Please formulate evidence-based objections based on this precedent and PR diff."
+                    f"[FORENSIC INCIDENT SUBPOENA] Incident Precedent Exhumed: {p['incident_id']} (Severity 1 Outage)\n"
+                    f"HISTORICAL EVENT: A {p['change_type']}-related change on {p['date']} triggered {p['symptom']}.\n"
+                    f"IMPACT & BLAST RADIUS: {p['impact']}. ROOT CAUSE: {p['root_cause']}.\n"
+                    f"MANDATORY REMEDIATION PRECEDENT: {p['lesson']}.\n"
+                    f"EMERGENCY REVERSAL: Reverted to {p.get('rollback', 'v1.88.4')} under crisis conditions.\n"
+                    f"@prosecutor: The corporate failure graveyard is open. Indict this pull request with maximum adversarial scrutiny!"
                 )
             else:
-                reply = "No relevant precedent found in incident memory. @prosecutor: Review PR diff."
+                reply = "No relevant precedent found in incident memory. @prosecutor: Review PR diff with unyielding rigor."
             self.room.post_message(self.name, reply)
 
 class ProsecutorAgent:
@@ -108,10 +112,17 @@ class ProsecutorAgent:
             if clerk and clerk.current_case:
                 clerk.current_case.objections = objections
 
-            lines = ["Prosecution Objections:"]
+            lines = [
+                "[PROSECUTION INDICTMENT] MOTION TO PERMANENTLY BAR RELEASE:",
+                "The Prosecution has completed deep forensic static and architectural inspection of PR #482.",
+                "This deployment demonstrates dangerous vulnerabilities that threaten production reliability:",
+            ]
             for o in objections:
-                lines.append(f"  - {o.id} -- {o.classification.value}: {o.claim} Evidence: {o.evidence}")
-            lines.append("@defender: Please address each objection in order or concede.")
+                lines.append(f"  - [{o.classification.value}] {o.id}: {o.claim} Evidence: {o.evidence}")
+            lines.append(
+                "STATUTORY WARNING: Passing CI tests is INSUFFICIENT evidence for high-risk checkout mutations.\n"
+                "@defender: You stand accused of introducing unmitigated production hazard. Rebut each charge or enter an explicit CONCESSION!"
+            )
             self.room.post_message(self.name, "\n".join(lines))
 
 class DefenderAgent:
@@ -131,10 +142,17 @@ class DefenderAgent:
             if clerk and clerk.current_case:
                 clerk.current_case.defenses = defenses
 
-            lines = ["Defense Responses:"]
+            lines = [
+                "[DEFENSE COMBATIVE REBUTTAL] COUNTER-EVIDENCE & CONCESSION RECORD:",
+                "The Defense refuses to allow business progress to be suffocated by alarmist obstruction.",
+                "Here is our factual technical defense, answering every objection in strict sequence:",
+            ]
             for d in defenses:
-                lines.append(f"  - For {d.objection_id}: {d.claim} ({d.evidence})")
-            lines.append("@rollback: Please produce validated rollback plan and runbook checks.")
+                badge = "[EXPLICIT CONCESSION]" if d.is_conceded else "[REBUTTED & MITIGATED]"
+                lines.append(f"  - {badge} For {d.objection_id}: {d.claim} ({d.evidence})")
+            lines.append(
+                "@rollback: Step into the arena! Interrogate our operational reversibility and demonstrate our fail-safe decapitation mechanism!"
+            )
             self.room.post_message(self.name, "\n".join(lines))
 
 class RollbackEngineerAgent:
@@ -154,12 +172,14 @@ class RollbackEngineerAgent:
                 clerk.current_case.rollback_plan = plan
 
             reply = (
-                f"Rollback plan verified: target version: {plan.target_version}.\n"
-                f"Command: {plan.command}\n"
-                f"Health checks: {', '.join(plan.health_checks)}.\n"
-                f"Rollback owner: {plan.rollback_owner} (Status: {plan.execution_status.value})\n"
-                f"[SAFETY] Rollback requires explicit human approval; auto-execution is disabled.\n"
-                f"@clerk: Case evidence, defense, and rollback plan ready for Release Judge."
+                f"[SRE ROLLBACK AUDIT] REVERSIBILITY INTERROGATION:\n"
+                f"The Site Reliability division permits zero deployments without guaranteed instantaneous recovery.\n"
+                f"  - Target Baseline: {plan.target_version} (Current: {plan.current_version})\n"
+                f"  - Automated Decapitation Command: {plan.command}\n"
+                f"  - Automated Health Probes: {', '.join(plan.health_checks)}\n"
+                f"  - Designated Rollback Commander: {plan.rollback_owner} (Status: {plan.execution_status.value})\n"
+                f"  - [SAFETY GATE] Rollback requires explicit human authorization; auto-execution is strictly disabled.\n"
+                f"@clerk: All adversarial arguments have been fought to the limit. Convene the Human Release Judge!"
             )
             self.room.post_message(self.name, reply)
 
@@ -167,7 +187,9 @@ class RollbackEngineerAgent:
             if clerk:
                 unresolved = [o for o in clerk.current_case.objections if o.classification == ObjectionSeverity.BLOCKING]
                 clerk_msg = (
-                    f"Case ready for verdict. Unresolved blocking condition: {len(unresolved)} item(s) (pricing mismatch alert).\n"
-                    f"Awaiting binding verdict from Human Release Judge (@Priya): APPROVE, BLOCK, or CONDITIONS."
+                    f"[CROSS-EXAMINATION CONCLUDED] The combatants have exhausted their arguments.\n"
+                    f"UNRESOLVED BLOCKING DEFECTS: {len(unresolved)} item(s) (pricing mismatch alert missing).\n"
+                    f"Under exclusive approver law, AI agents are stripped of authority to approve. Only the Human Release Judge (@Priya / @judge) holds the gavel.\n"
+                    f"Awaiting binding judgment: APPROVE, BLOCK, or CONDITIONS."
                 )
                 self.room.post_message(clerk.name, clerk_msg)
