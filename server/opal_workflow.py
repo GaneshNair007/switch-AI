@@ -182,3 +182,4 @@ class GoogleOpalWorkflowBridge:
             "brief_published": bool(brief),
             "switch_room": f"#{self.room.room_name}",
         }
+

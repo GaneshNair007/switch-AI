@@ -27,3 +27,4 @@ def test_opal_workflow_execution():
     assert len(result["execution_steps"]) == 7
     assert result["brief_published"] is True
     assert result["switch_room"] == "#ship-court"
+
