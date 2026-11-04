@@ -1,6 +1,6 @@
 """Ship Court entry point, CLI runner, and HTTP API server."""
 import sys, argparse, json
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from .case_manager import CaseManager
 from .local_courtroom_simulation import setup_live_courtroom
 
@@ -83,12 +83,16 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
         # Suppress noisy standard HTTP logs
         return
 
+class ShipCourtServer(ThreadingHTTPServer):
+    request_queue_size = 512
+    daemon_threads = True
+
 def start_server(host="127.0.0.1", port=8080):
     room = setup_live_courtroom()
     mgr = CaseManager()
     ShipCourtHTTPHandler.room = room
     ShipCourtHTTPHandler.mgr = mgr
-    httpd = HTTPServer((host, port), ShipCourtHTTPHandler)
+    httpd = ShipCourtServer((host, port), ShipCourtHTTPHandler)
     print(f"[SERVER ONLINE] Ship Court HTTP API listening on http://{host}:{port}")
     try:
         httpd.serve_forever()
