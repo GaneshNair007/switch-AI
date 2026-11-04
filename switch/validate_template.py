@@ -57,3 +57,4 @@ def validate_template(template_path: Path) -> bool:
 if __name__ == "__main__":
     t_path = Path(__file__).parent / "ship-court.template.yaml"
     validate_template(t_path)
+

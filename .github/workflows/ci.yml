@@ -42,3 +42,4 @@ jobs:
       - name: Verify Clean-Room CLI Simulation
         run: |
           python -m server.main --demo
+

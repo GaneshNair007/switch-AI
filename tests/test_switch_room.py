@@ -62,3 +62,4 @@ def test_live_agent_broadcast_workflow():
     assert len(room.tasks) == 3
     assert len(room.decisions) == 1
     assert "Release Brief" in room.messages[-1].content
+

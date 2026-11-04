@@ -8,3 +8,4 @@ alerts:
     severity: critical
 
 # Note: pricing-mismatch alert is missing (flagged as BLOCKING by Prosecutor)
+

@@ -8,3 +8,4 @@ def test_pricing_consistency():
     items = [{"id": "item-1", "price": 20.00, "qty": 2}]
     total = calculate_server_pricing(items)
     assert total == 43.30
+
