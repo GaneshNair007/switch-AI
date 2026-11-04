@@ -35,7 +35,7 @@ def run_ten_cycles():
         if not ok1: break
 
         # 2. Pytest suite
-        ok2 = run_step("Full Pytest Suite (19 Tests)", f'python -m pytest -q tests/')
+        ok2 = run_step("Full Pytest Suite (21 Tests)", f'python -m pytest -q tests/')
         if not ok2: break
 
         # 3. Switch Native Courtroom Runner
