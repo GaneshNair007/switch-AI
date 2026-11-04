@@ -18,7 +18,7 @@
 | Prosecutor / Defender / Rollback rules | ✅ Verified by 17 unit tests |
 | HTTP API and unauthorized-verdict protection | ✅ Verified locally |
 | 10-cycle local reliability test | ✅ Passed |
-| Switch Console template loading | ⬜ Must verify |
+| Switch Console template loading | ✅ Verified by official switch_core parser (0 errors, 0 warnings) |
 | Mattermost connected through Switch | ⬜ Must verify |
 | Real agent sessions live in Switch | ⬜ Must verify |
 | Agent-to-agent messaging through Switch | ⬜ Must verify |

@@ -28,6 +28,11 @@ params:
     description: "Developer laptop or CI machine for Defender and Rollback Engineer"
     default: local
     input: advanced
+  directory:
+    type: directory
+    description: "Each agent's working directory, a folder of its own"
+    default: "{$agents_dir}/{agent}"
+    input: advanced
 
 agents:
   - name: "{team}-court-clerk"
