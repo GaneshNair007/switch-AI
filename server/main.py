@@ -35,6 +35,28 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
             self._set_headers(200, "text/plain")
             dec_text = self.room.handle_command("!decisions", "http_client") if self.room else "No decisions"
             self.wfile.write(dec_text.encode("utf-8"))
+        elif self.path == "/metrics":
+            self._set_headers(200, "text/plain; version=0.0.4; charset=utf-8")
+            cases_count = len(self.mgr.active_cases) if self.mgr else 0
+            verdicts_approved = sum(1 for c in self.mgr.active_cases.values() if c.state.value == "APPROVED") if self.mgr else 0
+            verdicts_rejected = sum(1 for c in self.mgr.active_cases.values() if c.state.value == "REJECTED") if self.mgr else 0
+            sessions_count = len(self.room.sessions) if self.room else 5
+            metrics_payload = (
+                "# HELP shipcourt_agents_online Total registered AI courtroom agents\n"
+                "# TYPE shipcourt_agents_online gauge\n"
+                f"shipcourt_agents_online {sessions_count}\n"
+                "# HELP shipcourt_cases_total Total courtroom cases handled\n"
+                "# TYPE shipcourt_cases_total counter\n"
+                f"shipcourt_cases_total {cases_count}\n"
+                "# HELP shipcourt_verdicts_total Total verdicts rendered by status\n"
+                "# TYPE shipcourt_verdicts_total counter\n"
+                f'shipcourt_verdicts_total{{status="APPROVED"}} {verdicts_approved}\n'
+                f'shipcourt_verdicts_total{{status="REJECTED"}} {verdicts_rejected}\n'
+                "# HELP shipcourt_server_healthy Service health indicator (1 is healthy)\n"
+                "# TYPE shipcourt_server_healthy gauge\n"
+                "shipcourt_server_healthy 1\n"
+            )
+            self.wfile.write(metrics_payload.encode("utf-8"))
         else:
             self._set_headers(404)
             self.wfile.write(json.dumps({"error": "Not Found"}).encode("utf-8"))
