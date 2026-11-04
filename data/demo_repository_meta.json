@@ -1,0 +1,33 @@
+{
+  "repository": "acme/shop",
+  "pr_number": 482,
+  "pr_url": "https://github.com/acme/shop/pull/482",
+  "title": "feat: dynamic checkout pricing with real-time tax estimation",
+  "author": "Priya",
+  "deployment_target": "staging -> production canary",
+  "affected_services": [
+    "checkout-service",
+    "cart-service",
+    "pricing-worker"
+  ],
+  "ci_status": {
+    "total": 42,
+    "passed": 42,
+    "failed": 0,
+    "state": "SUCCESS"
+  },
+  "changed_files": [
+    "services/checkout/pricing_engine.py",
+    "services/checkout/tests/pricing_consistency_test.py",
+    "services/cart/models.py",
+    "config/alerts.yaml"
+  ],
+  "diff_summary": "+214 lines, -32 lines in 4 files across pricing and cart validation",
+  "monitoring_alerts": [
+    "cart-latency-high",
+    "checkout-5xx-spike"
+  ],
+  "missing_alerts": [
+    "pricing-mismatch"
+  ]
+}

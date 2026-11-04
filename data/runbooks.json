@@ -1,0 +1,39 @@
+{
+  "checkout-service": {
+    "current_version": "v2.14.0",
+    "last_known_good_version": "v2.13.2",
+    "rollback_command_template": "./scripts/rollback.sh checkout-service {target_version}",
+    "health_checks": [
+      "checkout error rate < 1%",
+      "cart-service p95 latency < 400ms",
+      "pricing consistency job passes"
+    ],
+    "estimated_duration_seconds": 120,
+    "default_owner": "Priya",
+    "requires_downtime": false
+  },
+  "cart-service": {
+    "current_version": "v1.92.0",
+    "last_known_good_version": "v1.91.4",
+    "rollback_command_template": "./scripts/rollback.sh cart-service {target_version}",
+    "health_checks": [
+      "redis hit ratio > 92%",
+      "cart sync errors == 0"
+    ],
+    "estimated_duration_seconds": 90,
+    "default_owner": "DevOps",
+    "requires_downtime": false
+  },
+  "pricing-worker": {
+    "current_version": "v3.0.1",
+    "last_known_good_version": "v3.0.0",
+    "rollback_command_template": "./scripts/rollback.sh pricing-worker {target_version}",
+    "health_checks": [
+      "queue depth < 50",
+      "no deadlocks detected in postgres"
+    ],
+    "estimated_duration_seconds": 60,
+    "default_owner": "DataPlatform",
+    "requires_downtime": false
+  }
+}

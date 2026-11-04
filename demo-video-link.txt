@@ -1,0 +1,17 @@
+SHIP COURT - DEMO VIDEO & PRESENTATION
+========================================
+
+Demo Video Link:
+https://youtu.be/ship-court-demo (Update with final YouTube / Loom recording URL prior to hackathon deadline Nov 7, 11:59 PM IST)
+
+Demo Video Script & Timing (2:30 total):
+0:00 - 0:30 | Problem: AI reviews are shallow; teams ship without rollback plans or auditable decisions.
+             Promise: Ship Court produces a human-approved Release Brief with structured adversarial review.
+0:30 - 1:30 | Live Mattermost room: developer opens a case with PR #482; Clerk, Historian, Prosecutor,
+             Defender, and Rollback Engineer interact across distributed Switch sessions.
+1:30 - 2:00 | Human decision gate: Release Judge reviews unresolved blocking risk (missing alert) and
+             issues binding verdict: CONDITIONS.
+2:00 - 2:30 | Artifact verification: Signed Release Brief published, owner-assigned Switch tasks created,
+             executable rollback plan verified.
+2:30 - 3:00 | Switch Console dashboard inspection: live agent sessions, room rules, auditable decision records,
+             and proof that Switch is load-bearing.

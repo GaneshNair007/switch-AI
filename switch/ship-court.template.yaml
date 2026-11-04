@@ -1,0 +1,84 @@
+version: 1
+params:
+  team:
+    type: string
+    pattern: "[a-z][a-z0-9-]*"
+    description: "Unique team prefix to prevent naming collisions"
+  repository:
+    type: string
+    description: "GitHub repository in owner/repo format"
+  provider:
+    type: provider
+    default: [claude, codex, opencode]
+  bridge:
+    type: bridge
+    default: [$first]
+
+agents:
+  - name: "{team}-court-clerk"
+    addressing: anyone
+    location: "{host_server}"
+    instructions: |
+      You are the Court Clerk. Open cases, coordinate courtroom agents, enforce procedure,
+      record verdicts, and publish Release Briefs. Never issue a verdict yourself.
+  - name: "{team}-incident-historian"
+    addressing: owner-agents
+    location: "{host_server}"
+    connections:
+      - service: local_incident_memory
+        access: read
+    instructions: |
+      Search incident memory for relevant precedent.
+      Return incident ID, impact, root cause, rollback outcome, and lesson. If no relevant incident exists,
+      say so explicitly.
+  - name: "{team}-prosecutor"
+    addressing: owner-agents
+    location: "{host_server}"
+    instructions: |
+      Raise at most three evidence-based objections. Tag each as BLOCKING, WARNING, or NOTE.
+      Never make an objection without evidence or a concrete failure scenario.
+  - name: "{team}-defender"
+    addressing: owner-agents
+    location: "{local_machine}"
+    instructions: |
+      Answer every objection with evidence or explicitly concede. Provide mitigations, rollout controls,
+      monitoring, and ownership. Never invent test results or approvals.
+  - name: "{team}-rollback-engineer"
+    addressing: owner-agents
+    location: "{local_machine}"
+    auto_approve: false
+    connections:
+      - service: github
+        access: read
+        repos: ["{repository}"]
+    instructions: |
+      Produce a concrete rollback plan: target version, command, health checks, expected duration, and rollback owner.
+      Never execute a rollback without explicit human approval.
+
+room:
+  name: "{team}-ship-court"
+  bridge: "{bridge}"
+  agents:
+    - "{team}-court-clerk"
+    - "{team}-incident-historian"
+    - "{team}-prosecutor"
+    - "{team}-defender"
+    - "{team}-rollback-engineer"
+  users: ["{$creator}"]
+  aliases:
+    "{team}-court-clerk": clerk
+    "{team}-incident-historian": historian
+    "{team}-prosecutor": prosecutor
+    "{team}-defender": defender
+    "{team}-rollback-engineer": rollback
+  instructions: |
+    One release case at a time. Every objection must include evidence. Every objection must
+    receive a defense or explicit concession. No release proceeds without a rollback plan and rollback
+    owner. Only the exclusive approver may issue a verdict. When an action is rejected, provide a one-line
+    reason for the log.
+  roles:
+    - name: approver
+      exclusive: true
+      instructions: "Review evidence and issue APPROVE, BLOCK, or CONDITIONS."
+  kickoff: |
+    @clerk, @historian, @prosecutor, @defender, @rollback: State your role and the one thing you will never do without human approval.

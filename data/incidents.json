@@ -1,0 +1,35 @@
+[
+  {
+    "incident_id": "INC-017",
+    "date": "2026-08-19",
+    "service": "checkout-service",
+    "change_type": "pricing",
+    "symptom": "cart total mismatch",
+    "impact": "41 failed checkouts",
+    "root_cause": "client-side and server-side pricing divergence",
+    "rollback": "v1.88.4",
+    "lesson": "Require server-side pricing assertion and mismatch alert"
+  },
+  {
+    "incident_id": "INC-012",
+    "date": "2026-06-03",
+    "service": "cart-service",
+    "change_type": "caching",
+    "symptom": "stale items in active carts",
+    "impact": "18 user complaints, 3% checkout abandonment",
+    "root_cause": "Redis cache TTL was omitted on cart merge operations",
+    "rollback": "v1.84.1",
+    "lesson": "Enforce cache TTL and invalidation tests in CI"
+  },
+  {
+    "incident_id": "INC-009",
+    "date": "2026-03-14",
+    "service": "pricing-worker",
+    "change_type": "database-migration",
+    "symptom": "deadlock during discount code batching",
+    "impact": "Worker queue latency spiked to 45s",
+    "root_cause": "Unindexed foreign key on currency_exchange_rates table",
+    "rollback": "v1.79.0",
+    "lesson": "Run EXPLAIN query on all database migration steps prior to production rollouts"
+  }
+]

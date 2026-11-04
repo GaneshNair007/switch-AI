@@ -1,0 +1,27 @@
+name: ship-court
+bridge: mattermost
+agents:
+  - court-clerk
+  - incident-historian
+  - prosecutor
+  - defender
+  - rollback-engineer
+aliases:
+  court-clerk: clerk
+  incident-historian: historian
+  prosecutor: prosecutor
+  defender: defender
+  rollback-engineer: rollback
+instructions: |
+  One release case at a time.
+  Every objection must include evidence.
+  Every objection must receive a defense or explicit concession.
+  No release proceeds without a rollback plan and rollback owner.
+  Only the exclusive approver may issue a verdict.
+  When an action is rejected, provide a one-line reason for the log.
+roles:
+  - name: approver
+    exclusive: true
+    instructions: "Review evidence and issue APPROVE, BLOCK, or CONDITIONS."
+kickoff: |
+  @clerk, @historian, @prosecutor, @defender, @rollback: State your role and the one thing you will never do without human approval.
