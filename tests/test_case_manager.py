@@ -26,3 +26,4 @@ def test_prevent_non_human_verdict():
     mgr.run_procedural_pipeline("SC-0482")
     with pytest.raises(PermissionError, match="Security violation"):
         mgr.record_verdict("SC-0482", "@court-clerk verdict APPROVE", is_human=False)
+

@@ -4,23 +4,47 @@ params:
     type: string
     pattern: "[a-z][a-z0-9-]*"
     description: "Unique team prefix to prevent naming collisions"
+    default: "shipcourt"
   repository:
     type: string
     description: "GitHub repository in owner/repo format"
+    default: "acme/shop"
   provider:
     type: provider
+    description: "Which coding agent framework backs the agents"
     default: [claude, codex, opencode]
+    input: advanced
   bridge:
     type: bridge
+    description: "Where the room is mirrored (mattermost, slack, discord, teams)"
     default: [$first]
+  host_server:
+    type: location
+    description: "Server host machine for always-on Clerk, Historian, and Prosecutor"
+    default: local
+    input: advanced
+  local_machine:
+    type: location
+    description: "Developer laptop or CI machine for Defender and Rollback Engineer"
+    default: local
+    input: advanced
 
 agents:
   - name: "{team}-court-clerk"
     addressing: anyone
     location: "{host_server}"
     instructions: |
-      You are the Court Clerk. Open cases, coordinate courtroom agents, enforce procedure,
-      record verdicts, and publish Release Briefs. Never issue a verdict yourself.
+      You are the Court Clerk for Ship Court. On "@court-clerk open case <PR>":
+      1. Extract repository, PR number, changed files, affected services, CI status, and deployment target.
+      2. Create a case ID in the form SC-XXXX.
+      3. Ask the Incident Historian for relevant precedent.
+      4. Ask the Prosecutor for at most three evidence-based objections.
+      5. Ask the Defender to answer every objection.
+      6. Ask the Rollback Engineer for a rollback plan.
+      7. Classify each objection as BLOCKING, WARNING, or NOTE.
+      8. Never approve, reject, deploy, or roll back a release yourself.
+      9. Only a human holding the exclusive approver role may issue a verdict.
+
   - name: "{team}-incident-historian"
     addressing: owner-agents
     location: "{host_server}"
@@ -30,19 +54,25 @@ agents:
     instructions: |
       Search incident memory for relevant precedent.
       Return incident ID, impact, root cause, rollback outcome, and lesson. If no relevant incident exists,
-      say so explicitly.
+      say so explicitly. Never fabricate incidents.
+
   - name: "{team}-prosecutor"
     addressing: owner-agents
     location: "{host_server}"
     instructions: |
       Raise at most three evidence-based objections. Tag each as BLOCKING, WARNING, or NOTE.
       Never make an objection without evidence or a concrete failure scenario.
+      Do not accept "tests passed" alone as sufficient evidence for checkout, payment, auth, database, or infra changes.
+      If the Defender cannot answer an objection, escalate it as BLOCKING.
+
   - name: "{team}-defender"
     addressing: owner-agents
     location: "{local_machine}"
     instructions: |
       Answer every objection with evidence or explicitly concede. Provide mitigations, rollout controls,
-      monitoring, and ownership. Never invent test results or approvals.
+      monitoring, and ownership. Must answer objections in the exact order raised.
+      Must say "CONCEDED" when it cannot provide a credible mitigation. Never invent test results or approvals.
+
   - name: "{team}-rollback-engineer"
     addressing: owner-agents
     location: "{local_machine}"
@@ -53,6 +83,7 @@ agents:
         repos: ["{repository}"]
     instructions: |
       Produce a concrete rollback plan: target version, command, health checks, expected duration, and rollback owner.
+      Flag missing rollback capability, absent owner, or untested procedure as BLOCKING.
       Never execute a rollback without explicit human approval.
 
 room:

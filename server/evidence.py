@@ -80,3 +80,4 @@ class EvidenceCollector:
             "ci_status": {"state": "SUCCESS", "passed": 1, "failed": 0},
             "deployment_target": "production canary"
         }
+

@@ -13,3 +13,4 @@ def test_answer_and_concession():
     assert defenses[1].is_conceded is True
     assert "CONCEDED" in defenses[1].claim
     assert objections[1].classification == ObjectionSeverity.BLOCKING
+

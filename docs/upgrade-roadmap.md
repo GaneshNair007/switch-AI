@@ -14,3 +14,4 @@
 - **The Devil’s Advocate Board:** Mandatory multi-agent opposition for executive product and compliance decisions.
 - **The Anti-Feature Committee:** Agents argue for deleting or simplifying bloat before code is written.
 - **Personal Board of Directors:** Personal goal and financial allocation governance.
+

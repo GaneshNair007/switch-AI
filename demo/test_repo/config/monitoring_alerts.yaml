@@ -1,0 +1,10 @@
+# Production Alert Configurations
+alerts:
+  - name: cart-latency-high
+    threshold_ms: 400
+    severity: warning
+  - name: checkout-5xx-spike
+    threshold_rate: 0.01
+    severity: critical
+
+# Note: pricing-mismatch alert is missing (flagged as BLOCKING by Prosecutor)

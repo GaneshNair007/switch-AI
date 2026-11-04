@@ -1,0 +1,44 @@
+name: Ship Court CI & Switch Validation
+
+on:
+  push:
+    branches: [ main, courtroom-ship-court ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-and-test:
+    name: Switch Template Validation & Multi-Agent Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Validate Switch Console Template Schema
+        run: |
+          python switch/validate_template.py
+
+      - name: Run Pytest Suite
+        run: |
+          pytest -v tests/
+
+      - name: Run Live Switch Room Multi-Agent Runner
+        run: |
+          python -m server.live_room_runner
+
+      - name: Verify Clean-Room CLI Simulation
+        run: |
+          python -m server.main --demo

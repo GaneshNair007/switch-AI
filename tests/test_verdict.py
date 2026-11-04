@@ -34,3 +34,4 @@ def test_parse_conditions_and_create_tasks():
     brief = ReleaseBriefGenerator.generate_markdown(case)
     assert "SHIP WITH CONDITIONS" in brief
     assert "SC-0482" in brief
+

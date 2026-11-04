@@ -23,3 +23,4 @@ def test_generate_objections_capped_at_three():
     objections = ProsecutorRuleEngine.generate_objections(meta, precedents)
     assert len(objections) <= 3
     assert any(o.classification == ObjectionSeverity.BLOCKING for o in objections)
+

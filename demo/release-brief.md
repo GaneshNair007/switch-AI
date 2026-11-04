@@ -30,3 +30,4 @@ Decision: SHIP WITH CONDITIONS
 - **Verdict:** SHIP WITH CONDITIONS
 - **Switch room:** #ship-court
 - **Case ID:** SC-0482
+

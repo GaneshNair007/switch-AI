@@ -98,3 +98,4 @@ class Case:
     tasks: List[Task] = field(default_factory=list)
     release_brief: str = ""
     round_count: int = 0
+

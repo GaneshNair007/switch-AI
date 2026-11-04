@@ -20,3 +20,4 @@
 - Run tests: `pytest -v tests/`
 - Run local server: `python server/main.py`
 - Run interactive CLI demo: `python server/main.py --demo`
+

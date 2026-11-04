@@ -63,3 +63,4 @@ class VerdictParser:
                 tasks.append(Task(id=f"TASK-{cond.id}", description=cond.description, owner=cond.owner))
         case.tasks = tasks
         return case, tasks
+
