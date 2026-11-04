@@ -42,3 +42,4 @@ class ChatBridgeConnector:
                 return resp.status == 200
         except Exception:
             return False
+

@@ -21,3 +21,4 @@ def test_parse_mattermost_webhook():
     assert msg_id is not None
     assert len(room.messages) == 1
     assert room.messages[0].sender == "priya"
+
