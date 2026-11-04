@@ -30,3 +30,4 @@
 - **No destructive autonomy:** Rollbacks require human authorization.
 - **Scoped credentials:** Zero production secrets committed.
 - **Anti-hallucination:** Agents must cite real evidence or concede.
+

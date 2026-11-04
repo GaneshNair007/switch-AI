@@ -15,3 +15,4 @@ Demo Video Script & Timing (2:30 total):
              executable rollback plan verified.
 2:30 - 3:00 | Switch Console dashboard inspection: live agent sessions, room rules, auditable decision records,
              and proof that Switch is load-bearing.
+

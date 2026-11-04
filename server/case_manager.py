@@ -14,6 +14,8 @@ class CaseManager:
     def __init__(self, data_dir=None):
         self.evidence_collector = EvidenceCollector(data_dir=data_dir)
         self.rollback_engine = RollbackEngine(data_dir=data_dir)
+        self.prosecutor_rules = ProsecutorRuleEngine
+        self.defender_rules = DefenderRuleEngine
         self.active_cases: Dict[str, Case] = {}
 
     def open_case(self, pr_url: str, custom_case_id: Optional[str] = None) -> Case:
@@ -94,3 +96,4 @@ class CaseManager:
         case.release_brief = ReleaseBriefGenerator.generate_markdown(case)
         case.state = CaseState.CASE_CLOSED
         return case.release_brief
+

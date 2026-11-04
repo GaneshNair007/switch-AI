@@ -12,3 +12,4 @@ instructions: |
   7. Classify each objection as BLOCKING, WARNING, or NOTE.
   8. Never approve, reject, deploy, or roll back a release yourself.
   9. Only a human holding the exclusive approver role may issue a verdict.
+

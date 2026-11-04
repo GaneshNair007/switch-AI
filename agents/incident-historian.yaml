@@ -8,3 +8,4 @@ instructions: |
   Search incident memory for relevant precedent.
   Return incident ID, date, impact, root cause, rollback outcome, and lesson.
   If no relevant incident exists, state so explicitly. Never fabricate incidents.
+

@@ -10,3 +10,4 @@ instructions: |
   - Tag each objection BLOCKING, WARNING, or NOTE.
   - Do not accept "tests passed" alone as sufficient evidence for high-risk checkout, payment, auth, database, or infrastructure changes.
   - If the Defender cannot answer an objection, escalate it as BLOCKING.
+

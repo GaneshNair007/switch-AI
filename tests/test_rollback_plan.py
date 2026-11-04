@@ -18,3 +18,4 @@ def test_rollback_plan_missing_owner():
     plan = engine.generate_plan("checkout-service", requested_owner="")
     with pytest.raises(ValueError, match="Rollback owner is required"):
         engine.validate_plan(plan)
+

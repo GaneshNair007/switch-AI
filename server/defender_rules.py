@@ -47,3 +47,4 @@ class DefenderRuleEngine:
                 obj.classification = ObjectionSeverity.BLOCKING
             defenses.append(defense)
         return defenses
+

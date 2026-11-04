@@ -63,3 +63,4 @@ In `#ship-court`:
 3. Human Judge reviews findings and issues binding verdict:
    `@court-clerk verdict CONDITIONS canary 5%; add checkout mismatch alert; Priya owns rollback`
 4. Clerk generates the signed Release Brief artifact and assigns tasks in Switch.
+

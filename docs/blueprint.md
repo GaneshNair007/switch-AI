@@ -433,3 +433,4 @@ room:
 - **Silent Court mode:** Agents speak only when they have evidence, reducing generic AI chatter.
 - **Canary simulator:** Simulates blast radius and failure probability for staged rollouts.
 - **Post-deploy recall:** Reopens a case if production alerts match a prior objection.
+

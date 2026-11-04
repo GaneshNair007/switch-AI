@@ -51,3 +51,4 @@ Switch distinguishes an agent identity from an active session. Ship Court takes 
 - **Addressing Scopes:** Clerk responds to `anyone`; specialist agents listen to `owner-agents`.
 - **Exclusive Roles:** `approver` can only be held by verified humans.
 - **Tasks & Decisions:** Switch stores structured conditions and verdicts.
+

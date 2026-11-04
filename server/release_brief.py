@@ -14,7 +14,7 @@ class ReleaseBriefGenerator:
 
         judge_name = case.verdict.judge if case.verdict else "Unassigned"
         lines = [
-            f"# Release Brief — {case.case_id}",
+            f"# Release Brief - {case.case_id}",
             f"Change: Dynamic checkout pricing",
             f"Repository: {case.repository}",
             f"PR: #{case.pr_url.rstrip('/').split('/')[-1]}",
@@ -41,7 +41,7 @@ class ReleaseBriefGenerator:
             lines.append(f"- Command: {rb.command}")
             lines.append(f"- Health checks: {checks}")
             lines.append(f"- Rollback owner: {rb.rollback_owner}")
-            lines.append(f"- Execution status: {rb.execution_status.value} — requires explicit human approval")
+            lines.append(f"- Execution status: {rb.execution_status.value} -- requires explicit human approval")
         else:
             lines.append("- No rollback plan registered.")
 
@@ -49,7 +49,7 @@ class ReleaseBriefGenerator:
             lines.append("")
             lines.append("## Conditions before full rollout")
             for task in case.tasks:
-                lines.append(f"- [ ] {task.description} — {task.owner}")
+                lines.append(f"- [ ] {task.description} -- {task.owner}")
 
         lines.append("")
         lines.append("## Decision record")
@@ -95,3 +95,4 @@ class ReleaseBriefGenerator:
                 for t in case.tasks
             ]
         }
+
