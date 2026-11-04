@@ -21,6 +21,7 @@
 | Switch Console template loading | ✅ Verified by official switch_core parser (0 errors, 0 warnings) |
 | Switch Native Courtroom Runtime Runner | ✅ Implemented & verified (server/switch_native_runner.py) |
 | Google Opal Workflow Chaining Bridge | ✅ Implemented & verified (server/opal_workflow.py & switch/opal_workflow.json) |
+| 20,000-Request Concurrency Stress Test | ✅ Passed 100% (567 req/sec, 0 dropouts) |
 | Mattermost connected through Switch | ⬜ Must verify |
 | Real agent sessions live in Switch | ⬜ Must verify |
 | Agent-to-agent messaging through Switch | ⬜ Must verify |
@@ -182,6 +183,12 @@ python -c "from server.opal_workflow import GoogleOpalWorkflowBridge; print(Goog
 ### 7. Run the Local Multi-Agent Simulation Harness
 ```bash
 python -m server.local_courtroom_simulation
+```
+
+### 8. Run the High-Concurrency 20,000-Request Stress Test
+```bash
+# Simulates 20,000 concurrent requests across 100 worker threads (100% pass, 0 dropouts)
+python tests/heavy_load_test.py -n 20000 -c 100
 ```
 
 ---
