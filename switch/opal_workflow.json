@@ -1,0 +1,81 @@
+{
+  "schema_version": "opal.google.labs/v1",
+  "workflow": {
+    "id": "opal-ship-court-gate",
+    "name": "Ship Court Adversarial Release Gate",
+    "engine": "Google Opal + Switch AI",
+    "room": "#ship-court",
+    "nodes": [
+      {
+        "node_id": "node_1_intake",
+        "name": "PR & Telemetry Intake",
+        "step_type": "tool",
+        "agent_alias": "@clerk",
+        "model": "gemini-2.0-flash",
+        "inputs": ["pr_url", "repository"],
+        "outputs": ["case_docket", "affected_services"],
+        "requires_human_approval": false
+      },
+      {
+        "node_id": "node_2_precedent",
+        "name": "Forensic Incident Precedent Subpoena",
+        "step_type": "prompt",
+        "agent_alias": "@historian",
+        "model": "gemini-2.0-flash",
+        "inputs": ["affected_services"],
+        "outputs": ["historical_precedents", "failure_lessons"],
+        "requires_human_approval": false
+      },
+      {
+        "node_id": "node_3_prosecution",
+        "name": "Adversarial Prosecution Indictment",
+        "step_type": "prompt",
+        "agent_alias": "@prosecutor",
+        "model": "gemini-2.0-flash",
+        "inputs": ["case_docket", "historical_precedents"],
+        "outputs": ["classified_objections"],
+        "requires_human_approval": false
+      },
+      {
+        "node_id": "node_4_defense",
+        "name": "Technical Defense & Concession Engine",
+        "step_type": "prompt",
+        "agent_alias": "@defender",
+        "model": "gemini-2.0-flash",
+        "inputs": ["classified_objections"],
+        "outputs": ["mitigations", "explicit_concessions"],
+        "requires_human_approval": false
+      },
+      {
+        "node_id": "node_5_rollback",
+        "name": "SRE Operational Reversibility Audit",
+        "step_type": "tool",
+        "agent_alias": "@rollback",
+        "model": "gemini-2.0-flash",
+        "inputs": ["affected_services", "mitigations"],
+        "outputs": ["audited_rollback_plan"],
+        "requires_human_approval": false
+      },
+      {
+        "node_id": "node_6_human_gate",
+        "name": "Human Release Judge Binding Gate",
+        "step_type": "human_gate",
+        "agent_alias": "@judge",
+        "model": "human-decision",
+        "inputs": ["classified_objections", "mitigations", "audited_rollback_plan"],
+        "outputs": ["verdict", "binding_conditions"],
+        "requires_human_approval": true
+      },
+      {
+        "node_id": "node_7_brief",
+        "name": "Signed Release Brief Publication",
+        "step_type": "output",
+        "agent_alias": "@clerk",
+        "model": "gemini-2.0-flash",
+        "inputs": ["verdict", "binding_conditions"],
+        "outputs": ["signed_release_brief", "switch_tasks"],
+        "requires_human_approval": false
+      }
+    ]
+  }
+}

@@ -15,11 +15,12 @@
 | Capability | Status |
 |---|---|
 | Courtroom domain model and bounded workflow | ✅ Verified locally |
-| Prosecutor / Defender / Rollback rules | ✅ Verified by 19 unit tests |
+| Prosecutor / Defender / Rollback rules | ✅ Verified by 21 unit tests |
 | HTTP API and unauthorized-verdict protection | ✅ Verified locally |
 | 10-cycle local reliability test | ✅ Passed (10/10 cycles) |
 | Switch Console template loading | ✅ Verified by official switch_core parser (0 errors, 0 warnings) |
 | Switch Native Courtroom Runtime Runner | ✅ Implemented & verified (server/switch_native_runner.py) |
+| Google Opal Workflow Chaining Bridge | ✅ Implemented & verified (server/opal_workflow.py & switch/opal_workflow.json) |
 | Mattermost connected through Switch | ⬜ Must verify |
 | Real agent sessions live in Switch | ⬜ Must verify |
 | Agent-to-agent messaging through Switch | ⬜ Must verify |
@@ -156,7 +157,7 @@ pip install -r requirements.txt
 python switch/validate_template.py
 ```
 
-### 3. Run Test Suite (19 Unit & HTTP API Tests)
+### 3. Run Test Suite (21 Unit & HTTP API Tests)
 ```bash
 python -m pytest -v tests/
 ```
@@ -172,7 +173,13 @@ python tests/stress_and_health_check.py
 python -m server.switch_native_runner
 ```
 
-### 6. Run the Local Multi-Agent Simulation Harness
+### 6. Run the Google Opal Workflow Bridge
+```bash
+# Executes chained multi-step workflow with Opal graph semantics over Switch room
+python -c "from server.opal_workflow import GoogleOpalWorkflowBridge; print(GoogleOpalWorkflowBridge().execute_workflow())"
+```
+
+### 7. Run the Local Multi-Agent Simulation Harness
 ```bash
 python -m server.local_courtroom_simulation
 ```
