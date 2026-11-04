@@ -6,23 +6,27 @@
 [![Hackathon](https://img.shields.io/badge/WeMakeDevs%20x%20DevTools%20Academy-Flip%20the%20Switch-blueviolet)](https://www.wemakedevs.org/hackathons/switch/rules)
 [![Track](https://img.shields.io/badge/Track-01%20Best%20Business%20Workflow-green)](https://www.wemakedevs.org/hackathons/switch/rules)
 [![CI Status](https://github.com/GaneshNair007/switch-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/GaneshNair007/switch-AI/actions)
-[![Release](https://img.shields.io/badge/Status-v0.9.0--simulation-yellow)](https://github.com/GaneshNair007/switch-AI/releases/tag/v0.9.0-simulation)
+[![Release](https://img.shields.io/badge/Release-v0.9.0--local--simulation-yellow)](https://github.com/GaneshNair007/switch-AI/releases/tag/v0.9.0-local-simulation)
 
 ---
 
-## 🚦 Current Integration Status
+## 🚦 Verification Status
 
-- [x] **Courtroom domain model, bounded workflow, and Release Brief generation**
-- [x] **Local multi-agent simulation for deterministic testing & CI (`server/local_courtroom_simulation.py`)**
-- [x] **Switch template declarative structure & schema pre-checks (`switch/ship-court.template.yaml`)**
-- [x] **Comprehensive test suite (17 unit & API tests passing)**
-- [ ] **Switch Console template loaded and verified in live Switch Console**
-- [ ] **Live Mattermost room connected through Switch bridge**
-- [ ] **Two or more external agent sessions live in Switch**
-- [ ] **Human verdict enforced through Switch exclusive role**
+| Capability | Status |
+|---|---|
+| Courtroom domain model and bounded workflow | ✅ Verified locally |
+| Prosecutor / Defender / Rollback rules | ✅ Verified by 17 unit tests |
+| HTTP API and unauthorized-verdict protection | ✅ Verified locally |
+| 10-cycle local reliability test | ✅ Passed |
+| Switch Console template loading | ⬜ Must verify |
+| Mattermost connected through Switch | ⬜ Must verify |
+| Real agent sessions live in Switch | ⬜ Must verify |
+| Agent-to-agent messaging through Switch | ⬜ Must verify |
+| Human verdict enforced by Switch | ⬜ Must verify |
+| Switch-native tasks and decisions | ⬜ Must verify |
 
-> ⚠️ **Scientifically Honest Disclaimer:**  
-> The embedded local simulation (`server/local_courtroom_simulation.py`) validates courtroom state machines, adversarial rounds, and human gates without requiring external API keys, Docker, or an active Switch session. It is a development and CI testing harness — **not a substitute for the live Switch Console demonstration**.
+> ⚠️ **Development & Simulation Notice:**  
+> The local simulation (`server/local_courtroom_simulation.py`) validates courtroom logic without requiring API keys, Docker, or a Switch session. It is a development and CI harness — **not a substitute for the live Switch demonstration**.
 
 ---
 
@@ -40,9 +44,9 @@ Traditional AI code reviews are passive and shallow ("Looks good to me!"). Catas
 
 ---
 
-## 🎬 Courtroom Interaction Sequence
+## 🎬 Target Live Interaction Sequence
 
-Here is the exact courtroom sequence executed across agents:
+The courtroom sequence designed for the Switch room:
 
 ```
 Developer:              @court-clerk open case https://github.com/acme/shop/pull/482
@@ -91,11 +95,11 @@ Court Clerk:            Verdict recorded: CONDITIONS.
 
 ## ⚖️ Why Switch Is Load-Bearing (Remove-Switch Test)
 
-If Switch is removed, **Ship Court collapses**:
+If Switch is removed, the architecture fails to meet Track 01 requirements:
 1. **Durable Room State:** `#ship-court` hosts the case timeline, agent identities, and evidence logs.
 2. **Multi-Agent Session Routing:** Coordinates 5 distinct agents running across distributed machine boundaries (Server vs. Developer Laptop vs. Ops Host).
-3. **Exclusive Approver Role:** Cryptographically guarantees that only a verified human holding the `approver` role can issue verdicts. Agent attempts to self-approve are strictly rejected.
-4. **Integrated Task & Decision Storage:** Natively turns conditional verdicts into assigned, trackable Switch tasks without external Jira/Linear glue.
+3. **Exclusive Approver Role:** Guarantees that only a verified human holding the `approver` role can issue verdicts. Agent attempts to self-approve are strictly rejected.
+4. **Integrated Task & Decision Storage:** Natively turns conditional verdicts into assigned, trackable Switch tasks.
 
 ---
 
@@ -137,7 +141,7 @@ If Switch is removed, **Ship Court collapses**:
 
 ---
 
-## 🚀 Quickstart & Clean-Room Verification
+## 🚀 Local Verification & Reproducibility
 
 ### 1. Clone & Install
 ```bash
@@ -146,7 +150,7 @@ cd switch-AI
 pip install -r requirements.txt
 ```
 
-### 2. Validate Switch Template Schema (Structural Pre-Checks)
+### 2. Validate Switch Template (Structural Pre-Checks)
 ```bash
 python switch/validate_template.py
 ```
@@ -156,25 +160,15 @@ python switch/validate_template.py
 python -m pytest -v tests/
 ```
 
-### 4. Run the 10-Cycle Continuous Integrity Verifier
+### 4. Run the 10-Cycle Continuous Local Stress Verifier
 ```bash
 python tests/stress_and_health_check.py
 ```
 
-### 5. Run the Local Courtroom Simulation Harness
+### 5. Run the Local Multi-Agent Simulation Harness
 ```bash
 python -m server.local_courtroom_simulation
 ```
-
-### 6. Run the Built-In HTTP REST / Webhook Server
-```bash
-python -m server.main --serve --port 8080
-```
-Endpoints:
-- `GET http://127.0.0.1:8080/health`
-- `GET http://127.0.0.1:8080/status`
-- `POST http://127.0.0.1:8080/api/case/open`
-- `POST http://127.0.0.1:8080/api/case/verdict`
 
 ---
 
