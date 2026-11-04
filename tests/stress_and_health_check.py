@@ -37,8 +37,8 @@ def run_ten_cycles():
         ok2 = run_step("Full Pytest Suite (17 Tests)", f'python -m pytest -q "{root_dir / "tests"}"')
         if not ok2: break
 
-        # 3. Live Switch Room Workflow
-        ok3 = run_step("Live Switch Room Multi-Agent Runner", f"python -m server.live_room_runner")
+        # 3. Local Multi-Agent Simulation
+        ok3 = run_step("Local Courtroom Simulation Runner", f"python -m server.local_courtroom_simulation")
         if not ok3: break
 
         # 4. CLI Simulation

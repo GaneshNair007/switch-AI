@@ -1,5 +1,6 @@
-"""Switch Template Schema Validator.
-Validates that switch/ship-court.template.yaml conforms to the Switch Console schema.
+"""Switch Template Schema Pre-Check Validator.
+Validates that switch/ship-court.template.yaml structurally conforms to expected Switch Console parameters.
+Note: Structural pre-checks certify schema syntax; live loading into Switch Console is verified separately.
 """
 from __future__ import annotations
 import re, sys
@@ -51,10 +52,9 @@ def validate_template(template_path: Path) -> bool:
     # 6. Kickoff check
     assert "kickoff" in room, "Room must define kickoff message"
 
-    print("Template validation successful: switch/ship-court.template.yaml conforms 100% to Switch Console schema.")
+    print("Template validation successful: switch/ship-court.template.yaml passes this project's structural pre-checks; actual Switch Console loading is verified separately.")
     return True
 
 if __name__ == "__main__":
     t_path = Path(__file__).parent / "ship-court.template.yaml"
     validate_template(t_path)
-

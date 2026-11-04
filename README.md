@@ -6,7 +6,23 @@
 [![Hackathon](https://img.shields.io/badge/WeMakeDevs%20x%20DevTools%20Academy-Flip%20the%20Switch-blueviolet)](https://www.wemakedevs.org/hackathons/switch/rules)
 [![Track](https://img.shields.io/badge/Track-01%20Best%20Business%20Workflow-green)](https://www.wemakedevs.org/hackathons/switch/rules)
 [![CI Status](https://github.com/GaneshNair007/switch-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/GaneshNair007/switch-AI/actions)
-[![Release](https://img.shields.io/badge/Release-v1.0.0-orange)](https://github.com/GaneshNair007/switch-AI/releases/tag/v1.0.0)
+[![Release](https://img.shields.io/badge/Status-v0.9.0--simulation-yellow)](https://github.com/GaneshNair007/switch-AI/releases/tag/v0.9.0-simulation)
+
+---
+
+## 🚦 Current Integration Status
+
+- [x] **Courtroom domain model, bounded workflow, and Release Brief generation**
+- [x] **Local multi-agent simulation for deterministic testing & CI (`server/local_courtroom_simulation.py`)**
+- [x] **Switch template declarative structure & schema pre-checks (`switch/ship-court.template.yaml`)**
+- [x] **Comprehensive test suite (17 unit & API tests passing)**
+- [ ] **Switch Console template loaded and verified in live Switch Console**
+- [ ] **Live Mattermost room connected through Switch bridge**
+- [ ] **Two or more external agent sessions live in Switch**
+- [ ] **Human verdict enforced through Switch exclusive role**
+
+> ⚠️ **Scientifically Honest Disclaimer:**  
+> The embedded local simulation (`server/local_courtroom_simulation.py`) validates courtroom state machines, adversarial rounds, and human gates without requiring external API keys, Docker, or an active Switch session. It is a development and CI testing harness — **not a substitute for the live Switch Console demonstration**.
 
 ---
 
@@ -24,9 +40,9 @@ Traditional AI code reviews are passive and shallow ("Looks good to me!"). Catas
 
 ---
 
-## 🎬 Live Courtroom Interaction Sequence
+## 🎬 Courtroom Interaction Sequence
 
-Judges can watch this exact sequence run live across distributed agent sessions in `#ship-court`:
+Here is the exact courtroom sequence executed across agents:
 
 ```
 Developer:              @court-clerk open case https://github.com/acme/shop/pull/482
@@ -75,11 +91,11 @@ Court Clerk:            Verdict recorded: CONDITIONS.
 
 ## ⚖️ Why Switch Is Load-Bearing (Remove-Switch Test)
 
-If Switch is replaced with a standard webhook or single chatbot, **Ship Court collapses**:
+If Switch is removed, **Ship Court collapses**:
 1. **Durable Room State:** `#ship-court` hosts the case timeline, agent identities, and evidence logs.
 2. **Multi-Agent Session Routing:** Coordinates 5 distinct agents running across distributed machine boundaries (Server vs. Developer Laptop vs. Ops Host).
 3. **Exclusive Approver Role:** Cryptographically guarantees that only a verified human holding the `approver` role can issue verdicts. Agent attempts to self-approve are strictly rejected.
-4. **Integrated Task & Decision Storage:** Natively turns conditional verdicts into assigned, trackable Switch tasks without external Jira/linear glue.
+4. **Integrated Task & Decision Storage:** Natively turns conditional verdicts into assigned, trackable Switch tasks without external Jira/Linear glue.
 
 ---
 
@@ -121,48 +137,44 @@ If Switch is replaced with a standard webhook or single chatbot, **Ship Court co
 
 ---
 
-## 🚀 Quickstart & Clean-Room Reproduction
+## 🚀 Quickstart & Clean-Room Verification
 
-### 1. Clone & Validate
+### 1. Clone & Install
 ```bash
 git clone https://github.com/GaneshNair007/switch-AI.git
 cd switch-AI
 pip install -r requirements.txt
 ```
 
-### 2. Run Test Suite (14 Tests)
+### 2. Validate Switch Template Schema (Structural Pre-Checks)
+```bash
+python switch/validate_template.py
+```
+
+### 3. Run Test Suite (17 Unit & HTTP API Tests)
 ```bash
 python -m pytest -v tests/
 ```
 
-### 3. Run the Live Switch Room Multi-Agent Workflow
-Run the real-time Switch room simulation demonstrating session registry, live messaging bus, the human security gate, and task creation:
+### 4. Run the 10-Cycle Continuous Integrity Verifier
 ```bash
-python -m server.live_room_runner
+python tests/stress_and_health_check.py
 ```
 
-### 4. Administrative Switch Room Inspection Commands
-In `#ship-court`, you can execute native Switch management commands:
-- `!agents-status` — Shows green/live status, session IDs, host locations, and providers.
-- `!roles` — Verifies the exclusive human `approver` role.
-- `!list-aliases` — Displays courtroom aliases (`@clerk`, `@historian`, `@prosecutor`, `@defender`, `@rollback`).
-- `!tasks` — Lists open tasks created by the release verdict.
-- `!decisions` — Inspects the auditable case verdict records.
-
-### 5. Deploy with Switch Console
-Apply the declarative template into Switch Console:
+### 5. Run the Local Courtroom Simulation Harness
 ```bash
-switch template apply switch/ship-court.template.yaml \
-  --param team=shipcourt \
-  --param repository=acme/shop \
-  --param provider=claude \
-  --param bridge=mattermost
+python -m server.local_courtroom_simulation
 ```
 
-Validate the template locally at any time:
+### 6. Run the Built-In HTTP REST / Webhook Server
 ```bash
-python switch/validate_template.py
+python -m server.main --serve --port 8080
 ```
+Endpoints:
+- `GET http://127.0.0.1:8080/health`
+- `GET http://127.0.0.1:8080/status`
+- `POST http://127.0.0.1:8080/api/case/open`
+- `POST http://127.0.0.1:8080/api/case/verdict`
 
 ---
 

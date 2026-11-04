@@ -4,7 +4,7 @@ from http.server import HTTPServer
 import pytest
 from server.main import ShipCourtHTTPHandler
 from server.case_manager import CaseManager
-from server.live_room_runner import setup_live_courtroom
+from server.local_courtroom_simulation import setup_live_courtroom
 
 PORT = 8999
 BASE_URL = f"http://127.0.0.1:{PORT}"

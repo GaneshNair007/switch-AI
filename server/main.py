@@ -2,7 +2,7 @@
 import sys, argparse, json
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from .case_manager import CaseManager
-from .live_room_runner import setup_live_courtroom
+from .local_courtroom_simulation import setup_live_courtroom
 
 class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
     room = None

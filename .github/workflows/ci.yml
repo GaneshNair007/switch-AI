@@ -9,7 +9,7 @@ on:
 
 jobs:
   validate-and-test:
-    name: Switch Template Validation & Multi-Agent Tests
+    name: Switch Template Pre-Checks & Multi-Agent Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -27,19 +27,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Validate Switch Console Template Schema
+      - name: Validate Switch Console Template Schema Pre-Checks
         run: |
           python switch/validate_template.py
 
       - name: Run Pytest Suite
         run: |
-          pytest -v tests/
+          python -m pytest -v tests/
 
-      - name: Run Live Switch Room Multi-Agent Runner
+      - name: Run Local Courtroom Multi-Agent Simulation
         run: |
-          python -m server.live_room_runner
+          python -m server.local_courtroom_simulation
 
-      - name: Verify Clean-Room CLI Simulation
+      - name: Verify Clean-Room CLI Demo
         run: |
           python -m server.main --demo
-

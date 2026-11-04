@@ -1,6 +1,7 @@
-"""Live Switch Room Runner & Interactive Courtroom Harness.
-Runs the live multi-agent workflow inside the Switch Room (#ship-court),
-demonstrating live session messaging, command inspection, and the human verdict gate.
+"""Local Courtroom Multi-Agent Simulation Harness.
+This harness simulates the Switch room event loop and multi-agent coordination locally.
+NOTE: The local simulation validates courtroom logic without requiring external API keys, Docker,
+or a Switch session. It is a development and CI harness -- not a substitute for the live Switch demonstration.
 """
 from __future__ import annotations
 import sys, time
@@ -15,7 +16,7 @@ def setup_live_courtroom(room_name: str = "ship-court") -> SwitchRoom:
     room = SwitchRoom(room_name=room_name, bridge="mattermost")
     mgr = CaseManager()
 
-    # 1. Register distributed agent sessions
+    # 1. Register agent sessions locally in room bus
     room.register_session("court-clerk", "clerk", "host_server", "claude")
     room.register_session("incident-historian", "historian", "host_server", "claude")
     room.register_session("prosecutor", "prosecutor", "host_server", "claude")
@@ -40,7 +41,8 @@ def setup_live_courtroom(room_name: str = "ship-court") -> SwitchRoom:
 
 def run_live_demonstration():
     print("=" * 78)
-    print("[INIT] STARTING LIVE SWITCH COURTROOM: #ship-court")
+    print("[SIMULATION] RUNNING LOCAL MULTI-AGENT COURTROOM SIMULATION: #ship-court")
+    print("  (Validates state machine, adversarial rounds, and human gate offline)")
     print("=" * 78 + "\n")
 
     room = setup_live_courtroom()
@@ -118,7 +120,7 @@ def run_live_demonstration():
     print("[Command] !decisions:")
     print(room.handle_command("!decisions", "developer"))
     print("\n" + "=" * 78)
-    print("[SUCCESS] LIVE DEMONSTRATION COMPLETE - ALL SWITCH INVARIANTS VERIFIED")
+    print("[SUCCESS] LOCAL SIMULATION COMPLETE - ALL INVARIANTS VERIFIED")
     print("=" * 78)
 
 if __name__ == "__main__":
