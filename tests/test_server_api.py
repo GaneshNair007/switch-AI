@@ -78,3 +78,14 @@ def test_case_open_and_verdict_api():
         verdict_res = json.loads(resp.read().decode())
         assert "Release Brief" in verdict_res["release_brief"]
 
+
+def test_metrics_endpoint():
+    req = urllib.request.Request(f"{BASE_URL}/metrics")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        assert "text/plain" in resp.headers.get("Content-Type", "")
+        body = resp.read().decode()
+        assert "shipcourt_agents_online" in body
+        assert "shipcourt_cases_total" in body
+        assert "shipcourt_verdicts_total" in body
+        assert "shipcourt_server_healthy 1" in body
