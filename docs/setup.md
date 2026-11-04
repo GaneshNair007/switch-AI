@@ -1,66 +1,50 @@
-# Ship Court Setup & Clean-Room Reproduction Guide
+# Ship Court Setup & Switch Integration Guide
 
-This guide details how to reproduce and run Ship Court locally using Switch Console, Docker, Mattermost, and Python.
+This guide details how to reproduce, test, and run Ship Court with the SandboxAQ Switch platform.
 
 ## 1. Prerequisites
-- Docker & Docker Compose
-- Python 3.10+
-- Git
-- Switch Console CLI installed
+- Python 3.12+
+- Git & GitHub CLI (`gh`)
+- Switch Console (Installed at `AppData\Local\Programs\Switch Console Canary\Switch Console Canary.exe`)
+- `switch-agent-controller` (Pre-configured on system PATH)
 
 ## 2. Environment Configuration
-Create your `.env` file from the provided example:
+Create your `.env` file from the provided template:
 ```bash
 cp .env.example .env
 ```
-Populate any optional API keys (`FIRECRAWL_API_KEY`, `GITHUB_TOKEN`, `ANTHROPIC_API_KEY`, `SWITCH_API_KEY`). If omitted, Ship Court seamlessly falls back to reproducible seeded mock data in `data/`.
+Populate any optional API keys (`FIRECRAWL_API_KEY`, `GITHUB_TOKEN`, `ANTHROPIC_API_KEY`, `SWITCH_API_KEY`). If omitted, Ship Court seamlessly falls back to reproducible seeded mock data in `data/` and `demo/test_repo/`.
 
-## 3. Starting Mattermost Local Bridge (Docker)
+## 3. Switch Template Verification
+Ship Court's template conforms to the official SandboxAQ Switch schema:
 ```bash
-docker run -d --name shipcourt-mattermost \
-  -p 8065:8065 \
-  mattermost/mattermost-team-edition:latest
+python switch/validate_template.py
+# Verified with official switch_core.template_lint: 0 errors, 0 warnings.
 ```
 
-## 4. Loading the Declarative Template into Switch Console
-Load the parameter-driven template:
+## 4. Agent Controller Enrollment & Runner
+Check the local machine readiness using the Switch sidecar controller:
 ```bash
-switch template apply switch/ship-court.template.yaml \
-  --param team=shipcourt \
-  --param repository=acme/shop \
-  --param provider=claude \
-  --param bridge=mattermost
+switch-agent-controller doctor
 ```
 
-Verify the agents and aliases:
+Enroll your machine with a one-time code generated from the Switch Console **Machines** page:
 ```bash
-!agents-status
-!list-agents
-!list-aliases
-!roles
+switch-agent-controller enroll --server <SWITCH_SERVER_URL> --code <ENROLLMENT_CODE>
+switch-agent-controller run
 ```
 
-## 5. Running the Ship Court Backend
-Install python dependencies:
+## 5. Running the Test Suite (18 Tests)
 ```bash
-pip install -r requirements.txt
+python -m pytest -v tests/
 ```
 
-Run unit tests:
+## 6. Running the Local Courtroom Simulation
 ```bash
-pytest -v tests/
+python -m server.local_courtroom_simulation
 ```
 
-Launch the courtroom runner:
+## 7. Starting the HTTP API & Webhook Server
 ```bash
-python server/main.py --demo
+python -m server.main --serve --port 8080
 ```
-
-## 6. Live Interactive Chat Workflow
-In `#ship-court`:
-1. Developer: `@court-clerk open case https://github.com/acme/shop/pull/482`
-2. Clerk orchestrates Historian, Prosecutor, Defender, and Rollback Engineer.
-3. Human Judge reviews findings and issues binding verdict:
-   `@court-clerk verdict CONDITIONS canary 5%; add checkout mismatch alert; Priya owns rollback`
-4. Clerk generates the signed Release Brief artifact and assigns tasks in Switch.
-
