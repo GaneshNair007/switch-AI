@@ -6,6 +6,7 @@ on:
     tags: [ 'v*' ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   validate-and-test:
@@ -42,3 +43,81 @@ jobs:
       - name: Verify Clean-Room CLI Demo
         run: |
           python -m server.main --demo
+
+  validate-provider-api-keys:
+    name: Validate Configured AI Provider API Keys
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+    steps:
+      - name: Check provider credentials without exposing values
+        run: |
+          python - <<'PY'
+          import os
+          import sys
+          from urllib.error import HTTPError, URLError
+          from urllib.request import Request, urlopen
+
+          providers = [
+              (
+                  "Anthropic",
+                  "ANTHROPIC_API_KEY",
+                  "https://api.anthropic.com/v1/models?limit=1",
+                  lambda key: {
+                      "x-api-key": key,
+                      "anthropic-version": "2023-06-01",
+                  },
+              ),
+              (
+                  "OpenAI",
+                  "OPENAI_API_KEY",
+                  "https://api.openai.com/v1/models",
+                  lambda key: {"Authorization": f"Bearer {key}"},
+              ),
+              (
+                  "Gemini",
+                  "GEMINI_API_KEY",
+                  "https://generativelanguage.googleapis.com/v1beta/models",
+                  lambda key: {"x-goog-api-key": key},
+              ),
+          ]
+
+          checked = 0
+          failed = 0
+
+          for label, env_name, endpoint, make_headers in providers:
+              key = os.environ.get(env_name, "").strip()
+              if not key:
+                  print(f"{label}: SKIP — GitHub Actions secret {env_name} is not configured")
+                  continue
+
+              checked += 1
+              request = Request(endpoint, headers=make_headers(key), method="GET")
+              try:
+                  with urlopen(request, timeout=25) as response:
+                      if 200 <= response.status < 300:
+                          print(f"{label}: PASS — provider accepted the credential (HTTP {response.status})")
+                      else:
+                          print(f"{label}: FAIL — provider returned HTTP {response.status}")
+                          failed += 1
+              except HTTPError as exc:
+                  print(f"{label}: FAIL — provider rejected the credential or request (HTTP {exc.code})")
+                  failed += 1
+              except (URLError, TimeoutError):
+                  print(f"{label}: ERROR — network or timeout while contacting provider")
+                  failed += 1
+              except Exception:
+                  print(f"{label}: ERROR — unexpected validation failure (details suppressed)")
+                  failed += 1
+
+          if checked == 0:
+              print("No provider secrets are configured; credential checks were skipped.")
+          elif failed:
+              print(f"Credential validation failed for {failed} of {checked} configured provider(s).")
+              sys.exit(1)
+          else:
+              print(f"Credential validation passed for all {checked} configured provider(s).")
+          PY
