@@ -14,17 +14,18 @@
 
 | Capability | Status |
 |---|---|
-| Courtroom domain model and bounded workflow | ✅ Verified locally |
-| Prosecutor / Defender / Rollback rules | ✅ Verified by tests |
-| Human verdict parser and role enforcement | ✅ Verified locally |
-| Switch Console installed | ✅ Verified |
-| Template passes official Switch `lint_template()` | ✅ Verified |
-| Template plans successfully through `plan_template()` | ✅ Verified |
-| Mattermost connected through Switch | ⬜ Must verify |
-| Live agent sessions in Switch | ⬜ Must verify |
-| Agent-to-agent messaging through Switch | ⬜ Must verify |
-| Human verdict enforced through Switch | ⬜ Must verify |
-| Switch-native tasks and decisions | ⬜ Must verify |
+| Groq provider credential | ✅ Verified with HTTP 200 |
+| Switch template lint | ✅ Verified by official switch_core linter |
+| Switch template planning | ✅ Verified by official switch_core planner |
+| Ship Court local backend | ✅ Running on localhost:8080 |
+| Ship Court local simulation | ✅ Passing |
+| Docker Desktop | ⬜ Requires interactive installation |
+| Switch Console live runtime | ⬜ Not verified |
+| Mattermost connected through Switch | ⬜ Not verified |
+| Live agent sessions | ⬜ Not verified |
+| Live message round-trip | ⬜ Not verified |
+| Switch-native task/decision | ⬜ Not verified |
+| Live Ship Court demonstration | ⬜ Not recorded |
 
 > ⚠️ **Development & Simulation Notice:**  
 > The local simulation (`server/local_courtroom_simulation.py`) validates courtroom logic without requiring API keys, Docker, or a Switch session. It is a development and CI harness — **not a substitute for the live Switch demonstration**.
