@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Antigravity PreToolUse Hook Entrypoint for Scope Guard
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Discover available python3
+if [ -x "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3" ]; then
+  PYTHON_BIN="/Library/Frameworks/Python.framework/Versions/3.13/bin/python3"
+elif [ -x "/usr/bin/python3" ]; then
+  PYTHON_BIN="/usr/bin/python3"
+elif command -v python3 >/dev/null 2>&1; then
+  PYTHON_BIN="$(command -v python3)"
+else
+  PYTHON_BIN="python"
+fi
+
+PYTHONPATH="$SCRIPT_DIR:$PYTHONPATH" exec "$PYTHON_BIN" -m scope_guard.antigravity.hook_handler "$@"
