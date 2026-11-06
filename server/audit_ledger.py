@@ -99,3 +99,4 @@ class AuditLedger:
             "is_valid": self.verify_integrity(),
             "events": [e.to_dict() for e in self.chain]
         }
+

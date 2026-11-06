@@ -35,3 +35,34 @@ def test_parse_conditions_and_create_tasks():
     assert "SHIP WITH CONDITIONS" in brief
     assert "SC-0482" in brief
 
+def test_natural_command_variations():
+    # 1. Direct approve without @court-clerk
+    v1 = VerdictParser.parse_command("@clerk approve", judge_name="Priya")
+    assert v1.type == VerdictType.APPROVE
+
+    v2 = VerdictParser.parse_command("APPROVE", judge_name="Priya")
+    assert v2.type == VerdictType.APPROVE
+
+    v3 = VerdictParser.parse_command("@court-clerk: ship", judge_name="Priya")
+    assert v3.type == VerdictType.APPROVE
+
+    # 2. Block variations
+    v4 = VerdictParser.parse_command("@court-clerk block because no rollback owner", judge_name="Priya")
+    assert v4.type == VerdictType.BLOCK
+    assert "no rollback owner" in v4.reason.lower()
+
+    v5 = VerdictParser.parse_command("@clerk block: unmonitored pricing drift", judge_name="Priya")
+    assert v5.type == VerdictType.BLOCK
+    assert "pricing drift" in v5.reason.lower()
+
+    # 3. Conditions variations
+    v6 = VerdictParser.parse_command(
+        "@clerk conditions: add pricing-mismatch alert; canary 5%; Priya owns rollback",
+        judge_name="Priya"
+    )
+    assert v6.type == VerdictType.CONDITIONS
+    assert len(v6.conditions) == 3
+    assert any("alert" in c.description.lower() for c in v6.conditions)
+    assert any(c.owner == "DevOps" for c in v6.conditions)
+    assert any("canary" in c.description.lower() for c in v6.conditions)
+

@@ -4,9 +4,10 @@ Enforces fierce adversarial cross-examination, evidence-backed debate, and exclu
 """
 from __future__ import annotations
 from typing import Dict, Any, Optional
+import re
 from .switch_room import SwitchRoom, RoomMessage
 from .case_manager import CaseManager
-from .models import Case, ObjectionSeverity, RollbackStatus
+from .models import Case, CaseState, ObjectionSeverity, RollbackStatus
 from .verdict import VerdictParser
 from .release_brief import ReleaseBriefGenerator
 
@@ -18,7 +19,25 @@ class CourtClerkAgent:
         self.name = "court-clerk"
         self.current_case: Optional[Case] = None
 
+
+    def _is_verdict_command(self, content: str) -> bool:
+        clean = content.strip().lower()
+        if any(clean.startswith(p) for p in [
+            "@court-clerk verdict", "@clerk verdict", "!verdict", "verdict",
+            "@court-clerk approve", "@clerk approve", "@court-clerk block", "@clerk block",
+            "@court-clerk condition", "@clerk condition", "@court-clerk ship", "@clerk ship"
+        ]):
+            return True
+        if ("@court-clerk" in clean or "@clerk" in clean) and any(kw in clean for kw in ["verdict", "approve", "block", "condition", "reject"]):
+            return True
+        if self.current_case and self.current_case.state == CaseState.AWAITING_VERDICT:
+            if any(clean.startswith(kw) for kw in ["approve", "block", "conditions", "condition", "ship", "reject"]):
+                return True
+        return False
+
     def on_message(self, msg: RoomMessage):
+        if msg.sender == self.name:
+            return
         content = msg.content.strip()
 
         # Handle case intake: @court-clerk open case <PR_URL>
@@ -37,25 +56,36 @@ class CourtClerkAgent:
             )
             self.room.post_message(self.name, reply)
 
-        # Handle verdict command: @court-clerk verdict ...
-        elif "@court-clerk verdict" in content or "@clerk verdict" in content:
+        # Handle verdict commands (flexible grammar & natural variations)
+        elif self._is_verdict_command(content):
             if not self.current_case:
-                self.room.post_message(self.name, "No active case to issue a verdict on.")
+                self.room.post_message(self.name, "[NOTICE] No active courtroom case docketed. Open a case first using '@court-clerk open case <PR_URL>'.")
+                return
+
+            if self.current_case.state in (CaseState.CASE_CLOSED, CaseState.APPROVED, CaseState.BLOCKED, CaseState.CONDITIONAL):
+                verdict_val = self.current_case.verdict.type.value if self.current_case.verdict else "CLOSED"
+                self.room.post_message(self.name, f"[NOTICE] Case {self.current_case.case_id} is already concluded with verdict '{verdict_val}'. Open a new case to proceed.")
                 return
 
             # Security gate: exclusive approver check
             if not self.room.enforce_human_verdict_gate(msg.sender):
+                approver = self.room.exclusive_roles.get("approver", "Priya")
                 self.room.post_message(
                     self.name,
-                    f"[SECURITY VIOLATION] Verdict rejected. Sender '{msg.sender}' does NOT hold the exclusive approver role."
+                    f"[SECURITY VIOLATION] Verdict rejected. Sender '{msg.sender}' does NOT hold the exclusive approver role (@{approver}). Under Switch room governance, AI agents and unauthorized users cannot approve releases."
                 )
                 return
 
+            # Immediate acknowledgment
+            self.room.post_message(self.name, f"⚖️ Verdict received from {msg.sender}. Recording decision in Switch...")
+
             try:
-                verdict = VerdictParser.parse_command(content, judge_name=msg.sender)
+                judge_name = msg.sender.lstrip("@").strip()
+                verdict = VerdictParser.parse_command(content, judge_name=judge_name)
                 VerdictParser.apply_verdict(self.current_case, verdict)
                 self.room.record_decision(self.current_case.case_id, verdict)
                 self.room.tasks.extend(self.current_case.tasks)
+                self.current_case.state = CaseState.CASE_CLOSED
 
                 brief = ReleaseBriefGenerator.generate_markdown(self.current_case, room_name=f"#{self.room.room_name}")
                 self.current_case.release_brief = brief
@@ -63,7 +93,7 @@ class CourtClerkAgent:
                 task_summary = "\n".join([f"{i}. {t.description} -- owner: {t.owner}" for i, t in enumerate(self.current_case.tasks, 1)])
                 verdict_announcement = (
                     f"FINAL COURT JUDGMENT RENDERED: {verdict.type.value}.\n"
-                    f"Binding operational tasks created in Switch:\n{task_summary}\n\n"
+                    f"Binding operational tasks created in Switch:\n{task_summary if task_summary else '  (None required)'}\n\n"
                     f"Signed Release Brief published:\n\n{brief}"
                 )
                 self.room.post_message(self.name, verdict_announcement)
@@ -184,12 +214,20 @@ class RollbackEngineerAgent:
             self.room.post_message(self.name, reply)
 
             # Trigger Clerk's final verdict invitation
-            if clerk:
+            if clerk and clerk.current_case:
+                clerk.current_case.state = CaseState.AWAITING_VERDICT
                 unresolved = [o for o in clerk.current_case.objections if o.classification == ObjectionSeverity.BLOCKING]
+                rb_owner = clerk.current_case.rollback_plan.rollback_owner if clerk.current_case.rollback_plan else "Priya"
+                approver = self.room.exclusive_roles.get("approver", "Priya")
                 clerk_msg = (
-                    f"[CROSS-EXAMINATION CONCLUDED] The combatants have exhausted their arguments.\n"
-                    f"UNRESOLVED BLOCKING DEFECTS: {len(unresolved)} item(s) (pricing mismatch alert missing).\n"
-                    f"Under exclusive approver law, AI agents are stripped of authority to approve. Only the Human Release Judge (@Priya / @judge) holds the gavel.\n"
-                    f"Awaiting binding judgment: APPROVE, BLOCK, or CONDITIONS."
+                    f"⚖️ CASE {clerk.current_case.case_id} IS AWAITING HUMAN VERDICT\n\n"
+                    f"Unresolved risks:\n"
+                    f"  - BLOCKING: {len(unresolved)} item(s) (missing pricing-mismatch alert)\n"
+                    f"  - Rollback owner: {rb_owner}\n\n"
+                    f"Release Judge (@{approver}), reply with exactly one:\n"
+                    f"  @court-clerk verdict APPROVE\n"
+                    f"  @court-clerk verdict BLOCK reason=\"<reason>\"\n"
+                    f"  @court-clerk verdict CONDITIONS <condition 1>; <condition 2>; rollback owner <name>\n\n"
+                    f"(Flexible shortcuts also accepted: '@clerk approve', '@clerk block because <reason>', '@clerk conditions: <c1>; <c2>')"
                 )
                 self.room.post_message(clerk.name, clerk_msg)

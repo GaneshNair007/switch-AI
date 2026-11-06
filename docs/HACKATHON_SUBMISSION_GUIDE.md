@@ -134,3 +134,4 @@ When running `python -m server.main --server`:
 - **Zero Autonomous Deploys:** System strictly rejects non-human verdicts (`PermissionError: Only human approvers can issue binding verdicts`).
 - **Cryptographic Audit Ledger:** Every event is hashed with SHA-256 and chained to previous blocks (`server/audit_ledger.py`).
 - **Active Canary Sentinel:** Background monitor halts rollout if p99 latency exceeds 250ms or data drift is detected (`server/rollback_sentinel.py`).
+

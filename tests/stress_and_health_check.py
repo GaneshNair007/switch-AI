@@ -8,7 +8,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 
 def run_step(description, cmd):
     t0 = time.time()
-    res = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=str(ROOT_DIR))
+    res = subprocess.run(cmd, shell=True, capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=str(ROOT_DIR))
     dt = time.time() - t0
     if res.returncode != 0:
         print(f"  FAILED: {description} (took {dt:.2f}s)")

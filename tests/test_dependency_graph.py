@@ -47,3 +47,4 @@ def test_render_ascii_tree():
     assert "checkout-service" in tree
     assert "payment-gateway" in tree
     assert "├──" in tree or "└──" in tree
+

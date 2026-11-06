@@ -62,3 +62,4 @@ def test_export_audit_manifest():
     assert manifest["is_valid"] is True
     assert len(manifest["events"]) == 3
     assert manifest["final_seal_hash"] == ledger.latest_entry.hash
+

@@ -74,3 +74,4 @@ class RollbackSentinel:
             "healthy_evaluations": total - trips,
             "sentinel_status": "ACTIVE_WATCH"
         }
+

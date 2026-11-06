@@ -63,3 +63,46 @@ def test_live_agent_broadcast_workflow():
     assert len(room.decisions) == 1
     assert "Release Brief" in room.messages[-1].content
 
+def test_gate_with_handles_and_aliases():
+    room = SwitchRoom("test-court")
+    assert room.enforce_human_verdict_gate("@Priya") is True
+    assert room.enforce_human_verdict_gate("priya") is True
+    assert room.enforce_human_verdict_gate("Priya Nair") is True
+    assert room.enforce_human_verdict_gate("judge") is True
+    assert room.enforce_human_verdict_gate("human-judge") is True
+    assert room.enforce_human_verdict_gate("@clerk") is False
+    assert room.enforce_human_verdict_gate("@rollback") is False
+    assert room.enforce_human_verdict_gate("bot-service") is False
+
+def test_natural_verdict_in_room_workflow():
+    room = SwitchRoom("test-court")
+    mgr = CaseManager()
+    clerk = CourtClerkAgent(room, mgr)
+    historian = IncidentHistorianAgent(room, mgr)
+    prosecutor = ProsecutorAgent(room, mgr)
+    defender = DefenderAgent(room, mgr)
+    rollback = RollbackEngineerAgent(room, mgr)
+
+    room.subscribe(clerk.on_message)
+    room.subscribe(historian.on_message)
+    room.subscribe(prosecutor.on_message)
+    room.subscribe(defender.on_message)
+    room.subscribe(rollback.on_message)
+
+    # Open case
+    room.post_message("Developer", "@clerk open case https://github.com/acme/shop/pull/482")
+    assert clerk.current_case is not None
+
+    # Check that Clerk invitation is in room
+    invitation = [m.content for m in room.messages if "AWAITING HUMAN VERDICT" in m.content]
+    assert len(invitation) > 0
+
+    # Human sends flexible natural verdict command with @handle
+    room.post_message("@Priya", "@clerk conditions: add pricing-mismatch alert; canary 5%; Priya owns rollback")
+
+    # Verify verdict acknowledged and recorded
+    assert clerk.current_case.verdict is not None
+    assert clerk.current_case.verdict.type == VerdictType.CONDITIONS
+    assert len(room.decisions) == 1
+    assert any("Verdict received from @Priya" in m.content for m in room.messages)
+
