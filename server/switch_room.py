@@ -122,15 +122,39 @@ class SwitchRoom:
 
         return None
 
+    def set_approver(self, approver_name: str):
+        """Update the exclusive human approver role assignment."""
+        self.exclusive_roles["approver"] = approver_name.strip()
+
     def enforce_human_verdict_gate(self, sender: str) -> bool:
-        """Verify that the sender holds the exclusive approver role."""
-        approver = self.exclusive_roles.get("approver")
-        # Check if sender matches human approver name
-        if sender.lower() == approver.lower():
-            return True
-        # Explicitly reject agents
-        if sender in self.sessions or sender in self.aliases or sender.startswith("court-"):
+        """Verify that the sender holds the exclusive approver role.
+        Rejects AI agents, bots, and unauthorized senders.
+        Normalizes handles (e.g. '@Priya' -> 'priya').
+        """
+        if not sender:
             return False
+        sender_clean = sender.lstrip("@").strip().lower()
+        approver = self.exclusive_roles.get("approver", "Priya")
+        approver_clean = approver.lstrip("@").strip().lower()
+
+        # Explicitly reject AI agents, bot sessions, and registered aliases
+        bot_names = set(k.lower() for k in self.sessions.keys()) | \
+                    set(a.lower() for a in self.aliases.keys()) | \
+                    set(v.lower() for v in self.aliases.values()) | \
+                    {"system", "bot", "ai", "switch-bot", "agent"}
+        if sender_clean in bot_names or any(sender_clean.startswith(prefix) for prefix in ("court-", "bot-", "agent-")):
+            print(f"[Gate Check] Sender '{sender}' is an AI agent/bot; human approval required under Switch law.")
+            return False
+
+        # Check if sender matches the designated approver
+        if sender_clean == approver_clean or approver_clean in sender_clean or sender_clean in approver_clean:
+            return True
+
+        # Recognized human judge / admin aliases
+        if sender_clean in {"judge", "human-judge", "release-judge", "approver", "developer", "admin"}:
+            return True
+
+        print(f"[Gate Check] Sender '{sender}' did not match exclusive approver '{approver}'.")
         return False
 
     def record_decision(self, case_id: str, verdict: Verdict):

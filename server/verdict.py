@@ -8,44 +8,79 @@ class VerdictParser:
     @staticmethod
     def parse_command(command_str: str, judge_name: str = "Priya") -> Verdict:
         """Parse human judge command grammar into structured Verdict."""
-        # Clean prefix
-        cmd = re.sub(r"^@?court-clerk\s+verdict\s+", "", command_str.strip(), flags=re.IGNORECASE).strip()
+        # Clean prefix: handle @court-clerk, @clerk, @judge, court-clerk, clerk, and optional 'verdict'
+        cmd = command_str.strip()
+        cmd = re.sub(r"^@?(court-clerk|clerk|judge|release-judge)\s*[:,-]?\s*", "", cmd, flags=re.IGNORECASE).strip()
+        cmd = re.sub(r"^verdict\s*[:,-]?\s*", "", cmd, flags=re.IGNORECASE).strip()
         if not cmd:
-            raise ValueError("Invalid verdict command: empty command text.")
+            raise ValueError(
+                "Invalid verdict command: empty command text.\n"
+                "Allowed formats:\n"
+                "  @court-clerk verdict APPROVE\n"
+                "  @court-clerk verdict BLOCK reason=\"<reason>\"\n"
+                "  @court-clerk verdict CONDITIONS <c1>; <c2>; rollback owner <name>"
+            )
 
-        parts = cmd.split(maxsplit=1)
-        raw_type = parts[0].upper()
-        remainder = parts[1].strip() if len(parts) > 1 else ""
-
-        if raw_type == "APPROVE":
+        # Check for natural commands
+        # 1. APPROVE variants: APPROVE, APPROVED, SHIP, YES
+        if re.match(r"^(APPROVE|APPROVED|SHIP|YES)\b", cmd, re.IGNORECASE):
             return Verdict(judge=judge_name, type=VerdictType.APPROVE)
-        elif raw_type == "BLOCK":
+
+        # 2. BLOCK variants: BLOCK, BLOCKED, REJECT, REJECTED, NO
+        elif re.match(r"^(BLOCK|BLOCKED|REJECT|REJECTED|NO)\b", cmd, re.IGNORECASE):
+            remainder = re.sub(r"^(BLOCK|BLOCKED|REJECT|REJECTED|NO)\s*[:,-]?\s*", "", cmd, flags=re.IGNORECASE).strip()
             reason = None
             if remainder:
-                m = re.search(r'reason=["\']?([^"\']+)["\']?', remainder, re.IGNORECASE)
-                reason = m.group(1) if m else remainder
+                m = re.search(r'(?:reason\s*=\s*["\']?([^"\']+)["\']?|because\s+(.+)|reason\s*:\s*(.+))', remainder, re.IGNORECASE)
+                if m:
+                    reason = m.group(1) or m.group(2) or m.group(3)
+                else:
+                    reason = remainder
             return Verdict(judge=judge_name, type=VerdictType.BLOCK, reason=reason or "Blocked by Release Judge")
-        elif raw_type in ("CONDITIONS", "CONDITION"):
+
+        # 3. CONDITIONS variants: CONDITIONS, CONDITION, CONDITIONAL, SHIP WITH CONDITIONS
+        elif re.match(r"^(CONDITIONS?|CONDITIONAL|SHIP\s+WITH\s+CONDITIONS?)\b", cmd, re.IGNORECASE):
+            remainder = re.sub(r"^(CONDITIONS?|CONDITIONAL|SHIP\s+WITH\s+CONDITIONS?)\s*[:,-]?\s*", "", cmd, flags=re.IGNORECASE).strip()
             conditions: List[Condition] = []
-            clauses = [c.strip() for c in remainder.split(";") if c.strip()]
+            
+            # Split clauses by semicolon, newline, or ' and '
+            raw_clauses = re.split(r"[;\n]|(?<=\S)\s+and\s+(?=\S)", remainder)
+            clauses = [c.strip() for c in raw_clauses if c.strip()]
+            
+            # Fallback if only commas were used with multiple clauses
+            if len(clauses) == 1 and "," in clauses[0] and ("alert" in clauses[0].lower() or "canary" in clauses[0].lower()):
+                clauses = [c.strip() for c in clauses[0].split(",") if c.strip()]
+
             for idx, clause in enumerate(clauses, start=1):
                 owner = judge_name
                 desc = clause
-                if "owns" in clause.lower():
+                clause_lower = clause.lower()
+                if "owns" in clause_lower or "rollback owner" in clause_lower:
                     m = re.search(r'^(.*?)\s+owns\s+(.*)$', clause, re.IGNORECASE)
                     if m:
                         owner = m.group(1).strip()
                         desc = f"Confirm rollback owner and rehearse rollback ({m.group(2).strip()})"
-                elif "alert" in clause.lower():
+                    else:
+                        m2 = re.search(r'rollback\s+owner\s*[:=]?\s*([a-zA-Z0-9_-]+)', clause, re.IGNORECASE)
+                        if m2:
+                            owner = m2.group(1).strip()
+                            desc = f"Confirm rollback owner and rehearse rollback"
+                elif "alert" in clause_lower:
                     owner = "DevOps"
-                elif "canary" in clause.lower():
+                elif "canary" in clause_lower:
                     owner = judge_name
                     desc = f"Configure {clause.strip()} rollout"
 
                 conditions.append(Condition(id=f"COND-{idx}", description=desc, owner=owner))
             return Verdict(judge=judge_name, type=VerdictType.CONDITIONS, conditions=conditions)
         else:
-            raise ValueError(f"Unknown verdict type '{raw_type}'. Must be APPROVE, BLOCK, or CONDITIONS.")
+            raise ValueError(
+                f"Unknown verdict command '{command_str}'. Must be APPROVE, BLOCK, or CONDITIONS.\n"
+                "Examples:\n"
+                "  @court-clerk verdict APPROVE\n"
+                "  @court-clerk verdict BLOCK reason=\"No rollback owner\"\n"
+                "  @court-clerk verdict CONDITIONS add pricing-mismatch alert; canary 5%; Priya owns rollback"
+            )
 
     @staticmethod
     def apply_verdict(case: Case, verdict: Verdict) -> Tuple[Case, List[Task]]:

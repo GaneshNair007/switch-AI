@@ -59,3 +59,4 @@ def test_sentinel_summary_aggregation():
     assert summary["rollback_trips"] == 2
     assert summary["healthy_evaluations"] == 1
     assert summary["sentinel_status"] == "ACTIVE_WATCH"
+

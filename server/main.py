@@ -1,5 +1,10 @@
 """Ship Court entry point, CLI runner, and HTTP API server."""
 import sys, argparse, json
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from .case_manager import CaseManager
 from .local_courtroom_simulation import setup_live_courtroom

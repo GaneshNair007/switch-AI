@@ -139,3 +139,4 @@ class DependencyGraph:
             dep_is_last = (i == len(deps) - 1)
             line += self.render_ascii_tree(dep, prefix=sub_prefix, is_last=dep_is_last, visited=visited.copy())
         return line
+

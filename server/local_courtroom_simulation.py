@@ -5,6 +5,11 @@ or a Switch session. It is a development and CI harness -- not a substitute for 
 """
 from __future__ import annotations
 import sys, time
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 from .switch_room import SwitchRoom
 from .case_manager import CaseManager
 from .agent_runners import (
