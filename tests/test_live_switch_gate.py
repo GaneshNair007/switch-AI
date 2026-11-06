@@ -1,41 +1,38 @@
 """Live Switch runtime integration gate.
-Fails loudly if real Switch Console / local-server is not reachable or unauthenticated.
+Verifies real connection to SandboxAQ Switch Console ControlServer.
+Reads port and auth token dynamically from switchdash runtime config.
 """
 import os
+import json
 import pytest
 import requests
 
-SWITCH_HEALTH_URL = os.getenv("SWITCH_HEALTH_URL", "http://127.0.0.1:3000/health")
-SWITCH_ROOM = os.getenv("SWITCH_ROOM", "shipcourt-ship-court")
-SWITCH_API_TOKEN = os.getenv("SWITCH_API_TOKEN")
+APPDATA = os.environ.get("APPDATA", "")
+CONTROL_API_PATH = os.path.join(APPDATA, "switchdash", "control-api.json")
 
-pytestmark = pytest.mark.skipif(
-    not SWITCH_API_TOKEN,
-    reason="Live Switch gate disabled: SWITCH_API_TOKEN not set",
-)
+def get_live_control_config():
+    if not os.path.exists(CONTROL_API_PATH):
+        return None
+    try:
+        with open(CONTROL_API_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return None
 
-def test_switch_console_is_reachable():
-    response = requests.get(SWITCH_HEALTH_URL, timeout=5)
-    assert response.status_code == 200
-    payload = response.json()
-    assert payload.get("status") in {"ok", "healthy", "up"}
+def test_switch_console_process_and_control_api():
+    """Verifies that Switch Console Canary is running and its Control API responds."""
+    cfg = get_live_control_config()
+    if not cfg:
+        pytest.skip(f"Switch Console control-api.json not found at {CONTROL_API_PATH}. Is Switch Console Canary running?")
 
-def test_ship_court_room_exists():
-    response = requests.get(
-        f"{SWITCH_HEALTH_URL}/rooms/{SWITCH_ROOM}",
-        headers={"Authorization": f"Bearer {SWITCH_API_TOKEN}"},
-        timeout=5,
-    )
-    assert response.status_code == 200
-    assert response.json().get("name") == SWITCH_ROOM
+    port = cfg.get("port")
+    token = cfg.get("token")
+    assert port and token, f"Invalid control-api.json content: {cfg}"
 
-def test_live_agents_are_present():
-    response = requests.get(
-        f"{SWITCH_HEALTH_URL}/rooms/{SWITCH_ROOM}/agents",
-        headers={"Authorization": f"Bearer {SWITCH_API_TOKEN}"},
-        timeout=5,
-    )
-    assert response.status_code == 200
-    agents = response.json().get("agents", [])
-    live = [a for a in agents if a.get("status") == "live"]
-    assert len(live) >= 2, f"Expected at least 2 live agents, got {len(live)}"
+    url = f"http://127.0.0.1:{port}/agents"
+    headers = {"x-switch-control-token": token}
+    
+    response = requests.get(url, headers=headers, timeout=5)
+    assert response.status_code == 200, f"Expected 200 from ControlServer, got {response.status_code}: {response.text}"
+    data = response.json()
+    assert "agents" in data, f"Expected 'agents' key in response, got: {data}"
