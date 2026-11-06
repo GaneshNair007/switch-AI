@@ -320,9 +320,28 @@ def run_interactive_courtroom(initial_task=None):
         print(f"  Task {i}: {t.description} (Owner: {t.owner})")
     print("\n[COURT ADJOURNED] Verdict recorded into immutable Switch state.")
 
+def run_courtroom(mode: str):
+    import os
+    if mode == "live":
+        if not os.getenv("SWITCH_API_TOKEN"):
+            raise RuntimeError(
+                "LIVE MODE REQUIRES SWITCH_API_TOKEN.\n"
+                "Refusing to run simulated courtroom in live mode.\n"
+                "Set $env:SWITCH_API_TOKEN and ensure Switch Console / bridge is running."
+            )
+        from .switch_native_runner import SwitchNativeCourtroom
+        runner = SwitchNativeCourtroom()
+        return runner.run_case()
+    elif mode == "simulation":
+        from .local_courtroom_simulation import run_live_demonstration
+        return run_live_demonstration()
+    else:
+        raise ValueError(f"Unknown mode '{mode}'. mode must be 'live' or 'simulation'.")
+
 def main():
     parser = argparse.ArgumentParser(description="Ship Court Multi-Agent Release Governance")
-    parser.add_argument("--demo", action="store_true", help="Run full example case SC-0482 simulation")
+    parser.add_argument("--mode", choices=["live", "simulation"], default="simulation", help="Execution mode: 'live' (requires Switch API & token) or 'simulation' (local harness)")
+    parser.add_argument("--demo", action="store_true", help="Run full example case SC-0482 in simulation mode")
     parser.add_argument("-i", "--interactive", action="store_true", help="Run interactive trial where you enter the task and issue the verdict")
     parser.add_argument("--task", type=str, help="Specify task or change description directly for courtroom trial")
     parser.add_argument("--open-case", type=str, help="Open a specific PR URL")
@@ -333,6 +352,8 @@ def main():
 
     if args.serve:
         start_server(host=args.host, port=args.port)
+    elif args.mode == "live":
+        run_courtroom("live")
     elif args.interactive or args.task:
         run_interactive_courtroom(initial_task=args.task)
     elif args.open_case:
@@ -341,7 +362,7 @@ def main():
         res = mgr.run_procedural_pipeline(c.case_id)
         print(f"Opened case {c.case_id} across {res['round_count']} procedural rounds.")
     else:
-        run_demo()
+        run_courtroom("simulation")
 
 if __name__ == "__main__":
     main()
