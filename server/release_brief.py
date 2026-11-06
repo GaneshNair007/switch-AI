@@ -15,7 +15,7 @@ class ReleaseBriefGenerator:
         judge_name = case.verdict.judge if case.verdict else "Unassigned"
         lines = [
             f"# Release Brief - {case.case_id}",
-            f"Change: Dynamic checkout pricing",
+            f"Change: {case.change_summary}",
             f"Repository: {case.repository}",
             f"PR: #{case.pr_url.rstrip('/').split('/')[-1]}",
             f"Requested by: {judge_name}",

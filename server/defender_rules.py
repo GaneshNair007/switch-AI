@@ -18,6 +18,22 @@ class DefenderRuleEngine:
                     is_conceded=False
                 )
                 obj.status = ObjectionStatus.MITIGATED
+            elif "stale items" in claim_lower or "caching mutation" in claim_lower:
+                defense = Defense(
+                    objection_id=obj.id,
+                    claim="Cache TTL is strictly enforced at 60s and validated on Redis key writes.",
+                    evidence="services/cart/cache_manager.py TTL assertion passes in CI.",
+                    is_conceded=False
+                )
+                obj.status = ObjectionStatus.MITIGATED
+            elif "deadlocking" in claim_lower or "database schema" in claim_lower:
+                defense = Defense(
+                    objection_id=obj.id,
+                    claim="Migration uses non-blocking CONCURRENTLY index rebuild.",
+                    evidence="db/migrations/0042_index.sql verified on staging replica.",
+                    is_conceded=False
+                )
+                obj.status = ObjectionStatus.MITIGATED
             elif "no monitoring exists" in claim_lower or "alert" in claim_lower:
                 defense = Defense(
                     objection_id=obj.id,
