@@ -311,7 +311,8 @@ class InteractiveCourtroom:
             "winner": winner,
             "verdict": verdict_decision,
             "priority": priority,
-            "tasks": tasks
+            "tasks": tasks,
+            "messages": [{"sender": m.sender, "content": m.content, "timestamp": m.timestamp} for m in self.room.messages]
         }
 
 if __name__ == "__main__":

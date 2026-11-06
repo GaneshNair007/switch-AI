@@ -8,6 +8,11 @@ if sys.platform == "win32":
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from .case_manager import CaseManager
 from .local_courtroom_simulation import setup_live_courtroom
+from .dashboard_html import HTML_DASHBOARD
+from .llm_providers import LLMProviderManager
+from .interactive_courtroom import InteractiveCourtroom
+
+llm_manager = LLMProviderManager()
 
 class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
     room = None
@@ -19,14 +24,24 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
 
+    def do_HEAD(self):
+        self._set_headers(200, "text/html; charset=utf-8")
+
     def do_GET(self):
-        if self.path == "/health":
+        if self.path in ("/", "/dashboard", "/ui"):
+            self._set_headers(200, "text/html; charset=utf-8")
+            self.wfile.write(HTML_DASHBOARD.encode("utf-8"))
+        elif self.path == "/api/keys":
+            self._set_headers(200)
+            self.wfile.write(json.dumps(llm_manager.get_keys_status(), indent=2).encode("utf-8"))
+        elif self.path == "/health":
             self._set_headers(200)
             self.wfile.write(json.dumps({
                 "status": "healthy",
                 "service": "ship-court-backend",
                 "agents_online": len(self.room.sessions) if self.room else 5,
-                "version": "1.0.0"
+                "version": "1.0.0",
+                "api_keys": llm_manager.get_keys_status()
             }).encode("utf-8"))
         elif self.path == "/status":
             self._set_headers(200, "text/plain")
@@ -74,7 +89,23 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
         except Exception:
             body = {}
 
-        if self.path == "/api/case/open":
+        if self.path == "/api/debate":
+            task_desc = body.get("task", "Dynamic checkout pricing rollout")
+            repo = body.get("repo", "acme/shop")
+            judge = body.get("judge", "Priya")
+            from .live_courtroom_debate import LiveCourtroomDebateEngine
+            engine = LiveCourtroomDebateEngine()
+            result = engine.run_live_trial(task_desc, repo=repo, judge_name=judge)
+            self._set_headers(200)
+            self.wfile.write(json.dumps(result).encode("utf-8"))
+        elif self.path == "/api/llm/complete":
+            prompt = body.get("prompt", "Analyze risks of deploying dynamic pricing without an alert.")
+            system_prompt = body.get("system", "You are the Ship Court Clerk.")
+            max_tokens = int(body.get("max_tokens", 150))
+            res = llm_manager.complete_with_groq(prompt, system_prompt=system_prompt, max_tokens=max_tokens)
+            self._set_headers(200)
+            self.wfile.write(json.dumps(res).encode("utf-8"))
+        elif self.path == "/api/case/open":
             pr_url = body.get("pr_url", "https://github.com/acme/shop/pull/482")
             case = self.mgr.open_case(pr_url)
             res = self.mgr.run_procedural_pipeline(case.case_id)
