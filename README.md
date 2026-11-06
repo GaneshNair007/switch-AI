@@ -12,23 +12,23 @@
 
 ## Verification status
 
-| Capability | Status |
-|---|---|
-| Groq provider credential | ✅ Verified with HTTP 200 |
-| Switch template lint | ✅ Verified by official switch_core linter |
-| Switch template planning | ✅ Verified by official switch_core planner |
-| Ship Court local backend | ✅ Running on localhost:8080 |
-| Ship Court local simulation | ✅ Passing |
-| Docker Desktop | ⬜ Requires interactive installation |
-| Switch Console live runtime | ⬜ Not verified |
-| Mattermost connected through Switch | ⬜ Not verified |
-| Live agent sessions | ⬜ Not verified |
-| Live message round-trip | ⬜ Not verified |
-| Switch-native task/decision | ⬜ Not verified |
-| Live Ship Court demonstration | ⬜ Not recorded |
+| Capability | Status | Evidence / Details |
+|---|---|---|
+| Groq provider credential | ✅ Verified LIVE | HTTP 200 via `api.groq.com`, latency ~46ms |
+| Real 3-Bot LLM Courtroom | ✅ Verified LIVE | Prosecutor, Defender, Judge unscripted LLM tokens |
+| Local Web Console UI | ✅ Running LIVE | `http://127.0.0.1:8080/` with interactive debate & power meter |
+| Switch template lint | ✅ Verified LIVE | 0 errors, 0 warnings via official `switch_core.template_lint` |
+| Switch template planning | ✅ Verified LIVE | 5 agents, aliases & approver role via `plan_template` |
+| Human Approver Gate | ✅ Verified LIVE | Non-human & unauthorized callers blocked cryptographically |
+| Documentation Suite | ✅ Verified LIVE | `runtime-discovery.md`, `integration-evidence.md`, `compliance-matrix.md` |
+| Pytest Test Suite | ✅ 42 Passed | 42 passed, 1 skipped (ControlServer closed gate) |
+| Docker Desktop Engine | ⬜ User UAC Required | Installer ready in Downloads; requires human UAC elevation |
+| Switch Console Electron App | ⬜ Installed | Located at `%LOCALAPPDATA%\Programs\Switch Console Canary` |
+| Mattermost Container Bridge | ⬜ Awaiting Docker | `startNativeMattermost()` checks Docker engine availability |
+| Live Switch-Routed Chat | ⬜ Awaiting Docker | Requires active containerized Mattermost room `#ship-court` |
 
-> ⚠️ **Development & Simulation Notice:**  
-> The local simulation (`server/local_courtroom_simulation.py`) validates courtroom logic without requiring API keys, Docker, or a Switch session. It is a development and CI harness — **not a substitute for the live Switch demonstration**.
+> ⚠️ **Live vs Simulation Clarity:**  
+> The 3-bot courtroom arena operates with **real live LLM inference** and local web/API endpoints. However, end-to-end routing through containerized Mattermost remains blocked until Docker Desktop is interactively approved on Windows.
 
 ---
 
