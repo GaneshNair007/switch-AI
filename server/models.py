@@ -89,8 +89,9 @@ class Case:
     repository: str
     affected_services: List[str]
     ci_status: str
-    deployment_target: str
+    deployment_target: str = "staging -> production canary"
     state: CaseState = CaseState.CASE_OPENED
+    change_summary: str = "Dynamic checkout pricing"
     objections: List[Objection] = field(default_factory=list)
     defenses: List[Defense] = field(default_factory=list)
     rollback_plan: Optional[RollbackPlan] = None

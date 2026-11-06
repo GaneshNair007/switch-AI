@@ -18,22 +18,36 @@ class CaseManager:
         self.defender_rules = DefenderRuleEngine
         self.active_cases: Dict[str, Case] = {}
 
-    def open_case(self, pr_url: str, custom_case_id: Optional[str] = None) -> Case:
-        """Initialize a new courtroom case from PR URL."""
+    def open_case(self, pr_url: str, custom_case_id: Optional[str] = None, task_description: Optional[str] = None) -> Case:
+        """Initialize a new courtroom case from PR URL or custom task description."""
         case_id = custom_case_id or f"SC-{random.randint(100, 999):04d}"
         repo_meta = self.evidence_collector.fetch_pr_evidence(pr_url)
         ci_meta = repo_meta.get("ci_status", {})
         ci_str = f"{ci_meta.get('passed', 42)} passed, {ci_meta.get('failed', 0)} failed" if isinstance(ci_meta, dict) else str(ci_meta)
 
+        affected = list(repo_meta.get("affected_services", ["checkout-service"]))
+        change_summary = "Dynamic checkout pricing"
+        
+        if task_description:
+            change_summary = task_description
+            desc_l = task_description.lower()
+            if "cart" in desc_l or "cache" in desc_l or "redis" in desc_l:
+                affected = ["cart-service", "checkout-service"]
+            elif "database" in desc_l or "migration" in desc_l or "worker" in desc_l or "sql" in desc_l or "deadlock" in desc_l:
+                affected = ["pricing-worker", "checkout-service"]
+            elif "auth" in desc_l or "token" in desc_l or "security" in desc_l:
+                affected = ["auth-service", "checkout-service"]
+
         case = Case(
             case_id=case_id,
             pr_url=pr_url,
             repository=repo_meta.get("repository", "acme/shop"),
-            affected_services=repo_meta.get("affected_services", ["checkout-service"]),
+            affected_services=affected,
             ci_status=ci_str,
             deployment_target=repo_meta.get("deployment_target", "staging -> production canary"),
             state=CaseState.CASE_OPENED
         )
+        case.change_summary = change_summary
         self.active_cases[case_id] = case
         return case
 

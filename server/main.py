@@ -193,9 +193,138 @@ def run_demo():
     print("=" * 70)
     print("\nCase status:", case.state.value)
 
+def run_interactive_courtroom(initial_task=None):
+    from .models import ObjectionSeverity
+    print("=" * 75)
+    print("⚖️  SHIP COURT: ADVERSARIAL RELEASE ARENA (INTERACTIVE MODE)")
+    print("    'No Deploy Survives Cross-Examination'")
+    print("    Flip the Switch Hackathon (Track 01: Best Business Workflow)")
+    print("=" * 75 + "\n")
+
+    task_desc = initial_task
+    if not task_desc:
+        print("Enter the proposed change or deployment task to put on trial.")
+        print("Examples:")
+        print("  1. Dynamic checkout pricing (High risk, pricing mismatch risk)")
+        print("  2. Deploy Redis caching layer to cart-service (Cache invalidation risk)")
+        print("  3. Database migration on pricing-worker (Worker queue deadlock risk)")
+        print("  4. Or type your own custom deployment task!\n")
+        try:
+            task_desc = input("Task / Proposal [Press Enter for option 1]: ").strip()
+        except EOFError:
+            task_desc = ""
+
+    if not task_desc or task_desc == "1":
+        task_desc = "Dynamic checkout pricing rollout"
+    elif task_desc == "2":
+        task_desc = "Deploy Redis caching layer to cart-service"
+    elif task_desc == "3":
+        task_desc = "Database migration on pricing-worker"
+
+    print(f"\n[DOCKETING PROPOSAL]: '{task_desc}'")
+    print("-" * 75 + "\n")
+
+    manager = CaseManager()
+    pr_url = "https://github.com/acme/shop/pull/482"
+    case = manager.open_case(pr_url, task_description=task_desc)
+
+    print(f"📜 [1] COURT CLERK (@clerk):")
+    print(f"     Case {case.case_id} docketed on #ship-court.")
+    print(f"     Target: {case.change_summary} ({', '.join(case.affected_services)}).")
+    print(f"     CI Status: {case.ci_status} | Deployment: {case.deployment_target}.")
+    print(f"     @historian: Subpoena historical incident precedent immediately!\n")
+
+    result = manager.run_procedural_pipeline(case.case_id, rollback_owner="Priya")
+    precedents = result["precedents"]
+
+    print(f"🏛️ [2] INCIDENT HISTORIAN (@historian):")
+    if precedents:
+        p = precedents[0]
+        print(f"     Forensic Precedent Found: {p['incident_id']} (Severity 1 Outage on {p['date']}).")
+        print(f"     Symptom: {p['symptom']} | Blast Radius: {p['impact']}.")
+        print(f"     Root Cause: {p['root_cause']}.")
+        print(f"     Mandatory Lesson: {p['lesson']}.")
+    else:
+        print("     No identical precedent found; proceed with heightened adversarial scrutiny.")
+    print(f"     @prosecutor: Indict this proposal with maximum scrutiny!\n")
+
+    print(f"⚔️ [3] PROSECUTOR (@prosecutor):")
+    print("     The Prosecution moves to permanently bar this release under the following charges:")
+    for obj in case.objections:
+        print(f"     • [{obj.classification.value}] {obj.id}: {obj.claim}")
+        print(f"       Evidence: {obj.evidence}")
+    print(f"     @defender: Rebut each objection factually or state 'CONCEDED'!\n")
+
+    print(f"🛡️ [4] DEFENDER (@defender):")
+    print("     The Defense presents counter-evidence and explicit concessions:")
+    for d in case.defenses:
+        badge = "[CONCEDED]" if d.is_conceded else "[MITIGATED]"
+        print(f"     • {badge} {d.objection_id}: {d.claim}")
+        print(f"       Evidence: {d.evidence}")
+    print(f"     @rollback: Audit reversibility and confirm our fail-safe decapitation!\n")
+
+    print(f"🔄 [5] ROLLBACK ENGINEER (@rollback):")
+    rb = case.rollback_plan
+    print(f"     Rollback Target: {rb.target_version} (Current: {rb.current_version})")
+    print(f"     Decapitation Command: {rb.command}")
+    print(f"     Health Probes: {', '.join(rb.health_checks)}")
+    print(f"     Rollback Commander: {rb.rollback_owner} (Status: {rb.execution_status.value})")
+    print(f"     SAFETY INTERLOCK: Autonomous execution is disabled; human approval required.")
+    print(f"     @clerk: Arguments concluded. Convene the Release Judge!\n")
+
+    # CLERK WEIGHS THE BATTLE (LEVERAGE / POWER ASSESSMENT)
+    unresolved_blocking = [o for o in case.objections if o.classification == ObjectionSeverity.BLOCKING]
+    conceded_count = sum(1 for d in case.defenses if d.is_conceded)
+    mitigated_count = len(case.defenses) - conceded_count
+
+    print("=" * 75)
+    print("⚖️  CLERK'S ADVERSARIAL LEVERAGE ANALYSIS (WHO HAS MORE POWER?)")
+    print("=" * 75)
+    print(f"  • PROSECUTION POWER: Established {len(unresolved_blocking)} BLOCKING vulnerability(ies).")
+    print(f"  • DEFENSE POWER: Rebutted {mitigated_count} charge(s), but entered {conceded_count} CONCESSION(S).")
+    if conceded_count > 0:
+        print(f"  • MAGISTRATE RULING: The PROSECUTION holds superior leverage on unmitigated risks!")
+        print(f"    Judge Recommendation: Give priority to the prosecution's concerns by issuing")
+        print(f"    CONDITIONS (require missing alert / canary stepping) or BLOCK.")
+    else:
+        print(f"  • MAGISTRATE RULING: The DEFENSE holds superior leverage!")
+        print(f"    Judge Recommendation: Defense has mitigated architectural hazards; APPROVE is viable.")
+    print("-" * 75 + "\n")
+
+    print("⚖️  CASE IS AWAITING HUMAN VERDICT.")
+    print("Release Judge, what is your binding ruling?")
+    print("  Option 1: @court-clerk verdict APPROVE")
+    print("  Option 2: @court-clerk verdict BLOCK reason=\"<reason>\"")
+    print("  Option 3: @court-clerk verdict CONDITIONS <cond 1>; <cond 2>; <owner> owns rollback")
+    print("  (Shortcuts accepted: '@clerk approve', '@clerk block because ...', '@clerk conditions: ...')\n")
+
+    try:
+        user_cmd = input("Your Verdict > ").strip()
+    except EOFError:
+        user_cmd = "@clerk conditions: add monitoring alert; canary 5%; Priya owns rollback"
+
+    if not user_cmd:
+        user_cmd = "@clerk conditions: add monitoring alert; canary 5%; Priya owns rollback"
+
+    print(f"\n[RECORDING VERDICT]: {user_cmd}\n")
+    brief = manager.record_verdict(case.case_id, user_cmd, judge="Priya", is_human=True)
+
+    print("=" * 75)
+    print("FINAL SIGNED RELEASE BRIEF ARTIFACT:")
+    print("=" * 75)
+    print(brief)
+    print("=" * 75)
+    print(f"\nFinal Case State: {case.state.value}")
+    print(f"Switch Tasks Created: {len(case.tasks)}")
+    for i, t in enumerate(case.tasks, 1):
+        print(f"  Task {i}: {t.description} (Owner: {t.owner})")
+    print("\n[COURT ADJOURNED] Verdict recorded into immutable Switch state.")
+
 def main():
     parser = argparse.ArgumentParser(description="Ship Court Multi-Agent Release Governance")
     parser.add_argument("--demo", action="store_true", help="Run full example case SC-0482 simulation")
+    parser.add_argument("-i", "--interactive", action="store_true", help="Run interactive trial where you enter the task and issue the verdict")
+    parser.add_argument("--task", type=str, help="Specify task or change description directly for courtroom trial")
     parser.add_argument("--open-case", type=str, help="Open a specific PR URL")
     parser.add_argument("--serve", action="store_true", help="Start background HTTP server for webhook / REST requests")
     parser.add_argument("--host", type=str, default="127.0.0.1", help="Host address for HTTP server")
@@ -204,6 +333,8 @@ def main():
 
     if args.serve:
         start_server(host=args.host, port=args.port)
+    elif args.interactive or args.task:
+        run_interactive_courtroom(initial_task=args.task)
     elif args.open_case:
         mgr = CaseManager()
         c = mgr.open_case(args.open_case)

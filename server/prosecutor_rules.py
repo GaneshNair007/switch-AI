@@ -22,10 +22,18 @@ class ProsecutorRuleEngine:
         objections: List[Objection] = []
         # Check incident precedent
         for prec in precedents:
-            if prec.get("service") in repo_meta.get("affected_services", []):
+            svc = prec.get("service")
+            if svc in repo_meta.get("affected_services", []):
+                if svc == "cart-service":
+                    claim = "Caching mutation risks serving stale items in active user carts."
+                elif svc == "pricing-worker":
+                    claim = "Database schema mutation risks deadlocking active worker batches."
+                else:
+                    claim = "Dynamic pricing may create cart-total mismatch between client and server."
+                
                 objections.append(Objection(
                     id="OBJ-1",
-                    claim="Dynamic pricing may create cart-total mismatch between client and server.",
+                    claim=claim,
                     evidence=f"{prec['incident_id']}: {prec.get('root_cause', 'Past incident')}",
                     classification=ObjectionSeverity.BLOCKING
                 ))
