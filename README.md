@@ -10,22 +10,20 @@
 
 ---
 
-## 🚦 Verification Status
+## Verification status
 
 | Capability | Status |
 |---|---|
 | Courtroom domain model and bounded workflow | ✅ Verified locally |
-| Prosecutor / Defender / Rollback rules | ✅ Verified by 21 unit tests |
-| HTTP API and unauthorized-verdict protection | ✅ Verified locally |
-| 10-cycle local reliability test | ✅ Passed (10/10 cycles) |
-| Switch Console template loading | ✅ Verified by official switch_core parser (0 errors, 0 warnings) |
-| Switch Native Courtroom Runtime Runner | ✅ Implemented & verified (server/switch_native_runner.py) |
-| Google Opal Workflow Chaining Bridge | ✅ Implemented & verified (server/opal_workflow.py & switch/opal_workflow.json) |
-| 20,000-Request Concurrency Stress Test | ✅ Passed 100% (567 req/sec, 0 dropouts) |
+| Prosecutor / Defender / Rollback rules | ✅ Verified by tests |
+| Human verdict parser and role enforcement | ✅ Verified locally |
+| Switch Console installed | ✅ Verified |
+| Template passes official Switch `lint_template()` | ✅ Verified |
+| Template plans successfully through `plan_template()` | ✅ Verified |
 | Mattermost connected through Switch | ⬜ Must verify |
-| Real agent sessions live in Switch | ⬜ Must verify |
+| Live agent sessions in Switch | ⬜ Must verify |
 | Agent-to-agent messaging through Switch | ⬜ Must verify |
-| Human verdict enforced by Switch | ⬜ Must verify |
+| Human verdict enforced through Switch | ⬜ Must verify |
 | Switch-native tasks and decisions | ⬜ Must verify |
 
 > ⚠️ **Development & Simulation Notice:**  
