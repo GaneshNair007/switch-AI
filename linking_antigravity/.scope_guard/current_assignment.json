@@ -1,0 +1,27 @@
+{
+  "agent_id": "backend-agent",
+  "task_id": "TASK-API-202",
+  "task_description": "Develop backend auth API",
+  "allowed_paths": [
+    "backend/src/auth/**"
+  ],
+  "restricted_paths": [
+    "frontend/**"
+  ],
+  "ownership_info": [
+    {
+      "path_pattern": "frontend/src/auth/**",
+      "owner_agent_id": "frontend-agent",
+      "description": null,
+      "reservation_id": null
+    }
+  ],
+  "task_status": "IN_PROGRESS",
+  "assignment_version": 1,
+  "exceptions": [],
+  "prohibited_operations": [],
+  "require_approval_for_unowned": false,
+  "created_at": "2026-11-05T19:46:16.306175+00:00",
+  "expires_at": null,
+  "metadata": {}
+}

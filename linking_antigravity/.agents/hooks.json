@@ -1,0 +1,17 @@
+{
+  "agent-scope-guard": {
+    "enabled": true,
+    "PreToolUse": [
+      {
+        "matcher": "write_file|edit_file|create_file|run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'if [ -x ./bin/scope-guard-hook ]; then ./bin/scope-guard-hook; elif [ -x ../bin/scope-guard-hook ]; then ../bin/scope-guard-hook; else python3 -m scope_guard.antigravity.hook_handler; fi'",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}
