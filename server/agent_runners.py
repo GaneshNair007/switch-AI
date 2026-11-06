@@ -22,6 +22,7 @@ class CourtClerkAgent:
 
     def _is_verdict_command(self, content: str) -> bool:
         clean = content.strip().lower()
+        # Explicitly require addressing to clerk or the 'verdict' prefix to avoid casual trigger collisions in a shared room
         if any(clean.startswith(p) for p in [
             "@court-clerk verdict", "@clerk verdict", "!verdict", "verdict",
             "@court-clerk approve", "@clerk approve", "@court-clerk block", "@clerk block",
@@ -30,9 +31,6 @@ class CourtClerkAgent:
             return True
         if ("@court-clerk" in clean or "@clerk" in clean) and any(kw in clean for kw in ["verdict", "approve", "block", "condition", "reject"]):
             return True
-        if self.current_case and self.current_case.state == CaseState.AWAITING_VERDICT:
-            if any(clean.startswith(kw) for kw in ["approve", "block", "conditions", "condition", "ship", "reject"]):
-                return True
         return False
 
     def on_message(self, msg: RoomMessage):
