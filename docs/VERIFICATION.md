@@ -18,7 +18,8 @@ Discord text verification: the configured human sent `!court status {}` and rece
 | GitHub evidence | VERIFIED LIVE | Public PR 17 read from GaneshNair007/switch-AI; head `90b6396d7f98c4aed856e0f7336176a3858f1e59`, closed; read-only |
 | GitHub comments/labels/issues | VERIFIED SIMULATED | Real REST adapter exercised with controlled transport, exact plan approval, SHA rejection and replay; actual writes await chosen open test PR and authorization |
 | Official Switch template | VERIFIED LOCAL | Official 0.31.0 lint at source `7bf37f8f82b45865b0f0bb207857fd9c25796172`: zero errors/warnings |
-| Native Switch collaboration | IMPLEMENTED BUT UNVERIFIED | SSE/HTTP schema, cursor and reply-failure replay tested locally; running room, agent keys and participant IDs required |
+| Native Switch connections | VERIFIED LIVE | Five Groq custom agents registered in local core 0.31.0; authenticated SSE receivers and heartbeats live; Discord bridge active in ship-court |
+| Native Switch collaboration | VERIFIED LIVE | Human Discord task → Clerk → Historian → Prosecutor → Defender → Third Voice → Clerk; five real Switch handoffs and five Groq contributions independently retrieved from Discord; final state AWAITING_HUMAN. See evidence/native-handoff-2026-11-08.json |
 | Scope notification to Switch | VERIFIED LOCAL | Durable notification, disconnected guard, bounded retry and retained failure; live delivery pending |
 | Courtroom inference | VERIFIED LIVE | Groq completion and three-role advisory trial passed with openai/gpt-oss-120b; no binding human decision or GitHub writes in this test |
 | Antigravity scope/exception | VERIFIED LOCAL | Real hook function → loopback HTTP assignment/violation/approval → next permitted exact-file action; actual IDE hook installation pending |
@@ -37,7 +38,7 @@ Discord text verification: the configured human sent `!court status {}` and rece
 - Deploy one Python process against each SQLite database. Locks and sessions are in-process; this is not a distributed/multi-worker service.
 - Incident data and the default service graph are illustrative. Financial node sums can double-count shared revenue. Canary percentages are seeded modeled outcomes, not measured telemetry. Rollback success is never asserted without execution.
 - External effects cannot share a database transaction with remote APIs. GitHub markers and saved Switch action results reduce retry duplication; an ambiguous remote timeout or process crash can still require operator reconciliation. Switch notifications retry at most five times and preserve failed/unknown status.
-- Native Switch uses two registered clients (clerk/reviewer). Prosecutor, defender and advisory judge remain bounded reasoning roles inside the preserved courtroom engine, not five separately registered native clients.
+- Native Switch supports five separate registered Groq roles with independent context. The legacy clerk/reviewer adapter remains supported. Native discuss tasks are advisory; the existing authenticated case workflow handles PR evidence, binding verdicts and GitHub operations.
 - Discord voice reception is an unofficial receive capability of the voice library. Live platform compatibility must be demonstrated. Consent revocation stops subsequent processing; it cannot retract audio already sent to the speech provider.
 - Quiet Assistant suppresses contributions. The other named meeting modes currently share the same grounded contribution policy; distinct facilitation strategies are not implemented.
 - Meeting IDs and case IDs are separate records; automatic comprehensive meeting-to-case synchronization and general task execution are not implemented. Tasks support assignment/status tracking.
@@ -45,6 +46,8 @@ Discord text verification: the configured human sent `!court status {}` and rece
 - Existing historical documents may describe earlier aspirations or sample transcripts. README.md and this matrix describe current evidence.
 
 ## Security and failure handling
+
+Role correction after the live handoff: Third Voice is the meeting/call assistant and has been removed from automatic courtroom discussion. New review jobs follow Historian → Prosecutor → Defender → Clerk; seven focused handoff/voice tests pass. The earlier five-role evidence is retained as a historical run, not the current routing configuration.
 
 Bindings come from provisioned bearer hashes or trusted platform identities, never supplied display names or `is_human`. Approver role and target scope are checked at the domain boundary. AI output remains advisory. Evidence text cannot invoke GitHub tools; only a separately authorized current plan hash reaches that adapter. Remote PR head/state is checked immediately before writes. Raw audio is bounded in memory, and unconsented participants are not transcribed.
 

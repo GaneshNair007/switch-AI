@@ -1,4 +1,4 @@
-"""Five independent Groq roles whose handoffs travel through real Switch SSE."""
+"""Courtroom role handoffs over real Switch; Third Voice is meeting-only."""
 import json
 import threading
 import uuid
@@ -64,6 +64,8 @@ class SwitchGroqWorker:
             {'to_role':role,'receipt':receipt}, source_platform='switch', actor_type='agent', room_id=self.client.room_id)
 
     def step(self, job_id, sender):
+        if self.role not in CHAIN:
+            return
         job = self.workflow.store.get('native_job', job_id)
         if not job or job['room_id'] != self.client.room_id:
             return
@@ -109,7 +111,4 @@ class SwitchGroqWorker:
             evidence['risk_model_provenance'] = 'No measured test or deployment logs supplied; request evidence before release.'
         if self.role == 'defender':
             evidence['test_evidence'] = 'No test logs supplied for this proposal; suggestions are not completed checks.'
-        if self.role == 'third_voice':
-            evidence['meeting_decisions'] = [m.get('decisions', [])[-2:] for m in store.list('meeting')[-2:]]
-            evidence['floor_policy'] = 'Textual advisory only; voice requires a separate scoped human grant.'
         return evidence

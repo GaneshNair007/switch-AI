@@ -9,6 +9,14 @@ from .groq_agents import ROLES
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def addressing_policy(room_id, platform_identity_id):
+    """Switch `users` selectors contain ExternalUser IDs, not Gateway User IDs."""
+    if not room_id or not platform_identity_id:
+        raise ValueError('Room and verified platform identity IDs are required')
+    return {'rules':[{'owner':True,'owner_agents':True,'users':[platform_identity_id],
+                      'agents':[],'platform':False,'rooms':[room_id],'room_groups':'*'}]}
+
+
 def write_env(updates):
     path = ROOT / '.env'
     lines = path.read_text(encoding='utf-8').splitlines() if path.exists() else []
@@ -31,6 +39,7 @@ def register():
     registry = json.loads(registry_path.read_text()) if registry_path.exists() else {}
     for role,(label,_) in ROLES.items():
         if role in registry:
+            write_env({'SWITCH_'+role.upper()+'_KEY':registry[role]['api_key']})
             print('Preserved existing registration:',role)
             continue
         payload = {'name':'shipcourt-'+role.replace('_','-'),'display_name':label,

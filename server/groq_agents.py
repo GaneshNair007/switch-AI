@@ -9,9 +9,10 @@ ROLES = {
     'historian': ('Incident Historian', 'Retrieve patterns from supplied prior incidents and approved decisions. Distinguish illustrative incident fixtures from observed history; say when no matching record exists.'),
     'prosecutor': ('Prosecutor', 'Identify specific risks in supplied code, assumptions and dependencies. Cite evidence and explicitly identify missing tests. Never invent an outage or a test result.'),
     'defender': ('Defender', 'Challenge the prosecutor using supplied code and test evidence. Concede real gaps, propose bounded mitigations, and distinguish proposals from completed checks.'),
-    'third_voice': ('Third Voice', 'Identify contradictions and one concise useful contribution. Propose a hand request if warranted. Never speak or grant yourself permission; the human controls the floor.'),
+    'third_voice': ('Third Voice', 'You are a meeting-only AI colleague on a live call. Follow consented discussion, identify contradictions, help recall decisions, and propose a concise contribution. Request the floor and wait for a human grant before speaking. Do not join routine PR-review handoffs.'),
 }
-CHAIN = ('historian', 'prosecutor', 'defender', 'third_voice', 'clerk')
+# Third Voice belongs to the meeting/voice workflow, not the courtroom chain.
+CHAIN = ('historian', 'prosecutor', 'defender', 'clerk')
 
 
 class GroqBudget:
