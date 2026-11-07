@@ -7,7 +7,7 @@ First complete [credentials setup](CREDENTIALS.md). Local fixture tests are avai
 ```powershell
 .runtime\venv\Scripts\python.exe -m pytest -q
 .runtime\venv\Scripts\python.exe switch/validate_template.py
-node --test voice/audio.test.mjs
+node --test voice/audio.test.mjs voice/transcription.test.mjs
 ```
 
 The HTTP test covers intake, advisory, scoped human verdict, exact GitHub plan approval, returned fixture artifact URLs, meetings, floor ownership, and real hook-to-loopback HTTP delivery. GitHub and model responses in this test are controlled fixtures.

@@ -19,7 +19,7 @@ Copy required settings individually from `.env.example` into `.env`, preserving 
 
 Create an account at [Groq Console](https://console.groq.com/), open **API Keys**, and create a key. Save it locally as `GROQ_API_KEY`. Check available text models in the console and set `DEFAULT_GROQ_MODEL` to an exact available model ID. One key is sufficient; fallback keys are optional.
 
-For voice, defaults are `GROQ_STT_MODEL=whisper-large-v3-turbo`, `GROQ_TTS_MODEL=canopylabs/orpheus-v1-english`, and `GROQ_TTS_VOICE=troy`. Confirm access to those models and any billing/model terms in your account before the live call. Provider availability and quotas can change.
+For voice, defaults are `GROQ_STT_MODEL=whisper-large-v3`, `GROQ_TTS_MODEL=canopylabs/orpheus-v1-english`, and `GROQ_TTS_VOICE=troy`. Confirm access to those models and any billing/model terms in your account before the live call. Provider availability and quotas can change.
 
 References: [quickstart](https://console.groq.com/docs/quickstart), [speech to text](https://console.groq.com/docs/speech-to-text), [text to speech](https://console.groq.com/docs/text-to-speech).
 

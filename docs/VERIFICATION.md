@@ -6,6 +6,8 @@ Final local check: **107 Python tests passed, 2 skipped** (missing Groq credenti
 
 Subsequent credential setup: **all 3 provider integration tests passed live** with the locally saved Groq credential and `openai/gpt-oss-120b`. This includes a completion and the full prosecutor/defender/advisory-judge trial. The previously configured Llama model returned 404 for this account; GPT OSS reasoning settings and token allowance were added to both Groq call paths. No external GitHub changes were made.
 
+Discord text verification: the configured human sent `!court status {}` and received `[]` (reply `1568657568669245634`), then `!court meeting-start` created meeting `meeting-805da8e8b7b94867b482572da78b2739` (reply `1568657675347300373`). Both incoming commands have durable `COMPLETED` receipts. Replies were retrieved live from the `ship-court` channel. Interactive floor buttons and voice remain pending live tests.
+
 ## Capability matrix
 
 | Capability | Status | Evidence / remaining gate |
@@ -22,7 +24,8 @@ Subsequent credential setup: **all 3 provider integration tests passed live** wi
 | Antigravity scope/exception | VERIFIED LOCAL | Real hook function → loopback HTTP assignment/violation/approval → next permitted exact-file action; actual IDE hook installation pending |
 | Parallel Earth | VERIFIED SIMULATED | Reproducible model, corrected contracts, input validation and explicit assumptions; no production performance claim |
 | Staging measurements | VERIFIED LOCAL | Metric contracts tested; operator staging endpoint required for observed workload |
-| Discord text/buttons | IMPLEMENTED BUT UNVERIFIED | Installed discord.py callbacks and signature/security tests pass without login; real bot/server required |
+| Discord text | VERIFIED LIVE | Authenticated human status and meeting-start commands produced real bot replies and durable receipts |
+| Discord buttons | IMPLEMENTED BUT UNVERIFIED | Installed discord.py callbacks and signature/security tests pass locally; actual button interaction pending |
 | Voice | IMPLEMENTED BUT UNVERIFIED | DAVE module loads, actual Opus encode/decode, WAV conversion and interruption gate tested; live call/STT/TTS pending |
 | Meeting memory/tasks | VERIFIED LOCAL | Consent, transcripts, decision references, task ownership and structured summaries persist |
 | Research | VERIFIED LOCAL | Allowlisted HTTPS sources, bounded fetch, source-reference rejection and provenance; live inference pending |
@@ -48,3 +51,7 @@ Bindings come from provisioned bearer hashes or trusted platform identities, nev
 Tests cover spoofing/replay, concurrency, changed targets, failure persistence, missing configuration, invalid research citations and voice cross-meeting requests. These are local evidence, not a claim of comprehensive production security review.
 
 See [DEMO.md](DEMO.md) for commands and expected live artifacts, and [CREDENTIALS.md](CREDENTIALS.md) for every required account and key.
+
+Voice debugging: Discord receive and transcription were observed live, including false silence transcriptions. Added energy/confidence filters, English language setting, 16kHz mono input and Whisper large v3; missing floor-ID prefixes are accepted. Groq streaming WAV data uses an unknown-length marker, now decoded correctly. A live synthetic TTS → WAV → STT roundtrip recovered timeout and idempotency terminology; **9 Node audio/transcription tests** and **2 focused Python voice/HTTP tests** pass. Human microphone accuracy and audible Discord playback still require a fresh user test after restart.
+
+Second live microphone check: intended timeout/idempotency sentence was transcribed correctly, but punctuation, a short thanks, and vocabulary-hint copying still appeared. No hand requests or playback occurred in that session. Removed the transcription prompt; added WebRTC VAD with a pinned WASM dependency, punctuation rejection and stricter short-utterance confidence. **10 Node tests pass**, including sustained-noise rejection; live prompt-free generated speech passes VAD and transcription. This does not yet prove noise rejection or audible playback with the user microphone.
