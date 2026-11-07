@@ -7,7 +7,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from server.live_courtroom_debate import LiveCourtroomDebateEngine
 
 def test_condition_extraction_from_judge_output():
-    engine = LiveCourtroomDebateEngine()
     sample_judge_output = """
 PROSECUTION POWER: 72
 DEFENSE POWER: 68
@@ -47,11 +46,11 @@ TASKS:
 def test_engine_returns_conditions_field():
     engine = LiveCourtroomDebateEngine()
     # Mocking _call_llm to test orchestration without live network latency
-    def mock_call(api_key, system, user, max_tokens=400, temperature=0.7, role="agent"):
+    def mock_call(api_key, system, user, max_tokens=160, temperature=0.7, role="agent", task_context=""):
         if role == "prosecutor":
-            return "Indictment: Database migration lacks backwards compatibility."
+            return "Indictment: Database migration lacks backwards compatibility.", True
         elif role == "defender":
-            return "Rebuttal: Dual-write strategy enabled with automated rollback."
+            return "Rebuttal: Dual-write strategy enabled with automated rollback.", True
         else:
             return """
 PROSECUTION POWER: 80
@@ -64,7 +63,7 @@ CONDITIONS:
 2. Canary traffic capped at 10%.
 TASKS:
 - Monitor dual-write lag (Owner: DB-Team)
-"""
+""", True
     engine._call_llm = mock_call
     res = engine.run_live_trial("Test DB Migration", repo="acme/shop", pr_number="999", judge_name="Priya")
 
@@ -75,3 +74,4 @@ TASKS:
     assert res["verdict"] == "CONDITIONS"
     assert res["winner"] == "PROSECUTION"
     assert res["judge"] == "Priya"
+    assert res["is_live_trial"] is True

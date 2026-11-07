@@ -1,5 +1,19 @@
 """Ship Court entry point, CLI runner, and HTTP API server."""
-import sys, argparse, json
+import os, sys, argparse, json
+from pathlib import Path
+
+# Explicitly load .env from project root before anything else
+env_file = Path(__file__).resolve().parent.parent / ".env"
+if env_file.exists():
+    with open(env_file, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                val = v.strip().strip("'").strip('"')
+                if val:
+                    os.environ[k.strip()] = val
+
 if sys.platform == "win32":
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -95,9 +109,13 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
             judge = body.get("judge", "Priya")
             from .live_courtroom_debate import LiveCourtroomDebateEngine
             engine = LiveCourtroomDebateEngine()
-            result = engine.run_live_trial(task_desc, repo=repo, judge_name=judge)
-            self._set_headers(200)
-            self.wfile.write(json.dumps(result).encode("utf-8"))
+            try:
+                result = engine.run_live_trial(task_desc, repo=repo, judge_name=judge)
+                self._set_headers(200)
+                self.wfile.write(json.dumps(result).encode("utf-8"))
+            except Exception as e:
+                self._set_headers(500)
+                self.wfile.write(json.dumps({"error": str(e), "is_live_trial": False}).encode("utf-8"))
         elif self.path == "/api/llm/complete":
             prompt = body.get("prompt", "Analyze risks of deploying dynamic pricing without an alert.")
             system_prompt = body.get("system", "You are the Ship Court Clerk.")
@@ -144,6 +162,7 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
 class ShipCourtServer(ThreadingHTTPServer):
     request_queue_size = 512
     daemon_threads = True
+    allow_reuse_address = True
 
 def start_server(host="127.0.0.1", port=8080):
     room = setup_live_courtroom()
@@ -352,7 +371,6 @@ def run_interactive_courtroom(initial_task=None):
     print("\n[COURT ADJOURNED] Verdict recorded into immutable Switch state.")
 
 def run_courtroom(mode: str):
-    import os
     if mode == "live":
         if not os.getenv("SWITCH_API_TOKEN"):
             raise RuntimeError(

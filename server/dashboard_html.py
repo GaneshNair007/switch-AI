@@ -152,6 +152,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
     .msg-header {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       margin-bottom: 6px;
       font-weight: 700;
       font-size: 12px;
@@ -187,6 +188,27 @@ HTML_DASHBOARD = """<!DOCTYPE html>
       animation: spin 1s ease-in-out infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    .tag-live {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #064e3b;
+      color: #34d399;
+      border: 1px solid #059669;
+      margin-left: 8px;
+    }
+    .tag-failover {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #78350f;
+      color: #fbbf24;
+      border: 1px solid #d97706;
+      margin-left: 8px;
+    }
   </style>
 </head>
 <body>
@@ -197,7 +219,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         <p>No Deploy Survives Cross-Examination — Multi-Agent Adversarial Release Arena</p>
       </div>
       <div>
-        <span class="badge badge-live">● 3 API Keys Active</span>
+        <span class="badge badge-live">● 3 API Keys Active | Free-Tier Guard Calibrated</span>
       </div>
     </header>
 
@@ -236,16 +258,16 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         <h2>📑 Docket Case on Trial</h2>
         
         <div class="form-group">
-          <label>Sample Risk Presets</label>
+          <label>Sample Risk Presets (Different Outcomes)</label>
           <div>
-            <button class="preset-btn" onclick="setPreset(1)">1. Dynamic Pricing Rollout (High)</button>
-            <button class="preset-btn" onclick="setPreset(2)">2. Emergency Webhook Bypass (Extreme)</button>
-            <button class="preset-btn" onclick="setPreset(3)">3. Redis Caching Layer (Low/Mitigated)</button>
+            <button class="preset-btn" onclick="setPreset(1)">1. Dynamic Pricing Rollout (CONDITIONS)</button>
+            <button class="preset-btn" onclick="setPreset(2)">2. Drop user_sessions Table (BLOCK)</button>
+            <button class="preset-btn" onclick="setPreset(3)">3. Redis Caching Layer (APPROVE)</button>
           </div>
         </div>
 
         <div class="form-group">
-          <label>Proposed Deployment / Change Petition</label>
+          <label>Proposed Deployment / Change Petition (Type Custom Input Below)</label>
           <textarea id="task_desc" rows="4">Dynamic checkout pricing rollout</textarea>
         </div>
 
@@ -263,9 +285,11 @@ HTML_DASHBOARD = """<!DOCTYPE html>
           <span>⚔️ Convene Courtroom & Run Trial</span>
         </button>
 
+        <div id="error-toast" style="display:none; margin-top:12px; padding:10px 14px; background:#450a0a; border:1px solid #dc2626; border-radius:8px; color:#fca5a5; font-size:12px;"></div>
+
         <div id="loading">
           <div class="spinner"></div>
-          <p style="margin-top: 8px;">Court in Session... Prosecutor & Defender cross-examining...</p>
+          <p style="margin-top: 8px;" id="loading-msg">Court in Session... Prosecutor & Defender cross-examining...</p>
         </div>
 
         <div style="margin-top: 20px; padding: 12px; background: #1f2937; border-radius: 8px; font-size: 12px; color: var(--muted);">
@@ -301,7 +325,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
               <span style="color:#60a5fa;">@court-clerk (Bailiff)</span>
               <span>STANDBY</span>
             </div>
-            <div class="msg-content">Welcome to Ship Court. Select a preset or type a deployment petition and click 'Convene Courtroom & Run Trial' to put any code change on trial before the AI courtroom agents.</div>
+            <div class="msg-content">Welcome to Ship Court. Select a preset or type ANY custom deployment petition and click 'Convene Courtroom & Run Trial'. Every change undergoes live unscripted cross-examination.</div>
           </div>
         </div>
       </div>
@@ -311,16 +335,30 @@ HTML_DASHBOARD = """<!DOCTYPE html>
   <script>
     function setPreset(n) {
       const desc = document.getElementById('task_desc');
+      hideError();
       if (n === 1) {
         desc.value = "Dynamic checkout pricing rollout";
       } else if (n === 2) {
-        desc.value = "Emergency Stripe checkout webhook refactor + DB migration removing customer_id nullability, bypassing staging because Black Friday is in 2 hours";
+        desc.value = "Drop database table user_sessions during active peak hours without backup";
       } else if (n === 3) {
-        desc.value = "Deploy Redis caching layer to cart-service with atomic SETNX locks and verified canary probes";
+        desc.value = "Add Redis caching to product search queries with 60s TTL and automatic fallback to SQL database";
       }
     }
 
+    function showError(msg) {
+      const toast = document.getElementById('error-toast');
+      toast.style.display = 'block';
+      toast.innerText = msg;
+    }
+
+    function hideError() {
+      const toast = document.getElementById('error-toast');
+      toast.style.display = 'none';
+      toast.innerText = '';
+    }
+
     async function runTrial() {
+      hideError();
       const task = document.getElementById('task_desc').value;
       const judge = document.getElementById('judge_name').value;
       const repo = document.getElementById('repo_target').value;
@@ -330,16 +368,25 @@ HTML_DASHBOARD = """<!DOCTYPE html>
       const powerBox = document.getElementById('power-box');
       const verdictBox = document.getElementById('verdict-box');
 
+      if (!task.trim()) {
+        showError('Please enter a deployment description or choose a preset before convening court.');
+        return;
+      }
+
       btn.disabled = true;
       btn.style.opacity = '0.5';
       loader.style.display = 'block';
+      document.getElementById('loading-msg').innerText = 'Court in session... Cross-examining petition before 3 live LLM bots...';
 
       try {
         const resp = await fetch('/api/debate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ task, judge, repo })
+          body: JSON.stringify({ task: task.trim(), judge: judge.trim(), repo: repo.trim() })
         });
+        if (!resp.ok) {
+          throw new Error('Server returned HTTP ' + resp.status);
+        }
         const data = await resp.json();
 
         // Update Power Bar
@@ -425,7 +472,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
           `;
         }
 
-        // Populate Transcript
+        // Populate Transcript with Live Telemetry Badges
         transcript.innerHTML = '';
         if (data.messages && data.messages.length > 0) {
           data.messages.forEach(m => {
@@ -438,11 +485,18 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             else if (m.sender.includes('rollback')) { senderClass = 'msg-rollback'; color = '#8b5cf6'; }
             else if (m.sender.includes(judge)) { senderClass = 'msg-judge'; color = '#ec4899'; }
 
+            const badgeTag = m.is_live !== undefined
+              ? (m.is_live ? '<span class="tag-live">● LIVE LLM (qwen3.8-27b)</span>' : '<span class="tag-failover">▲ PROCEDURAL FAILOVER</span>')
+              : '';
+
             div.className = 'msg ' + senderClass;
             div.innerHTML = `
               <div class="msg-header">
-                <span style="color:${color};">@${m.sender}</span>
-                <span>${new Date(m.timestamp * 1000).toLocaleTimeString()}</span>
+                <div>
+                  <span style="color:${color};">@${m.sender}</span>
+                  ${badgeTag}
+                </div>
+                <span style="color:#9ca3af; font-size:11px;">${new Date(m.timestamp * 1000).toLocaleTimeString()}</span>
               </div>
               <div class="msg-content">${escapeHtml(m.content)}</div>
             `;
@@ -450,7 +504,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
           });
         }
       } catch (err) {
-        alert('Error connecting to Ship Court server: ' + err);
+        showError('Courtroom Execution Error: ' + err.message + '. Ensure the Ship Court backend daemon is active on port 8080.');
       } finally {
         btn.disabled = false;
         btn.style.opacity = '1';
