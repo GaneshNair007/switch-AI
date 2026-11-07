@@ -145,5 +145,5 @@ jobs:
           cache: npm
           cache-dependency-path: voice/package-lock.json
       - run: npm ci --prefix voice --ignore-scripts
-      - run: node --test voice/audio.test.mjs
+      - run: node --test voice/audio.test.mjs voice/transcription.test.mjs
       - run: node --check voice/gateway.mjs

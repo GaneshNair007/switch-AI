@@ -48,7 +48,8 @@ class SwitchProtocolClient:
         if name not in self.operations():
             raise ValueError('Operation is not supported by the connected Switch runtime')
         with self.request('/ops/' + urllib.parse.quote(name, safe=''), arguments) as response:
-            return json.load(response)
+            result = json.load(response)
+            return result.get('result', result) if isinstance(result, dict) else result
 
     def _heartbeat(self):
         while not self.stop.wait(2):

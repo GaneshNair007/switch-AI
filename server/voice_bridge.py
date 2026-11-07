@@ -30,11 +30,22 @@ class VoiceBridge:
     def dispatch(self, action, args, p):
         w = self.workflow
         if action in ('grant', 'speak', 'script', 'release'):
-            request = w.floor_controller.requests[args['request_id']]
+            request = w.floor_controller.requests.get(args['request_id'])
+            if not request:
+                raise ValueError('Floor request not found. Copy the full floor- ID from the latest hand message.')
             if request.meeting_id != args.get('meeting_id'):
                 raise PermissionError('Voice request belongs to another meeting')
         if action == 'start':
             return w.meetings.start(args['title'], p)
+        if action == 'test-request':
+            meeting = w.meetings.get(args['meeting_id'])
+            w.authorization.require(p, scope=f"meeting:{meeting['meeting_id']}:floor")
+            if meeting['status'] != 'ACTIVE':
+                raise ValueError('Meeting has ended')
+            request = w.floor_controller.raise_hand(meeting['meeting_id'], 'voice-check', 'speaker',
+                'Human-requested audio check',
+                'Hello! I am Ship Court Voice. This is an audio check. I can speak in your Discord meeting when you give me the floor.')
+            return {'request_id': request.request_id}
         if action == 'consent':
             return w.meetings.consent(args['meeting_id'], p, args['enabled'] is True)
         if action == 'end':
@@ -76,6 +87,13 @@ class VoiceBridge:
             refs = result.get('evidence_refs', [])
             if not refs or not set(refs).issubset(known) or len(result['script']) > 200:
                 raise ValueError('Contribution needs real references and a bounded script')
+            if args['event_id'] not in refs:
+                return {'request': None}
+            previous_refs = {ref for r in w.floor_controller.requests.values()
+                             if r.meeting_id == meeting['meeting_id'] and r.agent_id == 'third-voice'
+                             for ref in r.evidence_refs}
+            if set(refs).issubset(previous_refs):
+                return {'request': None}
             request = w.floor_controller.raise_hand(meeting['meeting_id'], 'third-voice', 'hand', result['reason'],
                                                     result['script'], result['priority'], refs)
             from dataclasses import asdict

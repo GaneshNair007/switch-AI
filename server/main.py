@@ -78,7 +78,9 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
                     result = list(self.workflow.floor_controller.requests.values())
                 else:
                     result = {'github_configured': bool(os.getenv('GITHUB_TOKEN')), 'groq_configured': bool(os.getenv('GROQ_API_KEY')),
-                              'switch_configured': bool(json.loads(os.getenv('SWITCH_CLIENTS', '[]'))), 'discord_configured': bool(os.getenv('DISCORD_PUBLIC_KEY')),
+                              'switch_configured': bool(json.loads(os.getenv('SWITCH_CLIENTS', '[]'))), 'discord_configured': bool(os.getenv('DISCORD_BOT_TOKEN') or os.getenv('DISCORD_PUBLIC_KEY')),
+                              'switch_agents': [{'role':worker.role,'connected':worker.client.connected,'receiver_running':thread.is_alive(),
+                                  'runtime':getattr(getattr(worker,'runtime',None),'runtime_type','workflow')} for worker,thread in getattr(self.workflow,'switch_workers',[])],
                               'live_integrations_verified': False}
                 self._json_response(200, result)
             except PermissionError:
@@ -325,7 +327,8 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
 class ShipCourtServer(ThreadingHTTPServer):
     request_queue_size = 512
     daemon_threads = True
-    allow_reuse_address = True
+    # Windows SO_REUSEADDR can allow two live servers to bind the same port.
+    allow_reuse_address = os.name != 'nt'
 
 def start_server(host="127.0.0.1", port=8080):
     room = setup_live_courtroom()

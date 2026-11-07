@@ -12,13 +12,17 @@ export function wavToStereo48k(wav) {
   if(wav.toString('ascii',0,4)!=='RIFF'||wav.toString('ascii',8,12)!=='WAVE') throw new Error('Expected PCM WAV');
   let rate,channels,bits,format,pcm;
   for(let pos=12;pos+8<=wav.length;) {
-    const kind=wav.toString('ascii',pos,pos+4),size=wav.readUInt32LE(pos+4),start=pos+8;
+    const kind=wav.toString('ascii',pos,pos+4),declared=wav.readUInt32LE(pos+4),start=pos+8;
+    // Groq streams PCM WAV with an unknown data length (UINT32_MAX).
+    const size=kind==='data'&&declared===0xffffffff?wav.length-start:declared;
     if(start+size>wav.length) throw new Error('Truncated WAV');
+    if(kind==='fmt '&&size<16)throw new Error('Truncated WAV format');
     if(kind==='fmt ') {format=wav.readUInt16LE(start);channels=wav.readUInt16LE(start+2);rate=wav.readUInt32LE(start+4);bits=wav.readUInt16LE(start+14);}
     if(kind==='data') pcm=wav.subarray(start,start+size);
     pos=start+size+(size%2);
   }
   if(format!==1||bits!==16||![1,2].includes(channels)||!rate||!pcm) throw new Error('Only mono/stereo PCM16 WAV is supported');
+  if(!pcm.length||pcm.length%(channels*2))throw new Error('Incomplete PCM frames');
   const frames=Math.floor(pcm.length/(channels*2)),outFrames=Math.floor(frames*48000/rate);
   if(outFrames>48000*60) throw new Error('Speech exceeds one minute');
   const out=Buffer.alloc(outFrames*4);

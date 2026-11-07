@@ -109,15 +109,22 @@ class SwitchWorkflowWorker:
 
 
 def start_workers(workflow, configurations, participants):
+    from .groq_agents import GroqBudget, GroqCustomRuntime
+    from .switch_groq_worker import SwitchGroqWorker
+    runtime = GroqCustomRuntime(workflow.debate_engine, GroqBudget())
+    peers = {c['role']:c for c in configurations if c.get('runtime') == 'groq_custom'}
     workers = []
     for config in configurations:
         import os
         client = SwitchProtocolClient(config['url'], config['agent_id'], os.environ[config['key_env']],
                                       config['room_id'], workflow.store)
-        worker = SwitchWorkflowWorker(workflow, client, config['role'], participants, config.get('reviewer_mention'))
+        if config.get('runtime') == 'groq_custom':
+            worker = SwitchGroqWorker(workflow, client, config['role'], participants, peers, runtime)
+        else:
+            worker = SwitchWorkflowWorker(workflow, client, config['role'], participants, config.get('reviewer_mention'))
         thread = threading.Thread(target=client.run, args=(worker.handle,), daemon=True)
         thread.start()
-        if config['role'] == 'clerk':
+        if config['role'] == 'clerk' and isinstance(worker, SwitchWorkflowWorker):
             threading.Thread(target=worker.notification_loop, args=(thread,), daemon=True).start()
         workers.append((worker, thread))
     return workers

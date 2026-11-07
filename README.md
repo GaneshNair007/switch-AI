@@ -29,6 +29,8 @@ The clerk coordinates cases; the historian supplies labeled incident context; pr
 
 Switch's two native clients can hand work from clerk to reviewer through actual room messages. They use registered agent keys, SSE delivery, heartbeats, room membership, and HTTP operations. Disconnecting Switch stops that native handoff. The local Python room remains an explicitly separate development harness.
 
+The new [free-first native Groq setup](docs/SWITCH_GROQ.md) registers five independent role clients: Clerk, Historian, Prosecutor, Defender and Third Voice. Their `discuss` command passes one advisory task through real Switch messages, with separate role context and a shared bounded Groq budget. Paid agent harnesses are optional future adapters.
+
 ## Run locally
 
 Use Python **3.12**. On this checkout an isolated environment already exists at `.runtime/venv`.
@@ -104,7 +106,7 @@ Research fetches bounded content only from operator-allowlisted HTTPS hosts, rej
 .runtime\venv\Scripts\python.exe -m pytest -q
 .runtime\venv\Scripts\python.exe switch/validate_template.py
 npm.cmd ci --prefix voice --ignore-scripts
-node --test voice/audio.test.mjs
+node --test voice/audio.test.mjs voice/transcription.test.mjs
 ```
 
 The local integration tests exercise real HTTP delivery; external GitHub/LLM responses are explicitly controlled fixtures. Missing live provider credentials produce skips, not fake successes. Official Switch lint runs when `switch_core` is installed; otherwise the validator explicitly reports only structural checks. CI covers `main` and `arjit`, the Scope Guard suite, pinned official Switch lint, and local voice tests.
