@@ -3,559 +3,749 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ship Court Atlas | Autonomous Adversarial Release Intelligence</title>
+  <title>Ship Court Atlas | 3D Cyber-Tribunal Cockpit</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     :root {
-      --bg-base: #060608;
-      --bg-surface: #0a0a0e;
-      --bg-card: #0f0f15;
-      --bg-card-hover: #161620;
+      --bg-void: #05070b;
+      --bg-sidebar: #090c14;
+      --bg-card: #0f1422;
+      --bg-card-hover: #161c2e;
       --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-medium: rgba(255, 255, 255, 0.15);
-      --border-focus: rgba(255, 77, 85, 0.5);
+      --border-medium: rgba(255, 255, 255, 0.16);
+      --border-brass: rgba(217, 119, 6, 0.4);
       --accent-coral: #ff4d55;
-      --accent-coral-glow: rgba(255, 77, 85, 0.25);
+      --accent-coral-glow: rgba(255, 77, 85, 0.3);
       --accent-emerald: #10b981;
-      --accent-emerald-glow: rgba(16, 185, 129, 0.25);
-      --accent-amber: #f59e0b;
-      --text-white: #ffffff;
-      --text-slate: #cbd5e1;
-      --text-zinc: #a1a1aa;
-      --text-dim: #71717a;
+      --accent-emerald-glow: rgba(16, 185, 129, 0.3);
+      --accent-gold: #f59e0b;
+      --accent-gold-bright: #fbbf24;
+      --accent-cyan: #06b6d4;
+      --text-pure: #ffffff;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --font-display: 'Cinzel', serif;
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      background-color: var(--bg-base);
-      color: var(--text-white);
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: var(--bg-void);
+      color: var(--text-pure);
       font-family: var(--font-sans);
       font-size: 13px;
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-      min-height: 100vh;
     }
 
     ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: var(--bg-base); }
-    ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
-
-    /* Top Navigation Header */
-    header.atlas-header {
-      height: 64px;
-      border-bottom: 1px solid var(--border-subtle);
-      padding: 0 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(6, 6, 8, 0.95);
-      backdrop-filter: blur(12px);
-      position: sticky;
-      top: 0;
-      z-index: 50;
-    }
-
-    .brand-cluster {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .brand-mark {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .brand-logo-text {
-      font-size: 14px;
-      font-weight: 900;
-      letter-spacing: 0.8px;
-      color: var(--accent-coral);
-      text-transform: uppercase;
-    }
-
-    .brand-badge {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      font-weight: 600;
-      padding: 2px 7px;
-      border-radius: 4px;
-      background: rgba(255, 77, 85, 0.12);
-      border: 1px solid rgba(255, 77, 85, 0.25);
-      color: #fca5a5;
-    }
-
-    .cluster-switcher {
-      display: flex;
-      align-items: center;
-      background: rgba(24, 24, 27, 0.8);
-      border: 1px solid var(--border-subtle);
-      border-radius: 10px;
-      padding: 3px;
-      gap: 3px;
-    }
-
-    .cluster-btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 7px;
-      font-size: 11px;
-      font-weight: 600;
-      background: transparent;
-      border: none;
-      color: var(--text-zinc);
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .cluster-btn.active {
-      background: #ffffff;
-      color: #09090b;
-      font-weight: 700;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-    }
-
-    .domain-filters-deck {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      overflow-x: auto;
-    }
-
-    .filter-chip {
-      padding: 4px 9px;
-      border-radius: 7px;
-      font-size: 11px;
-      font-weight: 500;
-      background: transparent;
-      border: 1px solid transparent;
-      color: var(--text-zinc);
-      cursor: pointer;
-      transition: all 0.15s ease;
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .filter-chip:hover {
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.05);
-    }
-    .filter-chip.active {
-      background: #ffffff;
-      color: #09090b;
-      font-weight: 700;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-    }
-    .filter-chip .chip-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-    }
-
-    /* Top Right Header Action Suite */
-    .header-actions-deck {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .header-action-btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 600;
-      background: #18181b;
-      border: 1px solid var(--border-subtle);
-      color: #e4e4e7;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .header-action-btn:hover {
-      background: #27272a;
-      color: #ffffff;
-    }
-
-    .btn-gradient-studio {
-      background: linear-gradient(135deg, #dc2626 0%, #ff4d55 100%);
-      color: #ffffff;
-      border: none;
-      padding: 6px 14px;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      box-shadow: 0 0 16px rgba(239, 68, 68, 0.35);
-      transition: all 0.15s ease;
-    }
-    .btn-gradient-studio:hover {
-      filter: brightness(1.1);
-      box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
-    }
-
-    /* Main Container */
-    main.atlas-main {
-      max-width: 1540px;
-      margin: 0 auto;
-      padding: 24px 24px 80px;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-
-    /* Hero Search & Petition Section */
-    .hero-search-section {
-      max-width: 860px;
-      margin: 0 auto;
-      width: 100%;
-      text-align: center;
-      padding: 10px 0 6px;
-    }
-
-    .hero-search-section h1 {
-      font-size: 28px;
-      font-weight: 900;
-      letter-spacing: -0.5px;
-      color: #ffffff;
-    }
-
-    .hero-search-section p {
-      font-size: 13px;
-      color: var(--text-zinc);
-      margin-top: 6px;
-      max-width: 620px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .search-input-pill {
-      margin-top: 18px;
-      background: #0a0a0e;
-      border: 1px solid var(--border-medium);
-      border-radius: 16px;
-      padding: 6px 8px 6px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .search-input-pill:focus-within {
-      border-color: var(--border-focus);
-      box-shadow: 0 0 25px rgba(239, 68, 68, 0.2), inset 0 0 10px rgba(255, 255, 255, 0.05);
-    }
-
-    .search-icon {
-      color: #71717a;
-      flex-shrink: 0;
-    }
-
-    .search-input-element {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      font-family: var(--font-sans);
-      font-size: 13.5px;
-      color: #ffffff;
-    }
-    .search-input-element::placeholder {
-      color: #52525b;
-    }
-
-    .btn-search-submit {
-      padding: 9px 18px;
-      border-radius: 12px;
-      background: #ff4d55;
-      color: #ffffff;
-      border: none;
-      font-weight: 700;
-      font-size: 12px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
-      transition: all 0.15s ease;
-      flex-shrink: 0;
-    }
-    .btn-search-submit:hover:not(:disabled) {
-      background: #dc2626;
-      box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
-    }
-    .btn-search-submit:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .search-sub-controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 10px;
-      padding: 0 6px;
-      font-size: 12px;
-      color: var(--text-zinc);
-    }
-
-    .search-checkbox-label {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .preset-pill-strip {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .preset-btn-micro {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      padding: 3px 8px;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-zinc);
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .preset-btn-micro:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: #ffffff;
-      border-color: var(--border-medium);
-    }
-    .preset-btn-micro.active {
-      background: rgba(255, 77, 85, 0.15);
-      border-color: rgba(255, 77, 85, 0.4);
-      color: #fca5a5;
-    }
+    ::-webkit-scrollbar-track { background: var(--bg-void); }
+    ::-webkit-scrollbar-thumb { background: #1f2738; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
 
     /* =========================================================================
-       CENTERPIECE: PARALLEL EARTH 3D TOPOLOGY CANVAS (STANDARD / EXPANDED)
+       APP SHELL: 100vw x 100vh FULL VIEWPORT GRID
        ========================================================================= */
-    .spatial-canvas-container {
-      width: 100%;
-      border-radius: 16px;
-      background: #060608;
-      border: 1px solid var(--border-medium);
+    .viewport-app-shell {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: 52px 1fr 44px;
       overflow: hidden;
-      box-shadow: 0 10px 35px rgba(0,0,0,0.7);
-      position: relative;
-      transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .spatial-canvas-container.h-standard { height: 480px; }
-    .spatial-canvas-container.h-expanded { height: 680px; }
-
-    #three-viewport-canvas {
-      width: 100%;
-      height: 100%;
     }
 
-    /* Floating Top Glass Bar */
-    .canvas-floating-controls {
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px;
-      border-radius: 12px;
-      background: rgba(10, 10, 14, 0.85);
+    /* 1. TOP HEADER (52px) */
+    header.cockpit-topbar {
+      height: 52px;
+      background: rgba(9, 12, 20, 0.96);
       backdrop-filter: blur(12px);
-      border: 1px solid var(--border-medium);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-    }
-
-    .canvas-ctrl-btn {
-      padding: 5px 10px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-zinc);
-      background: transparent;
-      border: none;
-      cursor: pointer;
+      border-bottom: 1px solid var(--border-medium);
+      padding: 0 20px;
       display: flex;
       align-items: center;
-      gap: 5px;
-      transition: all 0.15s ease;
-    }
-    .canvas-ctrl-btn:hover {
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.06);
-    }
-    .canvas-ctrl-btn.active {
-      background: #ffffff;
-      color: #09090b;
-      font-weight: 700;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-    }
-    .canvas-ctrl-btn.hazard {
-      color: #ff4d55;
-    }
-    .canvas-ctrl-btn.hazard:hover {
-      background: rgba(255, 77, 85, 0.15);
+      justify-content: space-between;
+      z-index: 100;
     }
 
-    /* Floating Left Topology Badges */
-    .canvas-telemetry-badge {
-      position: absolute;
-      top: 14px;
-      left: 14px;
-      z-index: 10;
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-crest {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #1f180c 0%, #0d0a05 100%);
+      border: 1px solid var(--accent-gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 13px;
+      color: var(--accent-gold-bright);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #ffffff;
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 14px;
-      border-radius: 10px;
-      background: rgba(10, 10, 14, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border-subtle);
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--text-zinc);
     }
 
-    .canvas-telemetry-badge .status-dot-pulse {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent-emerald);
-      box-shadow: 0 0 8px var(--accent-emerald);
-      animation: pulseDot 2s infinite;
-    }
-    @keyframes pulseDot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.8); }
-    }
-
-    /* 3D Service Projected Label Pins */
-    .service-tag-pin {
-      position: absolute;
-      transform: translate(-50%, -100%);
+    .brand-tag {
       font-family: var(--font-mono);
       font-size: 10px;
-      font-weight: 600;
-      padding: 2px 7px;
-      border-radius: 4px;
-      background: rgba(15, 15, 21, 0.9);
-      border: 1px solid var(--border-medium);
-      color: #ffffff;
-      pointer-events: none;
-      white-space: nowrap;
-      user-select: none;
-      z-index: 5;
-    }
-
-    /* Floating Bottom Telemetry Strip */
-    .canvas-bottom-strip {
-      position: absolute;
-      bottom: 14px;
-      left: 14px;
-      right: 14px;
-      z-index: 10;
-      padding: 12px 18px;
-      border-radius: 12px;
-      background: rgba(10, 10, 14, 0.92);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border-medium);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .hud-service-identity {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .service-tier-tag {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      font-weight: 800;
-      padding: 3px 8px;
+      font-weight: 700;
+      padding: 2px 6px;
       border-radius: 4px;
       background: rgba(255, 77, 85, 0.15);
       border: 1px solid rgba(255, 77, 85, 0.3);
       color: #fca5a5;
     }
 
-    .service-hud-stats-group {
+    .cluster-pill-box {
       display: flex;
-      gap: 24px;
+      align-items: center;
+      background: #06080e;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .cluster-tab {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .cluster-tab.active {
+      background: #ffffff;
+      color: #09090b;
+      font-weight: 700;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    .top-telemetry-cluster {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .telemetry-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .telemetry-chip .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    .pulse-dot.green { background: var(--accent-emerald); box-shadow: 0 0 8px var(--accent-emerald); }
+    .pulse-dot.gold { background: var(--accent-gold); box-shadow: 0 0 8px var(--accent-gold); }
+
+    .btn-top-modal-trigger {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      background: #141c2c;
+      border: 1px solid var(--border-medium);
+      color: #ffffff;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-top-modal-trigger:hover {
+      background: #1f2b44;
+      border-color: var(--accent-gold);
+    }
+
+    /* 2. MAIN COCKPIT BODY (Fills remaining height) */
+    .cockpit-main-workspace {
+      display: grid;
+      grid-template-columns: 310px 1fr 380px;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+    @media (max-width: 1200px) {
+      .cockpit-main-workspace { grid-template-columns: 280px 1fr 320px; }
+    }
+
+    /* =========================================================================
+       LEFT SIDEBAR (310px): EVIDENCE & SUBPOENA VAULT
+       ========================================================================= */
+    aside.sidebar-evidence {
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-medium);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      z-index: 10;
+    }
+
+    .sidebar-section-header {
+      padding: 14px 18px 10px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sidebar-section-header h3 {
+      font-size: 12px;
+      font-weight: 700;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-scroll-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      flex: 1;
+    }
+
+    /* Preset Selection Tiles */
+    .preset-selector-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .preset-row-btn {
+      padding: 9px 12px;
+      border-radius: 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .preset-row-btn:hover {
+      background: var(--bg-card-hover);
+      color: #ffffff;
+      border-color: var(--border-medium);
+    }
+    .preset-row-btn.active {
+      background: rgba(255, 77, 85, 0.12);
+      border-color: var(--accent-coral);
+      color: #ffffff;
+    }
+    .preset-row-btn.active .preset-indicator {
+      background: var(--accent-coral);
+    }
+
+    .preset-indicator {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-dim);
+    }
+
+    /* Subpoena / Incident Dossier Card */
+    .dossier-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .dossier-card.incident {
+      border-left: 3px solid var(--accent-coral);
+    }
+    .dossier-card.blast {
+      border-left: 3px solid var(--accent-gold);
+    }
+
+    .dossier-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-family: var(--font-mono);
       font-size: 11px;
     }
+    .dossier-header-bar strong { color: #ffffff; }
 
-    .hud-stat-unit {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
+    .dossier-body-text {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.5;
     }
-    .hud-stat-unit .lbl {
-      font-size: 9.5px;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+
+    .dossier-stats-strip {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 4px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border-subtle);
+      font-family: var(--font-mono);
+      font-size: 10px;
     }
-    .hud-stat-unit .val {
+    .dossier-stats-strip .stat-val {
       font-weight: 700;
       color: #ffffff;
     }
 
-    /* =========================================================================
-       LIVE DIALECTIC & ADJUDICATION SECTION
-       ========================================================================= */
-    .adjudication-split-grid {
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 20px;
-    }
-    @media (max-width: 1024px) {
-      .adjudication-split-grid { grid-template-columns: 1fr; }
-    }
-
-    .content-panel {
-      background: var(--bg-surface);
+    /* Petition Input in Sidebar */
+    .petition-box {
+      background: var(--bg-card);
       border: 1px solid var(--border-subtle);
-      border-radius: 14px;
-      padding: 20px;
+      border-radius: 8px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 6px;
     }
 
-    .panel-headline {
+    .petition-textarea {
+      width: 100%;
+      background: #070910;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #ffffff;
+      outline: none;
+      resize: vertical;
+      min-height: 54px;
+    }
+    .petition-textarea:focus {
+      border-color: var(--accent-gold);
+    }
+
+    .btn-convene-trial {
+      width: 100%;
+      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+      color: #ffffff;
+      border: 1px solid var(--accent-gold-bright);
+      border-radius: 6px;
+      padding: 10px;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.3);
+      transition: all 0.15s ease;
+    }
+    .btn-convene-trial:hover:not(:disabled) {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      box-shadow: 0 4px 20px rgba(245, 158, 11, 0.45);
+    }
+    .btn-convene-trial:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* =========================================================================
+       CENTER STAGE: 3D CYBER-TRIBUNAL WEBGL CHAMBER (Three.js)
+       ========================================================================= */
+    main.center-stage-arena {
+      background: #04060a;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    #three-tribunal-canvas {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    /* Floating Camera Overlay Controls */
+    .stage-camera-toolbar {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      z-index: 20;
+      display: flex;
+      gap: 6px;
+      padding: 4px;
+      border-radius: 8px;
+      background: rgba(9, 12, 20, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-medium);
+    }
+
+    .cam-btn {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .cam-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .cam-btn.active {
+      background: #ffffff;
+      color: #09090b;
+      font-weight: 700;
+    }
+
+    /* Ace Attorney Dramatic Objection Flash */
+    .stage-objection-banner {
+      position: absolute;
+      top: 45%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0) rotate(-6deg);
+      background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+      color: #ffffff;
+      font-family: var(--font-display);
+      font-size: 38px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      padding: 12px 42px;
+      border: 4px solid #ffffff;
+      box-shadow: 0 0 50px rgba(225, 29, 72, 0.85);
+      z-index: 50;
+      pointer-events: none;
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+    }
+    .stage-objection-banner.fire {
+      transform: translate(-50%, -50%) scale(1) rotate(-6deg);
+    }
+
+    /* Stage Floor Overlays: Speech Cards */
+    .stage-speech-overlay {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      right: 14px;
+      z-index: 20;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      pointer-events: none;
+    }
+
+    .speaker-dialog-card {
+      background: rgba(9, 12, 20, 0.92);
+      border: 1px solid var(--border-medium);
+      border-radius: 8px;
+      padding: 12px 16px;
+      backdrop-filter: blur(10px);
+      pointer-events: auto;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+      transition: border-color 0.2s ease;
+    }
+    .speaker-dialog-card.pros {
+      border-left: 4px solid var(--accent-coral);
+    }
+    .speaker-dialog-card.def {
+      border-right: 4px solid var(--accent-emerald);
+      text-align: right;
+    }
+
+    .dialog-header {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .speaker-dialog-card.pros .dialog-header { color: var(--accent-coral); }
+    .speaker-dialog-card.def .dialog-header { color: var(--accent-emerald); }
+
+    .dialog-text {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #cbd5e1;
+      max-height: 52px;
+      overflow-y: auto;
+      line-height: 1.45;
+    }
+
+    /* =========================================================================
+       RIGHT SIDEBAR (380px): DIALECTIC STREAM & JUDICIAL DECREE
+       ========================================================================= */
+    aside.sidebar-dialectic {
+      background: var(--bg-sidebar);
+      border-left: 1px solid var(--border-medium);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      z-index: 10;
+    }
+
+    .dialectic-feed-container {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    /* Quantitative Leverage Meter */
+    .leverage-gauge-module {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 4px;
+    }
+
+    .leverage-metric-line {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+    .leverage-metric-line .pros-val { color: var(--accent-coral); font-weight: 700; }
+    .leverage-metric-line .def-val { color: var(--accent-emerald); font-weight: 700; }
+
+    .leverage-track {
+      height: 6px;
+      background: #000000;
+      border-radius: 3px;
+      overflow: hidden;
+      display: flex;
+    }
+    .leverage-track .fill-pros {
+      background: var(--accent-coral);
+      width: 50%;
+      transition: width 0.4s ease;
+    }
+    .leverage-track .fill-def {
+      background: var(--accent-emerald);
+      width: 50%;
+      transition: width 0.4s ease;
+    }
+
+    /* Signed Judicial Decree Scroll */
+    .judicial-decree-card {
+      background: linear-gradient(180deg, #181308 0%, #0d0a04 100%);
+      border: 2px solid var(--accent-gold);
+      border-radius: 8px;
+      padding: 14px 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+      position: relative;
+      animation: unrollDecree 0.3s ease-out;
+    }
+    @keyframes unrollDecree {
+      from { transform: scaleY(0.8); opacity: 0; }
+      to { transform: scaleY(1); opacity: 1; }
+    }
+
+    .wax-seal-stamp {
+      position: absolute;
+      top: -10px;
+      right: 14px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #e11d48, #881337);
+      border: 2px solid #fecdd3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    }
+
+    .decree-title {
+      font-family: var(--font-display);
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--accent-gold-bright);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .decree-conditions-list {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+    .decree-conditions-list ul {
+      margin-top: 4px;
+      padding-left: 16px;
+    }
+
+    /* Monospace Transcript Bubbles */
+    .chat-bubble-row {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+    .chat-bubble-row.pros { border-left: 3px solid var(--accent-coral); }
+    .chat-bubble-row.def { border-left: 3px solid var(--accent-emerald); }
+    .chat-bubble-row.jdg { border-left: 3px solid var(--accent-gold); }
+    .chat-bubble-row.clk { border-left: 3px solid var(--text-dim); }
+
+    .chat-row-header {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      margin-bottom: 4px;
+    }
+    .chat-row-header .speaker.pros { color: var(--accent-coral); font-weight: 700; }
+    .chat-row-header .speaker.def { color: var(--accent-emerald); font-weight: 700; }
+    .chat-row-header .speaker.jdg { color: var(--accent-gold-bright); font-weight: 800; }
+    .chat-row-header .speaker.clk { color: var(--text-dim); }
+
+    .chat-row-content {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #e2e8f0;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    /* 3. BOTTOM PIPELINE DOCK (44px) */
+    footer.cockpit-bottomdock {
+      height: 44px;
+      background: #080b12;
+      border-top: 1px solid var(--border-medium);
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+    }
+
+    .pipeline-rings-flow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ring-step-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 9px;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .ring-step-pill:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      border-color: var(--border-medium);
+    }
+    .ring-step-pill.active {
+      border-color: var(--accent-gold);
+      color: var(--accent-gold-bright);
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    /* =========================================================================
+       MODAL DIALOGS (AGENT STUDIO, VOICE FLOOR, VAULT)
+       ========================================================================= */
+    .studio-modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(12px);
+    }
+    .studio-modal-backdrop.open { display: flex; }
+
+    .studio-modal-box {
+      width: 100%;
+      max-width: 960px;
+      max-height: 88vh;
+      background: #0a0e17;
+      border: 1px solid var(--border-medium);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    }
+
+    .modal-head {
+      padding: 14px 20px;
+      background: #07090f;
+      border-bottom: 1px solid var(--border-subtle);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border-subtle);
     }
-    .panel-headline h3 {
+    .modal-head h4 {
       font-size: 13.5px;
       font-weight: 700;
       color: #ffffff;
@@ -564,616 +754,373 @@
       gap: 8px;
     }
 
-    /* Live Transcript Feed */
-    .dialectic-transcript-stream {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-height: 420px;
+    .modal-content-area {
+      padding: 20px;
       overflow-y: auto;
-      padding-right: 4px;
-    }
-
-    .speech-bubble-item {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      padding: 12px 14px;
-      transition: border-color 0.15s ease;
-    }
-    .speech-bubble-item.pros {
-      border-left: 3px solid var(--accent-coral);
-    }
-    .speech-bubble-item.def {
-      border-left: 3px solid var(--accent-emerald);
-    }
-    .speech-bubble-item.jdg {
-      border-left: 3px solid var(--accent-amber);
-    }
-
-    .speech-meta-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      margin-bottom: 5px;
-    }
-    .speech-meta-bar .name.pros { color: var(--accent-coral); font-weight: 700; }
-    .speech-meta-bar .name.def { color: var(--accent-emerald); font-weight: 700; }
-    .speech-meta-bar .name.jdg { color: var(--accent-amber); font-weight: 800; }
-    .speech-meta-bar .name.clk { color: var(--text-dim); }
-
-    .speech-text {
-      font-family: var(--font-mono);
-      font-size: 11.5px;
-      line-height: 1.5;
-      color: #e4e4e7;
-      white-space: pre-wrap;
-    }
-
-    /* Leverage Gauge Bar */
-    .leverage-meter-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      padding: 12px 14px;
-    }
-
-    .leverage-labels-row {
-      display: flex;
-      justify-content: space-between;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      margin-bottom: 8px;
-    }
-    .leverage-labels-row .pros-lbl { color: var(--accent-coral); font-weight: 700; }
-    .leverage-labels-row .def-lbl { color: var(--accent-emerald); font-weight: 700; }
-
-    .leverage-track-shell {
-      height: 6px;
-      background: #000000;
-      border-radius: 3px;
-      overflow: hidden;
-      display: flex;
-    }
-    .track-fill-pros {
-      background: var(--accent-coral);
-      width: 50%;
-      transition: width 0.4s ease;
-    }
-    .track-fill-def {
-      background: var(--accent-emerald);
-      width: 50%;
-      transition: width 0.4s ease;
-    }
-
-    /* Verdict Card */
-    .verdict-result-card {
-      border-radius: 8px;
-      padding: 16px;
-      border: 1px solid var(--border-subtle);
-      font-size: 12px;
-    }
-    .verdict-result-card.conditions {
-      background: rgba(245, 158, 11, 0.08);
-      border-color: rgba(245, 158, 11, 0.3);
-    }
-    .verdict-result-card.block {
-      background: rgba(255, 77, 85, 0.08);
-      border-color: rgba(255, 77, 85, 0.3);
-    }
-    .verdict-result-card.approve {
-      background: rgba(16, 185, 129, 0.08);
-      border-color: rgba(16, 185, 129, 0.3);
-    }
-
-    .verdict-title-bar {
-      font-family: var(--font-mono);
-      font-size: 12px;
-      font-weight: 800;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .verdict-result-card.conditions .verdict-title-bar { color: var(--accent-amber); }
-    .verdict-result-card.block .verdict-title-bar { color: var(--accent-coral); }
-    .verdict-result-card.approve .verdict-title-bar { color: var(--accent-emerald); }
-
-    .verdict-details-content {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: #cbd5e1;
-      line-height: 1.6;
-    }
-    .verdict-details-content ul {
-      margin-top: 6px;
-      padding-left: 18px;
-    }
-
-    /* =========================================================================
-       MODAL OVERLAYS (EXACT PATTERN FROM WEB-SCRAPER-DAY.PAGES.DEV)
-       ========================================================================= */
-    .modal-backdrop {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 10000;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(12px);
-      animation: modalFadeIn 0.2s ease-out;
-    }
-    .modal-backdrop.open {
-      display: flex;
-    }
-    @keyframes modalFadeIn {
-      from { opacity: 0; transform: scale(0.98); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    .modal-dialog-card {
-      position: relative;
-      width: 100%;
-      max-width: 980px;
-      max-height: 88vh;
-      background: #0c0c10;
-      border: 1px solid var(--border-medium);
-      border-radius: 16px;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.8);
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      gap: 16px;
     }
 
-    .modal-dialog-header {
-      padding: 16px 24px;
-      border-bottom: 1px solid var(--border-subtle);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #08080c;
-      flex-shrink: 0;
-    }
-
-    .modal-dialog-body {
-      padding: 24px;
-      overflow-y: auto;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    .modal-close-btn {
-      padding: 6px;
-      border-radius: 8px;
+    .btn-modal-close {
       background: transparent;
       border: none;
       color: var(--text-dim);
+      font-size: 16px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s ease;
     }
-    .modal-close-btn:hover {
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    /* Modal Tables & Cards */
-    .modal-grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-    }
-    @media (max-width: 800px) {
-      .modal-grid-3 { grid-template-columns: 1fr; }
-    }
-
-    .sub-card {
-      background: #121217;
-      border: 1px solid var(--border-subtle);
-      border-radius: 10px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .modal-terminal-box {
-      background: #050508;
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      padding: 16px;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: #a1a1aa;
-      max-height: 280px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      line-height: 1.5;
-    }
+    .btn-modal-close:hover { color: #ffffff; }
   </style>
 </head>
 <body>
 
-  <!-- Top Navigation Bar -->
-  <header class="atlas-header">
-    <div class="brand-cluster">
-      <div class="brand-mark">
-        <span class="brand-logo-text">SHIP COURT</span>
-        <span class="brand-badge">v0.31 Live</span>
-      </div>
-
-      <!-- Target Cluster / Repo Switcher -->
-      <div class="cluster-switcher">
-        <button class="cluster-btn active" id="btn-cluster-shop" onclick="switchTargetCluster('shop')">
-          <span>📦</span>
-          <span>acme/shop (PR #482)</span>
-        </button>
-        <button class="cluster-btn" id="btn-cluster-switch" onclick="switchTargetCluster('switch')">
-          <span>🐙</span>
-          <span>switch-AI (PR #17)</span>
-        </button>
-      </div>
-
-      <!-- Filter Chips -->
-      <div class="domain-filters-deck">
-        <button class="filter-chip active" onclick="filterDomain('all', this)">All Domains</button>
-        <button class="filter-chip" onclick="filterDomain('checkout', this)">
-          <span class="chip-dot" style="background:#6366f1;"></span>
-          <span>Checkout Core</span>
-        </button>
-        <button class="filter-chip" onclick="filterDomain('pricing', this)">
-          <span class="chip-dot" style="background:#f59e0b;"></span>
-          <span>Pricing Engine</span>
-        </button>
-        <button class="filter-chip" onclick="filterDomain('payments', this)">
-          <span class="chip-dot" style="background:#10b981;"></span>
-          <span>Payments SRE</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Header Actions -->
-    <div class="header-actions-deck">
-      <button class="header-action-btn" onclick="openModal('modal-boardroom')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-        <span>Voice Floor</span>
-      </button>
-
-      <button class="header-action-btn" onclick="openModal('modal-studio')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        <span>Agent Studio</span>
-      </button>
-
-      <button class="btn-gradient-studio" onclick="openModal('modal-vault')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        <span>Release Vault</span>
-      </button>
-    </div>
-  </header>
-
-  <!-- Main Container -->
-  <main class="atlas-main">
+  <!-- Fullscreen 100vw x 100vh Shell -->
+  <div class="viewport-app-shell">
     
-    <!-- Hero Action & Search Section -->
-    <section class="hero-search-section">
-      <h1>What pull request would you like to adjudicate?</h1>
-      <p>AI agents cross-examine risk, simulate blast-radius cascades, and enforce human release gates. Rubber-stamping is strictly blocked.</p>
-
-      <form id="hero-petition-form" onsubmit="handlePetitionSubmit(event)" class="search-input-pill">
-        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="hero-task-input" class="search-input-element" value="Dynamic checkout pricing rollout with ML price optimization model" placeholder="https://github.com/acme/shop/pull/482 or describe proposed changes...">
-        <button type="submit" id="btn-hero-submit" class="btn-search-submit">
-          <span>+ Adjudicate with AI</span>
-        </button>
-      </form>
-
-      <div class="search-sub-controls">
-        <label class="search-checkbox-label">
-          <input type="checkbox" id="chk-instructions" checked style="accent-color:#ff4d55;">
-          <span>Enforce mandatory human magistrate gate (@Priya)</span>
-        </label>
-
-        <div class="preset-pill-strip">
-          <span style="font-family:var(--font-mono); font-size:10px; color:var(--text-dim); margin-right:4px;">Presets:</span>
-          <button class="preset-btn-micro active" onclick="applyHeroPreset(1, this)">01 Dynamic Pricing</button>
-          <button class="preset-btn-micro" onclick="applyHeroPreset(2, this)">02 Drop Sessions</button>
-          <button class="preset-btn-micro" onclick="applyHeroPreset(3, this)">03 Redis Cache</button>
-          <button class="preset-btn-micro" onclick="applyHeroPreset(4, this)">04 Digital Twin</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Centerpiece Spatial Canvas: Parallel Earth 3D Digital Twin -->
-    <section class="spatial-canvas-container h-standard" id="spatial-canvas-box">
-      
-      <!-- Top Floating Controls -->
-      <div class="canvas-floating-controls">
-        <button class="canvas-ctrl-btn active" id="btn-cam-iso" onclick="setCanvasView('iso')">Isometric</button>
-        <button class="canvas-ctrl-btn" id="btn-cam-top" onclick="setCanvasView('top')">Top-Down</button>
-        <button class="canvas-ctrl-btn" onclick="resetCanvasCamera()">Reset</button>
-        <button class="canvas-ctrl-btn hazard" onclick="triggerBlastCascade()">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          <span>Simulate Blast Radius</span>
-        </button>
-        <div style="width:1px; height:16px; background:var(--border-subtle); margin:0 2px;"></div>
-        <button class="canvas-ctrl-btn" id="btn-toggle-expand" onclick="toggleCanvasHeight()">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-          <span id="expand-label">Expand</span>
-        </button>
-      </div>
-
-      <!-- Top Left Status Badge -->
-      <div class="canvas-telemetry-badge">
-        <div class="status-dot-pulse"></div>
-        <span>PARALLEL EARTH &middot; 11 SERVICES MESHED</span>
-      </div>
-
-      <!-- Viewport Canvas & 3D Layer -->
-      <div id="three-viewport-canvas"></div>
-      <div id="canvas-pins-layer" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></div>
-
-      <!-- Bottom Floating Telemetry Strip -->
-      <div class="canvas-bottom-strip">
-        <div class="hud-service-identity">
-          <span class="service-tier-tag" id="hud-tier-badge">TIER 1 CRITICAL</span>
-          <div>
-            <div style="font-weight:700; font-size:13px; color:#ffffff; font-family:var(--font-mono);" id="hud-service-title">checkout-service</div>
-            <div style="font-size:11px; color:var(--text-zinc);" id="hud-service-sub">Core transaction pipeline &middot; Owner: Checkout-Platform</div>
-          </div>
+    <!-- 1. Top Header (52px) -->
+    <header class="cockpit-topbar">
+      <div class="brand-section">
+        <div class="brand-crest">SC</div>
+        <div class="brand-title">
+          <span>SHIP COURT</span>
+          <span class="brand-tag">v0.31 Live</span>
         </div>
 
-        <div class="service-hud-stats-group">
-          <div class="hud-stat-unit">
-            <span class="lbl">Downstream Impact</span>
-            <span class="val" id="hud-fanout-count">4 Services</span>
-          </div>
-          <div class="hud-stat-unit">
-            <span class="lbl">Revenue Exposure</span>
-            <span class="val" id="hud-revenue-rate">$4,200 / min</span>
-          </div>
-          <div class="hud-stat-unit">
-            <span class="lbl">Latency SLA Target</span>
-            <span class="val" id="hud-sla-target">99.99% (p99 &lt; 62ms)</span>
-          </div>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- Lower Deck: Adversarial Dialectic & Judicial Decision -->
-    <section class="adjudication-split-grid">
-      
-      <!-- Left: Real-Time Groq Dialectic Stream -->
-      <div class="content-panel">
-        <div class="panel-headline">
-          <h3>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            <span>Multi-Agent Forensic Cross-Examination</span>
-          </h3>
-          <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-dim);" id="dialectic-status">GROQ QWEN-3.8-27B ACTIVE</span>
-        </div>
-
-        <div class="dialectic-transcript-stream" id="transcript-stream-box">
-          <div class="speech-bubble-item clk">
-            <div class="speech-meta-bar">
-              <span class="name clk">@court-clerk (Bailiff)</span>
-              <span style="color:var(--text-dim); font-size:10px;">INITIALIZED</span>
-            </div>
-            <div class="speech-text">Case docketed. Press '+ Adjudicate with AI' above to convene live multi-agent debate across Groq Qwen-3.8-27b.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right: Quantitative Leverage & Signed Verdict Gate -->
-      <div class="content-panel">
-        <div class="panel-headline">
-          <h3>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-            <span>Judicial Release Gate &middot; @Priya</span>
-          </h3>
-          <span style="font-family:var(--font-mono); font-size:11px; color:var(--accent-amber);" id="verdict-status-pill">PENDING EVALUATION</span>
-        </div>
-
-        <!-- Evidence Leverage Gauge -->
-        <div class="leverage-meter-card">
-          <div class="leverage-labels-row">
-            <span class="pros-lbl" id="metric-pros-score">Prosecution: 50 pts (50%)</span>
-            <span class="def-lbl" id="metric-def-score">Defense: 50 pts (50%)</span>
-          </div>
-          <div class="leverage-track-shell">
-            <div class="track-fill-pros" id="bar-fill-pros"></div>
-            <div class="track-fill-def" id="bar-fill-def"></div>
-          </div>
-        </div>
-
-        <!-- Dynamic Verdict Result Card -->
-        <div id="verdict-card-slot" style="display:none;"></div>
-
-        <!-- Action Dispatch to Vault -->
-        <div style="margin-top:auto; padding-top:12px; border-top:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:11px; color:var(--text-zinc);">Automated condition tracking armed.</span>
-          <button class="header-action-btn" onclick="openModal('modal-vault')">
-            <span>Open Release Vault &rarr;</span>
+        <!-- Target Selector -->
+        <div class="cluster-pill-box">
+          <button class="cluster-tab active" id="btn-cluster-shop" onclick="switchPRTarget('shop')">
+            <span>📦</span>
+            <span>acme/shop (PR #482)</span>
+          </button>
+          <button class="cluster-tab" id="btn-cluster-switch" onclick="switchPRTarget('switch')">
+            <span>🐙</span>
+            <span>switch-AI (PR #17)</span>
           </button>
         </div>
       </div>
 
-    </section>
-
-  </main>
-
-  <!-- =========================================================================
-       MODAL 1: ANTIGRAVITY AGENT STUDIO (SCOPE GUARD & PRETOOLUSE SENTINEL)
-       ========================================================================= -->
-  <div class="modal-backdrop" id="modal-studio">
-    <div class="modal-dialog-card">
-      <div class="modal-dialog-header">
-        <div style="display:flex; align-items:center; gap:12px;">
-          <div style="width:36px; height:36px; border-radius:10px; background:rgba(255,77,85,0.15); border:1px solid rgba(255,77,85,0.3); display:flex; align-items:center; justify-content:center; color:#ff4d55;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          </div>
-          <div>
-            <div style="font-weight:700; font-size:14px; color:#ffffff;">Antigravity Agent Studio &middot; Scope Guard</div>
-            <div style="font-size:11px; color:var(--text-zinc);">Ring 1 &middot; Three Parallel Developer Agents on Local Workstations</div>
-          </div>
+      <!-- Center & Right Actions -->
+      <div class="top-telemetry-cluster">
+        <div class="telemetry-chip">
+          <div class="pulse-dot green"></div>
+          <span>GROQ QWEN-3.8-27B</span>
         </div>
-        <button class="modal-close-btn" onclick="closeModal('modal-studio')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <div class="telemetry-chip">
+          <div class="pulse-dot gold"></div>
+          <span>MAGISTRATE: @Priya</span>
+        </div>
+
+        <button class="btn-top-modal-trigger" onclick="openStudioModal('modal-studio')">
+          <span>🛡️ Agent Studio</span>
+        </button>
+        <button class="btn-top-modal-trigger" onclick="openStudioModal('modal-boardroom')">
+          <span>🎙️ Voice Floor</span>
+        </button>
+        <button class="btn-top-modal-trigger" style="border-color:var(--accent-coral); color:#fca5a5;" onclick="openStudioModal('modal-vault')">
+          <span>🔐 Release Vault</span>
         </button>
       </div>
+    </header>
 
-      <div class="modal-dialog-body">
-        <div class="modal-grid-3">
+    <!-- 2. Main Spatial Cockpit Workspace (Fills all remaining screen space) -->
+    <div class="cockpit-main-workspace">
+      
+      <!-- LEFT SIDEBAR: Evidence & Subpoena Vault -->
+      <aside class="sidebar-evidence">
+        <div class="sidebar-section-header">
+          <h3>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span>Evidence &amp; Docket</span>
+          </h3>
+          <span style="font-family:var(--font-mono); font-size:10px; color:var(--accent-gold);" id="sidebar-docket-id">CASE-SC-0482</span>
+        </div>
+
+        <div class="sidebar-scroll-body">
           
-          <div class="sub-card" id="card-teammate-1">
-            <div>
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <span style="font-family:var(--font-mono); font-weight:700; font-size:12px; color:#ffffff;">teammate-1-frontend</span>
-                <span style="font-family:var(--font-mono); font-size:10px; font-weight:700; color:var(--accent-emerald); background:rgba(16,185,129,0.1); padding:2px 6px; border-radius:4px;">ACTIVE</span>
-              </div>
-              <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-zinc); line-height:1.6;">
-                Scope: <code>frontend/**</code>, <code>ui/**</code><br>
-                Locks: 0 files &middot; Violations: 0
-              </div>
+          <!-- Presets -->
+          <div>
+            <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px;">Select Failure Scenario</div>
+            <div class="preset-selector-group">
+              <button class="preset-row-btn active" onclick="loadCockpitPreset(1, this)">
+                <span>01 Dynamic Pricing ML</span>
+                <span class="preset-indicator"></span>
+              </button>
+              <button class="preset-row-btn" onclick="loadCockpitPreset(2, this)">
+                <span>02 Drop user_sessions</span>
+                <span class="preset-indicator"></span>
+              </button>
+              <button class="preset-row-btn" onclick="loadCockpitPreset(3, this)">
+                <span>03 Redis Cache Fallback</span>
+                <span class="preset-indicator"></span>
+              </button>
+              <button class="preset-row-btn" onclick="loadCockpitPreset(4, this)">
+                <span>04 Digital Twin Canary</span>
+                <span class="preset-indicator"></span>
+              </button>
             </div>
-            <button class="header-action-btn" style="margin-top:12px; width:100%; justify-content:center;" onclick="testAgentSafeAction(1)">
-              Test Safe Action (cart.tsx)
+          </div>
+
+          <!-- Petition Box -->
+          <div class="petition-box">
+            <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-dim); text-transform:uppercase;">Petition / Diff Spec</div>
+            <textarea id="cockpit-task-input" class="petition-textarea">Dynamic checkout pricing rollout with ML price optimization model</textarea>
+            <button class="btn-convene-trial" id="btn-convene-trial" onclick="conveneCockpitDebate()">
+              <span>⚡</span>
+              <span>Convene 3D Trial</span>
             </button>
           </div>
 
-          <div class="sub-card" id="card-teammate-2">
-            <div>
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <span style="font-family:var(--font-mono); font-weight:700; font-size:12px; color:#ffffff;">teammate-2-pricing</span>
-                <span style="font-family:var(--font-mono); font-size:10px; font-weight:700; color:var(--accent-emerald); background:rgba(16,185,129,0.1); padding:2px 6px; border-radius:4px;">ACTIVE</span>
-              </div>
-              <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-zinc); line-height:1.6;">
-                Scope: <code>services/pricing/**</code>, <code>models/**</code><br>
-                Locks: 2 files &middot; Violations: 0
-              </div>
+          <!-- Incident Dossier: INC-017 -->
+          <div class="dossier-card incident">
+            <div class="dossier-header-bar">
+              <strong>INC-017 &middot; PRICING DIVERGENCE</strong>
+              <span style="color:var(--accent-coral);">HIGH PRECEDENT</span>
             </div>
-            <button class="header-action-btn" style="margin-top:12px; width:100%; justify-content:center;" onclick="testAgentSafeAction(2)">
-              Test Safe Action (models.py)
-            </button>
+            <div class="dossier-body-text">
+              Uncached pricing recalculation caused client/server divergence. Resulted in 41 failed checkouts and 14m revenue stall.
+            </div>
+            <div class="dossier-stats-strip">
+              <div>Service: <span class="stat-val">checkout-service</span></div>
+              <div>Rollback: <span class="stat-val">v1.88.4 verified</span></div>
+            </div>
           </div>
 
-          <div class="sub-card" id="card-teammate-3">
-            <div>
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <span style="font-family:var(--font-mono); font-weight:700; font-size:12px; color:#ffffff;">teammate-3-checkout</span>
-                <span style="font-family:var(--font-mono); font-size:10px; font-weight:700; color:var(--accent-emerald); background:rgba(16,185,129,0.1); padding:2px 6px; border-radius:4px;" id="badge-agent-3">ACTIVE</span>
-              </div>
-              <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-zinc); line-height:1.6;">
-                Scope: <code>services/checkout/**</code>, <code>api/v1/**</code><br>
-                Locks: 1 file &middot; Violations: <span id="count-agent-3">0</span>
-              </div>
+          <!-- Parallel Earth Blast Radius Dossier -->
+          <div class="dossier-card blast">
+            <div class="dossier-header-bar">
+              <strong>PARALLEL EARTH &middot; BLAST</strong>
+              <span style="color:var(--accent-gold);">DIGITAL TWIN</span>
             </div>
-            <button class="header-action-btn" style="margin-top:12px; width:100%; justify-content:center;" onclick="testAgentSafeAction(3)">
-              Test Safe Action (payment.py)
-            </button>
+            <div class="dossier-body-text">
+              Modeled downstream cascade touches 4 Tier-1 nodes: pricing-engine &rarr; checkout-service &rarr; payment-gateway.
+            </div>
+            <div class="dossier-stats-strip">
+              <div>Exposure: <span class="stat-val" id="dossier-rev-risk">$9,200 / min</span></div>
+              <div>Canary Pass: <span class="stat-val">98.5%</span></div>
+            </div>
+          </div>
+
+          <!-- Subpoena AG-101 (Antigravity Scope) -->
+          <div class="dossier-card">
+            <div class="dossier-header-bar">
+              <strong>SUBPOENA CASE-AG-101</strong>
+              <span style="color:var(--accent-emerald);">RING 1 GUARD</span>
+            </div>
+            <div class="dossier-body-text">
+              Teammate 3 (checkout) attempted unauthorized modification to <code>services/pricing/engine.py</code>. Execution frozen.
+            </div>
           </div>
 
         </div>
+      </aside>
 
-        <!-- PreToolUse Breach Simulation -->
-        <div style="background:#101015; border:1px solid var(--border-subtle); border-radius:10px; padding:16px;">
-          <div style="font-weight:700; font-size:13px; color:#ffffff; margin-bottom:4px;">Simulate PreToolUse Hook Enforcement</div>
-          <p style="font-size:12px; color:var(--text-zinc); margin-bottom:12px;">Trigger an out-of-bounds edit where teammate-3-checkout attempts to modify services/pricing/engine.py.</p>
-          
-          <div style="display:flex; gap:10px;">
-            <button class="btn-gradient-studio" onclick="triggerStudioBreach()">
-              <span>🚨 Trigger Unauthorized Scope Breach</span>
-            </button>
-            <button class="header-action-btn" onclick="resetStudioBreach()">
-              Reset Agents
-            </button>
+      <!-- CENTER: Expansive 3D Cyber-Tribunal Arena (Three.js) -->
+      <main class="center-stage-arena">
+        
+        <!-- Camera Toolbar -->
+        <div class="stage-camera-toolbar">
+          <button class="cam-btn active" id="btn-cam-wide" onclick="setTribunalCam('wide')">Arena Wide</button>
+          <button class="cam-btn" id="btn-cam-bench" onclick="setTribunalCam('bench')">Judge Dais</button>
+          <button class="cam-btn" id="btn-cam-scales" onclick="setTribunalCam('scales')">Scales 3D</button>
+          <button class="cam-btn" style="color:var(--accent-coral);" onclick="triggerArenaGavelSlam()">Slam Gavel</button>
+        </div>
+
+        <!-- Objection Flash Banner -->
+        <div class="stage-objection-banner" id="stage-objection-banner">OBJECTION!</div>
+
+        <!-- 3D WebGL Canvas Holder -->
+        <div id="three-tribunal-canvas"></div>
+
+        <!-- Stage Speech Cards (Float over 3D arena bottom) -->
+        <div class="stage-speech-overlay">
+          <!-- Prosecution Card -->
+          <div class="speaker-dialog-card pros">
+            <div class="dialog-header">⚔️ @prosecutor &middot; ADVERSARIAL RISK</div>
+            <div class="dialog-text" id="pros-dialog-text">
+              "Subpoenaing incident records... Ready to interrogate monetary blast radius and cache divergence."
+            </div>
           </div>
 
-          <div id="studio-alert-box" style="display:none; margin-top:14px; background:rgba(255,77,85,0.12); border:1px solid var(--accent-coral); border-radius:8px; padding:14px;">
-            <div style="font-weight:700; color:var(--accent-coral); font-family:var(--font-mono); font-size:12px; margin-bottom:6px;">
-              [PRETOOLUSE HOOK BREACH: EXECUTION FROZEN]
+          <!-- Defense Card -->
+          <div class="speaker-dialog-card def">
+            <div class="dialog-header">@defender &middot; SRE MITIGATION 🛡️</div>
+            <div class="dialog-text" id="def-dialog-text">
+              "Circuit breaker armed. Proposing 5% canary stepping with 1.8s automated rollback SLA."
             </div>
-            <div style="font-family:var(--font-mono); font-size:11px; color:#e4e4e7; line-height:1.6;">
-              Agent <code>teammate-3-checkout</code> attempted edit on <code>services/pricing/engine.py</code>.<br>
-              Action blocked before disk write. Subpoena <code>CASE-AG-101</code> opened in Discord and Switch.
+          </div>
+        </div>
+
+      </main>
+
+      <!-- RIGHT SIDEBAR: Dialectic Stream & Signed Judicial Decree -->
+      <aside class="sidebar-dialectic">
+        <div class="sidebar-section-header">
+          <h3>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span>Dialectic Transcript</span>
+          </h3>
+          <span style="font-family:var(--font-mono); font-size:10px; color:var(--accent-emerald);" id="status-verdict-tag">UNPROVEN</span>
+        </div>
+
+        <div class="dialectic-feed-container" id="dialectic-feed-box">
+          
+          <!-- Leverage Gauge -->
+          <div class="leverage-gauge-module">
+            <div class="leverage-metric-line">
+              <span class="pros-val" id="val-pros-score">Prosecution: 50 pts (50%)</span>
+              <span class="def-val" id="val-def-score">Defense: 50 pts (50%)</span>
             </div>
+            <div class="leverage-track">
+              <div class="fill-pros" id="track-fill-pros"></div>
+              <div class="fill-def" id="track-fill-def"></div>
+            </div>
+          </div>
+
+          <!-- Signed Judicial Decree Scroll -->
+          <div id="decree-scroll-slot" style="display:none;"></div>
+
+          <!-- Monospace Chat Stream -->
+          <div class="chat-bubble-row clk">
+            <div class="chat-row-header">
+              <span class="speaker clk">@court-clerk (Bailiff)</span>
+              <span style="color:var(--text-dim); font-size:10px;">INITIALIZED</span>
+            </div>
+            <div class="chat-row-content">Case convened. Click 'Convene 3D Trial' on the left to begin unscripted cross-examination across Groq Qwen-3.8-27b.</div>
+          </div>
+
+        </div>
+      </aside>
+
+    </div>
+
+    <!-- 3. Bottom Pipeline Dock (44px) -->
+    <footer class="cockpit-bottomdock">
+      <div class="pipeline-rings-flow">
+        <div class="ring-step-pill active" onclick="openStudioModal('modal-studio')">
+          <span>Ring 1: Scope Guard</span>
+          <span style="color:var(--accent-emerald);">● 3 Active</span>
+        </div>
+        <div class="ring-step-pill active" onclick="openStudioModal('modal-boardroom')">
+          <span>Ring 2: Voice Floor</span>
+          <span style="color:var(--accent-gold);">● Huddle Monitored</span>
+        </div>
+        <div class="ring-step-pill active">
+          <span>Ring 3: Courtroom</span>
+          <span style="color:#ffffff;">● 3D Arena Ready</span>
+        </div>
+        <div class="ring-step-pill active">
+          <span>Ring 4: Parallel Earth</span>
+          <span style="color:var(--accent-coral);">● $9.2k/min SLA 1.8s</span>
+        </div>
+        <div class="ring-step-pill active" onclick="openStudioModal('modal-vault')">
+          <span>Ring 5: Gated GitHub</span>
+          <span style="color:var(--accent-emerald);">● auto_approve: false</span>
+        </div>
+      </div>
+
+      <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-dim);">
+        FAIL-CLOSED OPERATOR AUTHENTICATION ARMED &middot; SHA-256 VERIFIED
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- =========================================================================
+       MODALS: AGENT STUDIO, VOICE FLOOR, VAULT
+       ========================================================================= -->
+  <!-- 1. Agent Studio Modal -->
+  <div class="studio-modal-backdrop" id="modal-studio">
+    <div class="studio-modal-box">
+      <div class="modal-head">
+        <h4><span>🛡️</span> Antigravity Multi-Agent Studio &middot; Scope Guard</h4>
+        <button class="btn-modal-close" onclick="closeStudioModal('modal-studio')">&times;</button>
+      </div>
+      <div class="modal-content-area">
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:14px;">
+          <div style="background:#0f1422; border:1px solid var(--border-subtle); border-radius:8px; padding:14px;">
+            <div style="font-family:var(--font-mono); font-weight:700; color:#fff; margin-bottom:4px;">teammate-1-frontend</div>
+            <div style="font-size:11px; color:var(--text-muted); line-height:1.6;">
+              Scope: <code>frontend/**</code>, <code>ui/**</code><br>
+              Status: <span style="color:var(--accent-emerald); font-weight:700;">ACTIVE</span>
+            </div>
+            <button class="btn-top-modal-trigger" style="margin-top:10px; width:100%; justify-content:center;" onclick="alert('Safe edit on cart.tsx verified.')">Test cart.tsx</button>
+          </div>
+
+          <div style="background:#0f1422; border:1px solid var(--border-subtle); border-radius:8px; padding:14px;">
+            <div style="font-family:var(--font-mono); font-weight:700; color:#fff; margin-bottom:4px;">teammate-2-pricing</div>
+            <div style="font-size:11px; color:var(--text-muted); line-height:1.6;">
+              Scope: <code>services/pricing/**</code>, <code>models/**</code><br>
+              Status: <span style="color:var(--accent-emerald); font-weight:700;">ACTIVE</span>
+            </div>
+            <button class="btn-top-modal-trigger" style="margin-top:10px; width:100%; justify-content:center;" onclick="alert('Safe edit on models.py verified.')">Test models.py</button>
+          </div>
+
+          <div style="background:#0f1422; border:1px solid var(--border-subtle); border-radius:8px; padding:14px;" id="modal-card-agent-3">
+            <div style="font-family:var(--font-mono); font-weight:700; color:#fff; margin-bottom:4px;">teammate-3-checkout</div>
+            <div style="font-size:11px; color:var(--text-muted); line-height:1.6;">
+              Scope: <code>services/checkout/**</code>, <code>api/v1/**</code><br>
+              Status: <span style="color:var(--accent-emerald); font-weight:700;" id="modal-status-agent-3">ACTIVE</span>
+            </div>
+            <button class="btn-top-modal-trigger" style="margin-top:10px; width:100%; justify-content:center;" onclick="alert('Safe edit on payment.py verified.')">Test payment.py</button>
+          </div>
+        </div>
+
+        <div style="background:#070a12; border:1px solid var(--border-medium); border-radius:8px; padding:16px;">
+          <div style="font-weight:700; font-size:13px; color:#fff; margin-bottom:4px;">PreToolUse Hook Conflict Simulator</div>
+          <p style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">Trigger an out-of-bounds file edit where teammate-3-checkout attempts to modify services/pricing/engine.py.</p>
+          <div style="display:flex; gap:10px;">
+            <button class="btn-convene-trial" style="width:auto;" onclick="triggerStudioBreach()">🚨 Trigger Unauthorized Edit</button>
+            <button class="btn-top-modal-trigger" onclick="resetStudioBreach()">Reset Agents</button>
+          </div>
+          <div id="modal-breach-alert" style="display:none; margin-top:12px; background:rgba(255,77,85,0.12); border:1px solid var(--accent-coral); border-radius:6px; padding:12px; font-family:var(--font-mono); font-size:11px; color:#cbd5e1;">
+            <strong style="color:var(--accent-coral);">[PRETOOLUSE HOOK BREACH DETECTED]</strong><br>
+            Teammate 3 frozen. Out-of-bounds write to <code>services/pricing/engine.py</code> blocked before disk write.<br>
+            Subpoena CASE-AG-101 opened and sent to Discord #meeting-floor.
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- =========================================================================
-       MODAL 2: BOARDROOM OS (DISCORD VOICE THIRD VOICE)
-       ========================================================================= -->
-  <div class="modal-backdrop" id="modal-boardroom">
-    <div class="modal-dialog-card">
-      <div class="modal-dialog-header">
-        <div style="display:flex; align-items:center; gap:12px;">
-          <div style="width:36px; height:36px; border-radius:10px; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); display:flex; align-items:center; justify-content:center; color:#10b981;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
-          </div>
-          <div>
-            <div style="font-weight:700; font-size:14px; color:#ffffff;">Boardroom OS &middot; Discord Voice #meeting-floor</div>
-            <div style="font-size:11px; color:var(--text-zinc);">Ring 2 &middot; ChatGPT On-Call Third Voice &middot; Right-to-Speak Protocol</div>
-          </div>
-        </div>
-        <button class="modal-close-btn" onclick="closeModal('modal-boardroom')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+  <!-- 2. Boardroom OS Modal -->
+  <div class="studio-modal-backdrop" id="modal-boardroom">
+    <div class="studio-modal-box">
+      <div class="modal-head">
+        <h4><span>🎙️</span> Boardroom OS &middot; Discord Voice #meeting-floor</h4>
+        <button class="btn-modal-close" onclick="closeStudioModal('modal-boardroom')">&times;</button>
       </div>
-
-      <div class="modal-dialog-body">
-        <div style="display:flex; justify-content:space-between; align-items:center; background:#121217; border:1px solid var(--border-subtle); border-radius:10px; padding:14px 18px;">
+      <div class="modal-content-area">
+        <div style="background:#0c101a; border:1px solid var(--border-subtle); border-radius:8px; padding:14px; display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <div style="font-weight:700; font-size:13px; color:#ffffff;">Active Huddle: Architecture Release Review</div>
-            <div style="font-size:11px; color:var(--text-zinc); font-family:var(--font-mono);">Participants: David, Sarah, Alex, Priya + ChatGPT On-Call (Listening)</div>
+            <div style="font-weight:700; color:#fff;">Active Voice Huddle &middot; Discord #meeting-floor</div>
+            <div style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono);">Engineers: David, Sarah, Alex, Priya + ChatGPT On-Call Sentinel</div>
           </div>
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-family:var(--font-mono); font-size:11px; color:var(--accent-emerald);">VAD: ACTIVE</span>
-            <canvas id="modal-vad-cvs" width="120" height="20" style="background:#07070a; border-radius:4px;"></canvas>
-          </div>
+          <span style="font-family:var(--font-mono); font-size:11px; color:var(--accent-emerald);">● VAD MONITORING</span>
         </div>
 
-        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px;">
-          <button class="header-action-btn" style="justify-content:center; text-align:center; font-size:11px;" onclick="addFloorRFC('clarification', 'Clarify checkout retry budget under peak traffic')">
-            + Clarification
-          </button>
-          <button class="header-action-btn" style="justify-content:center; text-align:center; font-size:11px;" onclick="addFloorRFC('incident', 'Subpoena past incident INC-017 Pricing Divergence')">
-            + Precedent (INC-017)
-          </button>
-          <button class="header-action-btn" style="justify-content:center; text-align:center; font-size:11px;" onclick="addFloorRFC('mitigation', 'Propose 5% canary stepping with 1.8s rollback')">
-            + Canary Mitigation
-          </button>
-          <button class="header-action-btn" style="justify-content:center; text-align:center; font-size:11px;" onclick="addFloorRFC('hazard', 'Expose database table lock contention')">
-            + Outage Blocker
-          </button>
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;">
+          <button class="btn-top-modal-trigger" style="justify-content:center; font-size:11px;" onclick="addFloorRequest('clarification', 'Clarify checkout retry budget under peak traffic')">+ Clarification</button>
+          <button class="btn-top-modal-trigger" style="justify-content:center; font-size:11px;" onclick="addFloorRequest('incident', 'Subpoena INC-017 Pricing Divergence')">+ Precedent (INC-017)</button>
+          <button class="btn-top-modal-trigger" style="justify-content:center; font-size:11px;" onclick="addFloorRequest('mitigation', 'Propose 5% canary stepping with 1.8s rollback')">+ Canary Mitigation</button>
+          <button class="btn-top-modal-trigger" style="justify-content:center; font-size:11px;" onclick="addFloorRequest('hazard', 'Expose database table lock contention')">+ Outage Blocker</button>
         </div>
 
-        <div style="border:1px solid var(--border-subtle); border-radius:10px; overflow:hidden;">
+        <div style="border:1px solid var(--border-subtle); border-radius:8px; overflow:hidden;">
           <table style="width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:11px; text-align:left;">
             <thead>
-              <tr style="background:#0a0a0e; border-bottom:1px solid var(--border-subtle); color:var(--text-dim);">
+              <tr style="background:#080b12; border-bottom:1px solid var(--border-subtle); color:var(--text-dim);">
                 <th style="padding:10px 14px;">REASON</th>
                 <th style="padding:10px 14px;">SCRIPT PREVIEW</th>
                 <th style="padding:10px 14px;">STATE</th>
-                <th style="padding:10px 14px;">ACTION</th>
+                <th style="padding:10px 14px;">CHAIR ACTION</th>
               </tr>
             </thead>
             <tbody id="modal-floor-tbody">
               <tr style="border-bottom:1px solid var(--border-subtle);">
-                <td style="padding:10px 14px;"><span style="color:var(--accent-amber); font-weight:700;">CLARIFICATION</span></td>
+                <td style="padding:10px 14px;"><span style="color:var(--accent-gold); font-weight:700;">CLARIFICATION</span></td>
                 <td style="padding:10px 14px; color:#ffffff;">"Clarify checkout retry budget under peak traffic to avoid thread exhaustion"</td>
-                <td style="padding:10px 14px; color:var(--text-zinc);">WAITING (75s TTL)</td>
-                <td style="padding:10px 14px;"><button class="header-action-btn" style="padding:3px 8px; font-size:10px;" onclick="grantFloorMock(this)">Grant Floor (30s)</button></td>
+                <td style="padding:10px 14px; color:var(--text-muted);">WAITING (85s TTL)</td>
+                <td style="padding:10px 14px;"><button class="btn-top-modal-trigger" style="padding:3px 8px; font-size:10px;" onclick="grantFloorMock(this)">Grant Floor (30s)</button></td>
               </tr>
             </tbody>
           </table>
@@ -1182,96 +1129,65 @@
     </div>
   </div>
 
-  <!-- =========================================================================
-       MODAL 3: CRYPTOGRAPHIC RELEASE VAULT (GATED GITHUB PIPELINE)
-       ========================================================================= -->
-  <div class="modal-backdrop" id="modal-vault">
-    <div class="modal-dialog-card">
-      <div class="modal-dialog-header">
-        <div style="display:flex; align-items:center; gap:12px;">
-          <div style="width:36px; height:36px; border-radius:10px; background:rgba(217,119,6,0.15); border:1px solid rgba(217,119,6,0.3); display:flex; align-items:center; justify-content:center; color:#f59e0b;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          </div>
-          <div>
-            <div style="font-weight:700; font-size:14px; color:#ffffff;">Autonomous GitHub Operations Agent &middot; Release Vault</div>
-            <div style="font-size:11px; color:var(--text-zinc);">Ring 5 &middot; SHA-256 Plan Hash Verification &middot; Cryptographic Merkle Audit</div>
-          </div>
-        </div>
-        <button class="modal-close-btn" onclick="closeModal('modal-vault')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+  <!-- 3. Release Vault Modal -->
+  <div class="studio-modal-backdrop" id="modal-vault">
+    <div class="studio-modal-box">
+      <div class="modal-head">
+        <h4><span>🔐</span> Autonomous GitHub Operations Agent &middot; Release Vault</h4>
+        <button class="btn-modal-close" onclick="closeStudioModal('modal-vault')">&times;</button>
       </div>
-
-      <div class="modal-dialog-body">
+      <div class="modal-content-area">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
           <div>
             <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-dim); margin-bottom:4px;">Operator Credential (SHIPCOURT_TOKEN)</div>
-            <input id="vault-token-input" type="password" value="__TOKEN_PLACEHOLDER__" style="width:100%; background:#101015; border:1px solid var(--border-subtle); border-radius:8px; padding:8px 12px; font-family:var(--font-mono); font-size:11px; color:#ffffff; outline:none;">
+            <input id="vault-token-input" type="password" value="__TOKEN_PLACEHOLDER__" style="width:100%; background:#07090f; border:1px solid var(--border-subtle); border-radius:6px; padding:8px 12px; font-family:var(--font-mono); font-size:11px; color:#fff; outline:none;">
           </div>
           <div>
             <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-dim); margin-bottom:4px;">Target Pull Request</div>
-            <input id="vault-pr-input" value="https://github.com/GaneshNair007/switch-AI/pull/17" style="width:100%; background:#101015; border:1px solid var(--border-subtle); border-radius:8px; padding:8px 12px; font-family:var(--font-mono); font-size:11px; color:#ffffff; outline:none;">
+            <input id="vault-pr-input" value="https://github.com/GaneshNair007/switch-AI/pull/17" style="width:100%; background:#07090f; border:1px solid var(--border-subtle); border-radius:6px; padding:8px 12px; font-family:var(--font-mono); font-size:11px; color:#fff; outline:none;">
           </div>
         </div>
 
         <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap:8px;">
-          <button class="header-action-btn" style="justify-content:center; text-align:center; font-size:10px;" onclick="execVaultSequence(1)">1. Open Docket</button>
-          <button class="header-action-btn" style="justify-content:center; text-align:center; font-size:10px;" onclick="execVaultSequence(2)">2. Review</button>
-          <button class="header-action-btn" style="justify-content:center; text-align:center; font-size:10px;" onclick="execVaultSequence(3)">3. Sign Verdict</button>
-          <button class="header-action-btn" style="justify-content:center; text-align:center; font-size:10px;" onclick="execVaultSequence(4)">4. Preview Plan</button>
-          <button class="btn-gradient-studio" style="justify-content:center; text-align:center; font-size:10px;" id="btn-vault-apply" onclick="execVaultSequence(5)" disabled>5. Apply GitHub</button>
-          <button class="header-action-btn" style="justify-content:center; text-align:center; font-size:10px;" onclick="execVaultSequence(6)">6. Audit Trail</button>
+          <button class="btn-top-modal-trigger" style="justify-content:center; font-size:10px;" onclick="runVaultStep(1)">1. Open Docket</button>
+          <button class="btn-top-modal-trigger" style="justify-content:center; font-size:10px;" onclick="runVaultStep(2)">2. Review</button>
+          <button class="btn-top-modal-trigger" style="justify-content:center; font-size:10px;" onclick="runVaultStep(3)">3. Sign Verdict</button>
+          <button class="btn-top-modal-trigger" style="justify-content:center; font-size:10px;" onclick="runVaultStep(4)">4. Preview Plan</button>
+          <button class="btn-convene-trial" style="justify-content:center; font-size:10px; padding:6px;" id="btn-vault-apply" onclick="runVaultStep(5)" disabled>5. Apply GitHub</button>
+          <button class="btn-top-modal-trigger" style="justify-content:center; font-size:10px;" onclick="runVaultStep(6)">6. Audit Trail</button>
         </div>
 
         <div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-family:var(--font-mono); font-size:10px; color:var(--text-dim); text-transform:uppercase;">Cryptographic Event Log</span>
-            <span style="font-family:var(--font-mono); font-size:10px; color:var(--text-zinc);" id="vault-plan-hash-lbl">PLAN HASH: NONE</span>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-family:var(--font-mono); font-size:10px; color:var(--text-dim);">
+            <span>CRYPTOGRAPHIC LEDGER STREAM</span>
+            <span id="vault-plan-hash-label">PLAN HASH: NONE</span>
           </div>
-          <pre class="modal-terminal-box" id="vault-terminal-output">// Ship Court Vault Terminal
-// Click '1. Open Docket' to begin cryptographic release lifecycle.</pre>
+          <pre style="background:#04060b; border:1px solid var(--border-subtle); border-radius:6px; padding:14px; font-family:var(--font-mono); font-size:11px; color:#94a3b8; max-height:260px; overflow-y:auto; line-height:1.5;" id="vault-term-output">// Click '1. Open Docket' to begin cryptographic release lifecycle.</pre>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Client-Side Engine -->
+  <!-- Client-Side Engine: Three.js 3D Courtroom, Physical Scales, Gavel Strike, & APIs -->
   <script>
     // =========================================================================
-    // 1. Modal Dialog Controller
+    // 1. Modal Controller
     // =========================================================================
-    function openModal(id) {
+    function openStudioModal(id) {
       const modal = document.getElementById(id);
       if (modal) modal.classList.add('open');
-      if (id === 'modal-boardroom') initModalVAD();
     }
-
-    function closeModal(id) {
+    function closeStudioModal(id) {
       const modal = document.getElementById(id);
       if (modal) modal.classList.remove('open');
     }
-
     window.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
-        document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('open'));
+        document.querySelectorAll('.studio-modal-backdrop').forEach(m => m.classList.remove('open'));
       }
     });
 
-    // =========================================================================
-    // 2. Presets & Hero Search Action
-    // =========================================================================
-    function applyHeroPreset(idx, btn) {
-      document.querySelectorAll('.preset-btn-micro').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
-
-      const inp = document.getElementById('hero-task-input');
-      if (idx === 1) inp.value = "Dynamic checkout pricing rollout with ML price optimization model";
-      else if (idx === 2) inp.value = "Drop database table user_sessions during active peak hours without backup";
-      else if (idx === 3) inp.value = "Add Redis caching to product search queries with 60s TTL and automatic DB fallback";
-      else inp.value = "Deploy parallel earth blast-radius simulation engine to production canary";
-    }
-
-    function switchTargetCluster(name) {
+    function switchPRTarget(name) {
       document.getElementById('btn-cluster-shop').classList.toggle('active', name === 'shop');
       document.getElementById('btn-cluster-switch').classList.toggle('active', name === 'switch');
       const prInp = document.getElementById('vault-pr-input');
@@ -1279,30 +1195,427 @@
       else prInp.value = "https://github.com/acme/shop/pull/482";
     }
 
-    function filterDomain(domain, btn) {
-      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    // =========================================================================
+    // 2. Presets & Trial Trigger
+    // =========================================================================
+    function loadCockpitPreset(idx, btn) {
+      document.querySelectorAll('.preset-row-btn').forEach(b => b.classList.remove('active'));
       if (btn) btn.classList.add('active');
+
+      const task = document.getElementById('cockpit-task-input');
+      if (idx === 1) task.value = "Dynamic checkout pricing rollout with ML price optimization model";
+      else if (idx === 2) task.value = "Drop database table user_sessions during active peak hours without backup";
+      else if (idx === 3) task.value = "Add Redis caching to product search queries with 60s TTL and automatic DB fallback";
+      else task.value = "Deploy parallel earth blast-radius simulation engine to production canary";
     }
 
-    async function handlePetitionSubmit(e) {
-      e.preventDefault();
-      const task = document.getElementById('hero-task-input').value.trim();
+    // =========================================================================
+    // 3. Three.js Cinematic 3D Courtroom Arena
+    // =========================================================================
+    let scene, camera, renderer;
+    let gavelGroup, gavelPivot, scalesCrossbar, scalesPanLeft, scalesPanRight;
+    let targetCameraPos = new THREE.Vector3(0, 38, 70);
+    let targetLookAt = new THREE.Vector3(0, 10, 0);
+    let currentLookAt = new THREE.Vector3(0, 10, 0);
+    let shockwaveMesh = null;
+    let particlesGroup = null;
+    let targetScalesAngle = 0;
+    let currentScalesAngle = 0;
+    let droppingWeights = [];
+
+    function initThreeArena() {
+      const container = document.getElementById('three-tribunal-canvas');
+      if (!container) return;
+
+      const w = container.clientWidth || 800;
+      const h = container.clientHeight || 600;
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x04060a);
+      scene.fog = new THREE.FogExp2(0x04060a, 0.008);
+
+      camera = new THREE.PerspectiveCamera(40, w / h, 1, 1000);
+      camera.position.set(0, 38, 70);
+      camera.lookAt(0, 10, 0);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(w, h);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      container.appendChild(renderer.domElement);
+
+      // Floor: Reflective Dark Marble with Brass Ring Inlay
+      const floorGeo = new THREE.PlaneGeometry(160, 160);
+      const floorMat = new THREE.MeshStandardMaterial({
+        color: 0x090c14,
+        roughness: 0.15,
+        metalness: 0.2
+      });
+      const floor = new THREE.Mesh(floorGeo, floorMat);
+      floor.rotation.x = -Math.PI / 2;
+      floor.position.y = 0;
+      scene.add(floor);
+
+      const ringGeo = new THREE.RingGeometry(38, 38.6, 64);
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0xd97706, side: THREE.DoubleSide });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.y = 0.05;
+      scene.add(ring);
+
+      const grid = new THREE.GridHelper(160, 32, 0x1f2738, 0x0b101c);
+      grid.position.y = 0.02;
+      scene.add(grid);
+
+      // Ambient & Volumetric Spotlights
+      const amb = new THREE.AmbientLight(0xffffff, 0.6);
+      scene.add(amb);
+
+      const judgeSpot = new THREE.SpotLight(0xfef08a, 1.2);
+      judgeSpot.position.set(0, 50, -10);
+      judgeSpot.target.position.set(0, 16, -20);
+      scene.add(judgeSpot);
+      scene.add(judgeSpot.target);
+
+      const arenaDirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+      arenaDirLight.position.set(40, 60, 40);
+      scene.add(arenaDirLight);
+
+      // Build 3D Entities
+      buildMagistrateBench();
+      buildScalesOfJustice();
+      buildHolographicDocket();
+      buildParticles();
+
+      // Mouse Orbit
+      let dragging = false;
+      let prevM = { x: 0, y: 0 };
+      container.addEventListener('mousedown', e => {
+        dragging = true;
+        prevM = { x: e.clientX, y: e.clientY };
+      });
+      window.addEventListener('mouseup', () => dragging = false);
+      container.addEventListener('mousemove', e => {
+        if (dragging) {
+          const dx = e.clientX - prevM.x;
+          const dy = e.clientY - prevM.y;
+          targetCameraPos.x -= dx * 0.1;
+          targetCameraPos.y = Math.max(15, Math.min(65, targetCameraPos.y + dy * 0.1));
+          prevM = { x: e.clientX, y: e.clientY };
+        }
+      });
+
+      container.addEventListener('wheel', e => {
+        e.preventDefault();
+        targetCameraPos.z = Math.max(35, Math.min(120, targetCameraPos.z + e.deltaY * 0.08));
+      });
+
+      window.addEventListener('resize', onArenaResize);
+      arenaLoop();
+    }
+
+    function onArenaResize() {
+      const container = document.getElementById('three-tribunal-canvas');
+      if (!container || !renderer || !camera) return;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+
+    function buildMagistrateBench() {
+      // Elevated Stone Dais
+      const daisGeo = new THREE.CylinderGeometry(28, 30, 4, 32);
+      const daisMat = new THREE.MeshStandardMaterial({ color: 0x0f1524, roughness: 0.3 });
+      const dais = new THREE.Mesh(daisGeo, daisMat);
+      dais.position.set(0, 2, -22);
+      scene.add(dais);
+
+      // Curved Mahogany Desk
+      const deskGeo = new THREE.BoxGeometry(26, 7, 6);
+      const deskMat = new THREE.MeshStandardMaterial({ color: 0x1f160e, roughness: 0.25, metalness: 0.2 });
+      const desk = new THREE.Mesh(deskGeo, deskMat);
+      desk.position.set(0, 7.5, -20);
+      scene.add(desk);
+
+      // Brass Inlaid Balustrade Top
+      const trimGeo = new THREE.BoxGeometry(26.4, 0.6, 6.4);
+      const trimMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.8, roughness: 0.2 });
+      const trim = new THREE.Mesh(trimGeo, trimMat);
+      trim.position.set(0, 11, -20);
+      scene.add(trim);
+
+      // Marble Sound Block
+      const blockGeo = new THREE.CylinderGeometry(2.5, 2.7, 1.2, 16);
+      const blockMat = new THREE.MeshStandardMaterial({ color: 0x06090f, roughness: 0.1, metalness: 0.1 });
+      const soundBlock = new THREE.Mesh(blockGeo, blockMat);
+      soundBlock.position.set(0, 11.6, -19);
+      scene.add(soundBlock);
+
+      // 3D Brass Gavel
+      gavelGroup = new THREE.Group();
+      gavelGroup.position.set(0, 12.2, -19);
+
+      // Handle Pivot at the base
+      gavelPivot = new THREE.Group();
+      gavelGroup.add(gavelPivot);
+
+      const handleGeo = new THREE.CylinderGeometry(0.3, 0.45, 7, 12);
+      const handleMat = new THREE.MeshStandardMaterial({ color: 0x2d1e0d, roughness: 0.3 });
+      const handle = new THREE.Mesh(handleGeo, handleMat);
+      handle.position.set(0, 3.5, 0);
+      gavelPivot.add(handle);
+
+      const headGeo = new THREE.CylinderGeometry(1.2, 1.2, 4, 16);
+      const headMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.85, roughness: 0.2 });
+      const head = new THREE.Mesh(headGeo, headMat);
+      head.rotation.z = Math.PI / 2;
+      head.position.set(0, 7, 0);
+      gavelPivot.add(head);
+
+      scene.add(gavelGroup);
+
+      // Shockwave Ring
+      const shockGeo = new THREE.RingGeometry(0.5, 1.2, 32);
+      const shockMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24, side: THREE.DoubleSide, transparent: true, opacity: 0 });
+      shockwaveMesh = new THREE.Mesh(shockGeo, shockMat);
+      shockwaveMesh.rotation.x = -Math.PI / 2;
+      shockwaveMesh.position.set(0, 11.7, -19);
+      scene.add(shockwaveMesh);
+    }
+
+    function buildScalesOfJustice() {
+      const scalesGroup = new THREE.Group();
+      scalesGroup.position.set(0, 0, 4);
+
+      // Center Pillar
+      const pillarGeo = new THREE.CylinderGeometry(0.6, 0.9, 18, 16);
+      const brassMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.85, roughness: 0.2 });
+      const pillar = new THREE.Mesh(pillarGeo, brassMat);
+      pillar.position.set(0, 9, 0);
+      scalesGroup.add(pillar);
+
+      // Fulcrum
+      const fulcrumGeo = new THREE.SphereGeometry(1.1, 16, 16);
+      const fulcrum = new THREE.Mesh(fulcrumGeo, brassMat);
+      fulcrum.position.set(0, 18, 0);
+      scalesGroup.add(fulcrum);
+
+      // Crossbar (Rotates dynamically!)
+      scalesCrossbar = new THREE.Group();
+      scalesCrossbar.position.set(0, 18, 0);
+
+      const barGeo = new THREE.BoxGeometry(26, 0.6, 0.6);
+      const bar = new THREE.Mesh(barGeo, brassMat);
+      scalesCrossbar.add(bar);
+
+      // Left & Right Dish Assemblies
+      scalesPanLeft = createScaleDish(-12);
+      scalesPanRight = createScaleDish(12);
+
+      scalesCrossbar.add(scalesPanLeft);
+      scalesCrossbar.add(scalesPanRight);
+      scalesGroup.add(scalesCrossbar);
+
+      scene.add(scalesGroup);
+    }
+
+    function createScaleDish(xOffset) {
+      const dishGroup = new THREE.Group();
+      dishGroup.position.set(xOffset, 0, 0);
+
+      const chainMat = new THREE.LineBasicMaterial({ color: 0xd97706 });
+      const pts1 = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(-2.5, -6, 0)];
+      const pts2 = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(2.5, -6, 0)];
+      const line1 = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts1), chainMat);
+      const line2 = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts2), chainMat);
+      dishGroup.add(line1);
+      dishGroup.add(line2);
+
+      const dishGeo = new THREE.CylinderGeometry(3.5, 2.5, 0.8, 16);
+      const dishMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.8, roughness: 0.2 });
+      const dish = new THREE.Mesh(dishGeo, dishMat);
+      dish.position.set(0, -6.4, 0);
+      dishGroup.add(dish);
+
+      return dishGroup;
+    }
+
+    function buildHolographicDocket() {
+      const docketGroup = new THREE.Group();
+      docketGroup.position.set(0, 0, 18);
+
+      const baseGeo = new THREE.CylinderGeometry(3.5, 4, 1.5, 8);
+      const baseMat = new THREE.MeshStandardMaterial({ color: 0x0f1524, roughness: 0.2 });
+      const base = new THREE.Mesh(baseGeo, baseMat);
+      base.position.set(0, 0.75, 0);
+      docketGroup.add(base);
+
+      // Rotating Hologram Planes
+      const holoGeo = new THREE.BoxGeometry(3, 4, 0.1);
+      const holoMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.6 });
+      const holoDoc = new THREE.Mesh(holoGeo, holoMat);
+      holoDoc.position.set(0, 4.5, 0);
+      holoDoc.userData = { isHolo: true };
+      docketGroup.add(holoDoc);
+
+      scene.add(docketGroup);
+    }
+
+    function buildParticles() {
+      particlesGroup = new THREE.Group();
+      const pGeo = new THREE.BufferGeometry();
+      const count = 40;
+      const pos = new Float32Array(count * 3);
+      for (let i = 0; i < count * 3; i++) {
+        pos[i] = (Math.random() - 0.5) * 60;
+      }
+      pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      const pMat = new THREE.PointsMaterial({ color: 0xfbbf24, size: 0.6, transparent: true, opacity: 0.4 });
+      const points = new THREE.Points(pGeo, pMat);
+      particlesGroup.add(points);
+      scene.add(particlesGroup);
+    }
+
+    function setTribunalCam(preset) {
+      document.getElementById('btn-cam-wide').classList.toggle('active', preset === 'wide');
+      document.getElementById('btn-cam-bench').classList.toggle('active', preset === 'bench');
+      document.getElementById('btn-cam-scales').classList.toggle('active', preset === 'scales');
+
+      if (preset === 'wide') {
+        targetCameraPos.set(0, 38, 70);
+        targetLookAt.set(0, 10, 0);
+      } else if (preset === 'bench') {
+        targetCameraPos.set(0, 24, 10);
+        targetLookAt.set(0, 15, -20);
+      } else if (preset === 'scales') {
+        targetCameraPos.set(0, 22, 32);
+        targetLookAt.set(0, 14, 4);
+      }
+    }
+
+    let isStrikingGavel = false;
+    let gavelStrikeStart = 0;
+    function triggerArenaGavelSlam() {
+      isStrikingGavel = true;
+      gavelStrikeStart = Date.now();
+    }
+
+    function spawnWeightSphere(isPros) {
+      const geo = isPros ? new THREE.SphereGeometry(0.8, 12, 12) : new THREE.CylinderGeometry(0.9, 0.9, 0.4, 12);
+      const mat = new THREE.MeshStandardMaterial({
+        color: isPros ? 0x1f2430 : 0x10b981,
+        metalness: isPros ? 0.9 : 0.5,
+        roughness: 0.2
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      const startX = isPros ? -12 : 12;
+      mesh.position.set(startX, 26, 4);
+      mesh.userData = { velY: 0, targetY: isPros ? 11.8 : 11.8, isBouncing: true };
+      scene.add(mesh);
+      droppingWeights.push(mesh);
+    }
+
+    function arenaLoop() {
+      requestAnimationFrame(arenaLoop);
+
+      // Smooth camera interpolation
+      camera.position.lerp(targetCameraPos, 0.05);
+      currentLookAt.lerp(targetLookAt, 0.05);
+      camera.lookAt(currentLookAt);
+
+      // Hologram rotation
+      scene.traverse(obj => {
+        if (obj.userData && obj.userData.isHolo) {
+          obj.rotation.y += 0.015;
+          obj.position.y = 4.5 + Math.sin(Date.now() * 0.003) * 0.3;
+        }
+      });
+
+      // Smooth Scales Balancing
+      currentScalesAngle += (targetScalesAngle - currentScalesAngle) * 0.06;
+      if (scalesCrossbar) {
+        scalesCrossbar.rotation.z = currentScalesAngle;
+        // Keep dishes vertical
+        scalesPanLeft.rotation.z = -currentScalesAngle;
+        scalesPanRight.rotation.z = -currentScalesAngle;
+      }
+
+      // Animated Gavel Strike
+      if (isStrikingGavel && gavelPivot) {
+        const elapsed = (Date.now() - gavelStrikeStart) / 1000;
+        if (elapsed < 0.2) {
+          gavelPivot.rotation.z = -elapsed * 5.0; // raise back
+        } else if (elapsed < 0.32) {
+          gavelPivot.rotation.z = -(0.2 * 5.0) + (elapsed - 0.2) * 12.0; // slam down
+        } else {
+          gavelPivot.rotation.z = 0;
+          isStrikingGavel = false;
+
+          // Shockwave burst & camera shake
+          if (shockwaveMesh) {
+            shockwaveMesh.scale.set(1, 1, 1);
+            shockwaveMesh.material.opacity = 1.0;
+          }
+          targetCameraPos.x += (Math.random() - 0.5) * 1.5;
+        }
+      }
+
+      // Shockwave expand
+      if (shockwaveMesh && shockwaveMesh.material.opacity > 0) {
+        shockwaveMesh.scale.multiplyScalar(1.08);
+        shockwaveMesh.material.opacity -= 0.04;
+      }
+
+      // Dropping weights physics
+      for (let i = droppingWeights.length - 1; i >= 0; i--) {
+        const w = droppingWeights[i];
+        if (w.userData.isBouncing) {
+          w.userData.velY -= 0.04;
+          w.position.y += w.userData.velY;
+          if (w.position.y <= w.userData.targetY) {
+            w.position.y = w.userData.targetY;
+            w.userData.velY = -w.userData.velY * 0.4;
+            if (Math.abs(w.userData.velY) < 0.05) w.userData.isBouncing = false;
+          }
+        }
+      }
+
+      if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+      }
+    }
+
+    // =========================================================================
+    // 4. Trial Runner: Unscripted Groq Dialectic & Camera Choreography
+    // =========================================================================
+    async function conveneCockpitDebate() {
+      const task = document.getElementById('cockpit-task-input').value.trim();
       const token = document.getElementById('vault-token-input').value.trim();
       if (!task) return;
 
-      const btn = document.getElementById('btn-hero-submit');
+      const btn = document.getElementById('btn-convene-trial');
       btn.disabled = true;
-      btn.innerHTML = '<span class="status-dot-pulse" style="width:10px; height:10px; background:#fff;"></span> Adjudicating...';
-      document.getElementById('dialectic-status').innerText = 'CROSS-EXAMINATION ACTIVE';
+      btn.innerHTML = '<span>⚡ Cross-Examining in Groq Qwen-3.8-27b...</span>';
+      document.getElementById('status-verdict-tag').innerText = 'CROSS-EXAMINATION ACTIVE';
 
-      const feed = document.getElementById('transcript-stream-box');
+      // Flash Ace Attorney Objection banner
+      const banner = document.getElementById('stage-objection-banner');
+      banner.classList.add('fire');
+      setTimeout(() => banner.classList.remove('fire'), 800);
+
+      // Cut camera to scales
+      setTribunalCam('scales');
+
+      const feed = document.getElementById('dialectic-feed-box');
       feed.innerHTML = `
-        <div class="speech-bubble-item clk">
-          <div class="speech-meta-bar">
-            <span class="name clk">@court-clerk (Bailiff)</span>
-            <span style="font-size:10px; color:var(--text-dim);">${new Date().toLocaleTimeString()}</span>
+        <div class="chat-bubble-row clk">
+          <div class="chat-row-header">
+            <span class="speaker clk">@court-clerk (Bailiff)</span>
+            <span style="color:var(--text-dim); font-size:10px;">${new Date().toLocaleTimeString()}</span>
           </div>
-          <div class="speech-text">Convening courtroom docket. Interrogating blast-radius risk models across Groq Qwen-3.8-27b...</div>
+          <div class="chat-row-content">Trial convened. Interrogating failure precedents and evaluating blast radius...</div>
         </div>
       `;
 
@@ -1326,13 +1639,25 @@
         const pPct = Math.round((pScore / total) * 100);
         const dPct = 100 - pPct;
 
-        document.getElementById('bar-fill-pros').style.width = pPct + '%';
-        document.getElementById('bar-fill-def').style.width = dPct + '%';
-        document.getElementById('metric-pros-score').innerText = `Prosecution: ${pScore} pts (${pPct}%)`;
-        document.getElementById('metric-def-score').innerText = `Defense: ${dScore} pts (${dPct}%)`;
-        document.getElementById('verdict-status-pill').innerText = `VERDICT: ${data.verdict}`;
+        document.getElementById('track-fill-pros').style.width = pPct + '%';
+        document.getElementById('track-fill-def').style.width = dPct + '%';
+        document.getElementById('val-pros-score').innerText = `Prosecution: ${pScore} pts (${pPct}%)`;
+        document.getElementById('val-def-score').innerText = `Defense: ${dScore} pts (${dPct}%)`;
+        document.getElementById('status-verdict-tag').innerText = `VERDICT: ${data.verdict}`;
 
-        renderVerdictResultCard(data);
+        // Tip 3D scales & drop weights
+        targetScalesAngle = Math.max(-0.24, Math.min(0.24, (pScore - dScore) * 0.005));
+        spawnWeightSphere(true);
+        setTimeout(() => spawnWeightSphere(false), 200);
+
+        // Cinematic swoop to Judge Bench & Gavel Strike
+        setTimeout(() => {
+          setTribunalCam('bench');
+          triggerArenaGavelSlam();
+        }, 600);
+
+        // Render Signed Judicial Decree
+        renderJudicialDecree(data);
 
         // Stream Dialectic Transcript
         feed.innerHTML = '';
@@ -1341,17 +1666,23 @@
             const div = document.createElement('div');
             let type = 'clk';
             let sClass = 'clk';
-            if (m.sender.includes('prosecutor')) { type = 'pros'; sClass = 'pros'; }
-            else if (m.sender.includes('defender')) { type = 'def'; sClass = 'def'; }
-            else if (m.sender.includes('judge')) { type = 'jdg'; sClass = 'jdg'; }
+            if (m.sender.includes('prosecutor')) {
+              type = 'pros'; sClass = 'pros';
+              document.getElementById('pros-dialog-text').innerText = '"' + m.content.substring(0, 160) + '..."';
+            } else if (m.sender.includes('defender')) {
+              type = 'def'; sClass = 'def';
+              document.getElementById('def-dialog-text').innerText = '"' + m.content.substring(0, 160) + '..."';
+            } else if (m.sender.includes('judge')) {
+              type = 'jdg'; sClass = 'jdg';
+            }
 
-            div.className = 'speech-bubble-item ' + type;
+            div.className = 'chat-bubble-row ' + type;
             div.innerHTML = `
-              <div class="speech-meta-bar">
-                <span class="name ${sClass}">@${m.sender}</span>
-                <span style="font-size:10px; color:var(--text-dim);">${new Date(m.timestamp * 1000).toLocaleTimeString()}</span>
+              <div class="chat-row-header">
+                <span class="speaker ${sClass}">@${m.sender}</span>
+                <span style="color:var(--text-dim); font-size:10px;">${new Date(m.timestamp * 1000).toLocaleTimeString()}</span>
               </div>
-              <div class="speech-text">${escapeHtml(m.content)}</div>
+              <div class="chat-row-content">${escapeHtml(m.content)}</div>
             `;
             feed.appendChild(div);
           });
@@ -1360,31 +1691,25 @@
 
       } catch (err) {
         feed.innerHTML += `
-          <div class="speech-bubble-item pros">
-            <div class="speech-meta-bar"><span class="name pros">Evaluation Fault</span></div>
-            <div class="speech-text">${escapeHtml(err.message)}</div>
+          <div class="chat-bubble-row pros">
+            <div class="chat-row-header"><span class="speaker pros">Evaluation Error</span></div>
+            <div class="chat-row-content">${escapeHtml(err.message)}</div>
           </div>
         `;
       } finally {
         btn.disabled = false;
-        btn.innerHTML = '<span>+ Adjudicate with AI</span>';
+        btn.innerHTML = '<span>⚡ Convene 3D Trial</span>';
       }
     }
 
-    function renderVerdictResultCard(data) {
-      const slot = document.getElementById('verdict-card-slot');
+    function renderJudicialDecree(data) {
+      const slot = document.getElementById('decree-scroll-slot');
       slot.style.display = 'block';
 
       const v = (data.verdict || 'CONDITIONS').toUpperCase();
-      let modeClass = 'conditions';
-      let title = 'STATUS: MANDATORY OPERATIONAL CONDITIONS REQUIRED';
-      if (v === 'BLOCK') {
-        modeClass = 'block';
-        title = 'STATUS: RELEASE PERMANENTLY BLOCKED';
-      } else if (v === 'APPROVE') {
-        modeClass = 'approve';
-        title = 'STATUS: APPROVED FOR CANARY DEPLOYMENT';
-      }
+      let title = 'BY DECREE OF CHIEF MAGISTRATE PRIYA: SHIP WITH CONDITIONS';
+      if (v === 'BLOCK') title = 'BY DECREE OF CHIEF MAGISTRATE PRIYA: RELEASE BLOCKED';
+      else if (v === 'APPROVE') title = 'BY DECREE OF CHIEF MAGISTRATE PRIYA: CANARY APPROVED';
 
       const conds = data.conditions || [
         "Cap canary replica at 5% traffic split for 30 minutes",
@@ -1398,10 +1723,11 @@
       ];
 
       slot.innerHTML = `
-        <div class="verdict-result-card ${modeClass}">
-          <div class="verdict-title-bar">${title}</div>
-          <div class="verdict-details-content">
-            <strong>Enforceable Conditions:</strong>
+        <div class="judicial-decree-card">
+          <div class="wax-seal-stamp">👑</div>
+          <div class="decree-title">${title}</div>
+          <div class="decree-conditions-list">
+            <strong>Binding Enforceable Conditions:</strong>
             <ul>${conds.map(c => `<li>${escapeHtml(c)}</li>`).join('')}</ul>
             <div style="margin-top:6px;">
               <strong>Assigned Tasks:</strong>
@@ -1413,389 +1739,44 @@
     }
 
     // =========================================================================
-    // 3. Parallel Earth 3D Topology (Three.js)
+    // 5. Modal 1: Agent Studio PreToolUse Hook Actions
     // =========================================================================
-    let scene, camera, renderer, nodesGroup, linksGroup, raycaster, mouse;
-    let blastActive = false;
-
-    const microservices = [
-      { id: 'checkout-service', name: 'checkout-service', tier: 'TIER 1 CRITICAL', rev: '$4,200/min', downstream: 4, sla: '99.99% (p99 < 62ms)', desc: 'Core transaction pipeline · Owner: Checkout-Platform', x: 0, z: 0, color: 0x6366f1 },
-      { id: 'payment-gateway', name: 'payment-gateway', tier: 'TIER 1 CRITICAL', rev: '$5,000/min', downstream: 3, sla: '99.999% (p99 < 110ms)', desc: 'Stripe orchestration · Owner: Payments-Core', x: -50, z: -30, color: 0x10b981 },
-      { id: 'pricing-engine', name: 'pricing-engine', tier: 'TIER 1 CRITICAL', rev: '$3,500/min', downstream: 2, sla: '99.95% (p99 < 45ms)', desc: 'Dynamic algorithms · Owner: Pricing-Platform', x: 50, z: -30, color: 0xf59e0b },
-      { id: 'inventory-service', name: 'inventory-service', tier: 'TIER 1 CRITICAL', rev: '$2,800/min', downstream: 0, sla: '99.99% (p99 < 35ms)', desc: 'Warehouse sync · Owner: Supply-Chain', x: 0, z: -65, color: 0x6366f1 },
-      { id: 'tax-service', name: 'tax-service', tier: 'TIER 2 SECONDARY', rev: '$1,000/min', downstream: 1, sla: '99.90% (p99 < 80ms)', desc: 'Avalara client · Owner: Finance-Tech', x: -40, z: 40, color: 0x71717a },
-      { id: 'stripe-adapter', name: 'stripe-adapter', tier: 'TIER 1 CRITICAL', rev: '$5,000/min', downstream: 0, sla: '99.999% (p99 < 180ms)', desc: 'Direct acquirer API · Owner: Payments-Core', x: -90, z: -50, color: 0x10b981 },
-      { id: 'fraud-detector', name: 'fraud-detector', tier: 'TIER 2 SECONDARY', rev: '$1,200/min', downstream: 0, sla: '99.90% (p99 < 95ms)', desc: 'Risk scoring model · Owner: Risk-Ops', x: -75, z: 0, color: 0x71717a },
-      { id: 'ledger-audit', name: 'ledger-audit', tier: 'TIER 2 SECONDARY', rev: '$800/min', downstream: 0, sla: '99.99% (p99 < 25ms)', desc: 'Double-entry ledger · Owner: Audit-Tech', x: -35, z: -75, color: 0x71717a },
-      { id: 'redis-cache', name: 'redis-cache', tier: 'TIER 2 SECONDARY', rev: '$1,500/min', downstream: 0, sla: '99.95% (p99 < 4ms)', desc: 'Cluster memory cache · Owner: Infra-Data', x: 90, z: -20, color: 0xf59e0b },
-      { id: 'promotions-engine', name: 'promotions-engine', tier: 'TIER 3 PERIPHERAL', rev: '$600/min', downstream: 0, sla: '99.50% (p99 < 55ms)', desc: 'Coupon validator · Owner: Growth-Eng', x: 75, z: -65, color: 0x71717a },
-      { id: 'avalara-client', name: 'avalara-client', tier: 'TIER 3 PERIPHERAL', rev: '$300/min', downstream: 0, sla: '99.00% (p99 < 210ms)', desc: 'Sales tax calculation · Owner: Finance-Tech', x: -65, z: 75, color: 0x71717a }
-    ];
-
-    const serviceLinks = [
-      ['checkout-service', 'payment-gateway'],
-      ['checkout-service', 'pricing-engine'],
-      ['checkout-service', 'inventory-service'],
-      ['checkout-service', 'tax-service'],
-      ['payment-gateway', 'stripe-adapter'],
-      ['payment-gateway', 'fraud-detector'],
-      ['payment-gateway', 'ledger-audit'],
-      ['pricing-engine', 'redis-cache'],
-      ['pricing-engine', 'promotions-engine'],
-      ['tax-service', 'avalara-client']
-    ];
-
-    function initSpatialCanvas() {
-      const container = document.getElementById('three-viewport-canvas');
-      if (!container) return;
-
-      const width = container.clientWidth || 800;
-      const height = container.clientHeight || 480;
-
-      scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x060608);
-
-      camera = new THREE.PerspectiveCamera(40, width / height, 1, 1000);
-      setCanvasView('iso');
-
-      renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(width, height);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      container.appendChild(renderer.domElement);
-
-      const grid = new THREE.GridHelper(260, 26, 0x1f2430, 0x0f1118);
-      grid.position.y = -6;
-      scene.add(grid);
-
-      const ambient = new THREE.AmbientLight(0xffffff, 0.7);
-      scene.add(ambient);
-
-      const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
-      dirLight.position.set(60, 100, 40);
-      scene.add(dirLight);
-
-      nodesGroup = new THREE.Group();
-      linksGroup = new THREE.Group();
-      scene.add(nodesGroup);
-      scene.add(linksGroup);
-
-      raycaster = new THREE.Raycaster();
-      mouse = new THREE.Vector2();
-
-      buildSpatialNodes();
-      buildSpatialLinks();
-      buildSpatialPins();
-
-      // Mouse drag rotation & raycasting
-      let dragging = false;
-      let prevMouse = { x: 0, y: 0 };
-      let dragDist = 0;
-
-      container.addEventListener('mousedown', e => {
-        dragging = true;
-        dragDist = 0;
-        prevMouse = { x: e.clientX, y: e.clientY };
-      });
-
-      window.addEventListener('mouseup', e => {
-        if (dragging && dragDist < 5) {
-          handleSpatialClick(e, container);
-        }
-        dragging = false;
-      });
-
-      container.addEventListener('mousemove', e => {
-        const rect = container.getBoundingClientRect();
-        mouse.x = ((e.clientX - rect.left) / container.clientWidth) * 2 - 1;
-        mouse.y = -((e.clientY - rect.top) / container.clientHeight) * 2 + 1;
-
-        if (dragging) {
-          const dx = e.clientX - prevMouse.x;
-          const dy = e.clientY - prevMouse.y;
-          dragDist += Math.abs(dx) + Math.abs(dy);
-          nodesGroup.rotation.y += dx * 0.005;
-          linksGroup.rotation.y += dx * 0.005;
-          grid.rotation.y += dx * 0.005;
-          prevMouse = { x: e.clientX, y: e.clientY };
-        } else {
-          raycaster.setFromCamera(mouse, camera);
-          const hits = raycaster.intersectObjects(nodesGroup.children);
-          container.style.cursor = hits.length > 0 ? 'pointer' : 'default';
-        }
-      });
-
-      container.addEventListener('wheel', e => {
-        e.preventDefault();
-        camera.position.multiplyScalar(e.deltaY > 0 ? 1.05 : 0.95);
-      });
-
-      window.addEventListener('resize', onSpatialResize);
-      renderSpatialLoop();
-    }
-
-    function onSpatialResize() {
-      const container = document.getElementById('three-viewport-canvas');
-      if (!container || !renderer || !camera) return;
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-    }
-
-    function buildSpatialNodes() {
-      const geo = new THREE.CylinderGeometry(5.5, 5.5, 4, 16);
-      microservices.forEach(n => {
-        const mat = new THREE.MeshLambertMaterial({ color: n.color });
-        const mesh = new THREE.Mesh(geo, mat);
-        mesh.position.set(n.x, 0, n.z);
-        mesh.userData = n;
-
-        const wireGeo = new THREE.EdgesGeometry(geo);
-        const wireMat = new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.25, transparent: true });
-        const wire = new THREE.LineSegments(wireGeo, wireMat);
-        mesh.add(wire);
-
-        nodesGroup.add(mesh);
-      });
-    }
-
-    function buildSpatialLinks() {
-      const nodeMap = {};
-      nodesGroup.children.forEach(m => {
-        if (m.userData && m.userData.id) nodeMap[m.userData.id] = m;
-      });
-
-      serviceLinks.forEach(([fromId, toId]) => {
-        const from = nodeMap[fromId];
-        const to = nodeMap[toId];
-        if (from && to) {
-          const points = [from.position.clone(), to.position.clone()];
-          const geo = new THREE.BufferGeometry().setFromPoints(points);
-          const mat = new THREE.LineBasicMaterial({ color: 0x334155, transparent: true, opacity: 0.6 });
-          const line = new THREE.Line(geo, mat);
-          line.userData = { from: fromId, to: toId };
-          linksGroup.add(line);
-        }
-      });
-    }
-
-    function buildSpatialPins() {
-      const layer = document.getElementById('canvas-pins-layer');
-      if (!layer) return;
-      layer.innerHTML = '';
-
-      microservices.forEach(n => {
-        const pin = document.createElement('div');
-        pin.className = 'service-tag-pin';
-        pin.id = 'pin-' + n.id;
-        pin.innerText = n.name;
-        layer.appendChild(pin);
-      });
-    }
-
-    function updateSpatialPins() {
-      const container = document.getElementById('three-viewport-canvas');
-      if (!container || !camera) return;
-
-      const halfW = container.clientWidth / 2;
-      const halfH = container.clientHeight / 2;
-
-      nodesGroup.children.forEach(mesh => {
-        const n = mesh.userData;
-        if (!n || !n.id) return;
-        const pin = document.getElementById('pin-' + n.id);
-        if (!pin) return;
-
-        const pos = mesh.position.clone();
-        mesh.localToWorld(pos);
-        pos.y += 5.5;
-
-        pos.project(camera);
-
-        if (pos.z < 1) {
-          pin.style.display = 'block';
-          const x = (pos.x * halfW) + halfW;
-          const y = -(pos.y * halfH) + halfH;
-          pin.style.left = x + 'px';
-          pin.style.top = y + 'px';
-        } else {
-          pin.style.display = 'none';
-        }
-      });
-    }
-
-    function setCanvasView(mode) {
-      document.getElementById('btn-cam-iso').classList.toggle('active', mode === 'iso');
-      document.getElementById('btn-cam-top').classList.toggle('active', mode === 'top');
-
-      if (mode === 'top') {
-        camera.position.set(0, 190, 0.1);
-        camera.lookAt(0, 0, 0);
-      } else {
-        camera.position.set(130, 110, 130);
-        camera.lookAt(0, 0, 0);
-      }
-    }
-
-    function resetCanvasCamera() {
-      nodesGroup.rotation.y = 0;
-      linksGroup.rotation.y = 0;
-      const g = scene.children.find(c => c.type === 'GridHelper');
-      if (g) g.rotation.y = 0;
-      setCanvasView('iso');
-    }
-
-    function handleSpatialClick(e, container) {
-      if (!raycaster || !camera || !nodesGroup) return;
-      const rect = container.getBoundingClientRect();
-      const clickCoord = new THREE.Vector2(
-        ((e.clientX - rect.left) / container.clientWidth) * 2 - 1,
-        -((e.clientY - rect.top) / container.clientHeight) * 2 + 1
-      );
-      raycaster.setFromCamera(clickCoord, camera);
-      const hits = raycaster.intersectObjects(nodesGroup.children);
-
-      if (hits.length > 0) {
-        const data = hits[0].object.userData;
-        document.getElementById('hud-tier-badge').innerText = data.tier;
-        document.getElementById('hud-service-title').innerText = data.name;
-        document.getElementById('hud-service-sub').innerText = data.desc;
-        document.getElementById('hud-fanout-count').innerText = `${data.downstream} Services`;
-        document.getElementById('hud-revenue-rate').innerText = data.rev;
-        document.getElementById('hud-sla-target').innerText = data.sla;
-      }
-    }
-
-    function triggerBlastCascade() {
-      blastActive = !blastActive;
-      const affected = ['pricing-engine', 'checkout-service', 'redis-cache', 'promotions-engine'];
-
-      if (blastActive) {
-        nodesGroup.children.forEach(m => {
-          const isAff = affected.includes(m.userData.id);
-          m.material.opacity = isAff ? 1.0 : 0.2;
-          m.material.transparent = !isAff;
-          if (m.userData.id === 'pricing-engine') m.material.color.setHex(0xff4d55);
-        });
-
-        linksGroup.children.forEach(line => {
-          const isAff = affected.includes(line.userData.from) && affected.includes(line.userData.to);
-          line.material.color.setHex(isAff ? 0xff4d55 : 0x1f2430);
-          line.material.opacity = isAff ? 1.0 : 0.15;
-        });
-
-        document.getElementById('hud-revenue-rate').innerText = '$9,200/min EXPOSED';
-        document.getElementById('hud-revenue-rate').style.color = 'var(--accent-coral)';
-      } else {
-        nodesGroup.children.forEach(m => {
-          m.material.color.setHex(m.userData.color);
-          m.material.opacity = 1.0;
-          m.material.transparent = false;
-        });
-
-        linksGroup.children.forEach(line => {
-          line.material.color.setHex(0x334155);
-          line.material.opacity = 0.6;
-        });
-
-        document.getElementById('hud-revenue-rate').innerText = '$4,200/min';
-        document.getElementById('hud-revenue-rate').style.color = '#ffffff';
-      }
-    }
-
-    function toggleCanvasHeight() {
-      const box = document.getElementById('spatial-canvas-box');
-      const isStd = box.classList.contains('h-standard');
-      box.classList.toggle('h-standard', !isStd);
-      box.classList.toggle('h-expanded', isStd);
-      document.getElementById('expand-label').innerText = isStd ? 'Collapse' : 'Expand';
-      setTimeout(onSpatialResize, 350);
-    }
-
-    function renderSpatialLoop() {
-      requestAnimationFrame(renderSpatialLoop);
-      if (nodesGroup) {
-        nodesGroup.children.forEach((c, i) => {
-          c.position.y = Math.sin(Date.now() * 0.0015 + i) * 0.6;
-        });
-        updateSpatialPins();
-      }
-      if (renderer && scene && camera) {
-        renderer.render(scene, camera);
-      }
-    }
-
-    // =========================================================================
-    // 4. Modal 1: Agent Studio Actions
-    // =========================================================================
-    function testAgentSafeAction(num) {
-      alert(`[ANTIGRAVITY SCOPE SENTINEL]
-Teammate ${num} executed authorized tool edit within boundary.
-Verification: 100% compliant.`);
-    }
-
     function triggerStudioBreach() {
-      const card3 = document.getElementById('card-teammate-3');
-      const badge3 = document.getElementById('badge-agent-3');
-      const alertBox = document.getElementById('studio-alert-box');
+      const card3 = document.getElementById('modal-card-agent-3');
+      const status3 = document.getElementById('modal-status-agent-3');
+      const alertBox = document.getElementById('modal-breach-alert');
 
       card3.style.borderColor = 'var(--accent-coral)';
       card3.style.background = 'rgba(255, 77, 85, 0.08)';
-      badge3.innerText = 'QUARANTINED';
-      badge3.style.color = 'var(--accent-coral)';
-      badge3.style.background = 'rgba(255, 77, 85, 0.2)';
-      document.getElementById('count-agent-3').innerText = '1 (CASE-AG-101)';
+      status3.innerText = 'QUARANTINED';
+      status3.style.color = 'var(--accent-coral)';
       alertBox.style.display = 'block';
     }
 
     function resetStudioBreach() {
-      const card3 = document.getElementById('card-teammate-3');
-      const badge3 = document.getElementById('badge-agent-3');
-      const alertBox = document.getElementById('studio-alert-box');
+      const card3 = document.getElementById('modal-card-agent-3');
+      const status3 = document.getElementById('modal-status-agent-3');
+      const alertBox = document.getElementById('modal-breach-alert');
 
       card3.style.borderColor = 'var(--border-subtle)';
-      card3.style.background = '#121217';
-      badge3.innerText = 'ACTIVE';
-      badge3.style.color = 'var(--accent-emerald)';
-      badge3.style.background = 'rgba(16, 185, 129, 0.1)';
-      document.getElementById('count-agent-3').innerText = '0';
+      card3.style.background = '#0f1422';
+      status3.innerText = 'ACTIVE';
+      status3.style.color = 'var(--accent-emerald)';
       alertBox.style.display = 'none';
     }
 
     // =========================================================================
-    // 5. Modal 2: Boardroom OS Actions
+    // 6. Modal 2: Boardroom OS RFC Actions
     // =========================================================================
-    function initModalVAD() {
-      const cvs = document.getElementById('modal-vad-cvs');
-      if (!cvs) return;
-      const ctx = cvs.getContext('2d');
-      const bars = 14;
-
-      function draw() {
-        requestAnimationFrame(draw);
-        ctx.clearRect(0, 0, cvs.width, cvs.height);
-        const w = (cvs.width / bars) - 1;
-        const now = Date.now() * 0.005;
-
-        for (let i = 0; i < bars; i++) {
-          const h = Math.abs(Math.sin(now + i * 0.45)) * (cvs.height - 4) + 2;
-          ctx.fillStyle = i > 10 ? '#f59e0b' : '#10b981';
-          ctx.fillRect(i * (w + 1), cvs.height - h, w, h);
-        }
-      }
-      draw();
-    }
-
-    function addFloorRFC(type, pitch) {
+    function addFloorRequest(type, pitch) {
       const tbody = document.getElementById('modal-floor-tbody');
       const tr = document.createElement('tr');
       tr.style.borderBottom = '1px solid var(--border-subtle)';
       tr.innerHTML = `
-        <td style="padding:10px 14px;"><span style="color:var(--accent-amber); font-weight:700;">${type.toUpperCase()}</span></td>
+        <td style="padding:10px 14px;"><span style="color:var(--accent-gold); font-weight:700;">${type.toUpperCase()}</span></td>
         <td style="padding:10px 14px; color:#ffffff;">"${escapeHtml(pitch)}"</td>
-        <td style="padding:10px 14px; color:var(--text-zinc);">WAITING (90s TTL)</td>
-        <td style="padding:10px 14px;"><button class="header-action-btn" style="padding:3px 8px; font-size:10px;" onclick="grantFloorMock(this)">Grant Floor (30s)</button></td>
+        <td style="padding:10px 14px; color:var(--text-muted);">WAITING (90s TTL)</td>
+        <td style="padding:10px 14px;"><button class="btn-top-modal-trigger" style="padding:3px 8px; font-size:10px;" onclick="grantFloorMock(this)">Grant Floor (30s)</button></td>
       `;
       tbody.prepend(tr);
     }
@@ -1804,7 +1785,7 @@ Verification: 100% compliant.`);
       const td = btn.parentElement;
       const statusTd = td.previousElementSibling;
       statusTd.innerHTML = '<span style="color:var(--accent-emerald); font-weight:700;">SPEAKING (30s)</span>';
-      td.innerHTML = '<button class="header-action-btn" style="padding:3px 8px; font-size:10px;" onclick="releaseFloorMock(this)">Yield</button>';
+      td.innerHTML = '<button class="btn-top-modal-trigger" style="padding:3px 8px; font-size:10px;" onclick="releaseFloorMock(this)">Yield</button>';
     }
 
     function releaseFloorMock(btn) {
@@ -1815,9 +1796,10 @@ Verification: 100% compliant.`);
     }
 
     // =========================================================================
-    // 6. Modal 3: Cryptographic Release Vault Actions
+    // 7. Modal 3: Release Vault Actions
     // =========================================================================
-    let storedPlanHash = null;
+    let vaultPlanHash = null;
+    let vaultCaseId = null;
 
     async function callVaultService(endpoint, body, method = 'POST') {
       const token = document.getElementById('vault-token-input').value.trim();
@@ -1830,37 +1812,36 @@ Verification: 100% compliant.`);
         body: body ? JSON.stringify(body) : undefined
       });
       const res = await resp.json();
-      const term = document.getElementById('vault-terminal-output');
+      const term = document.getElementById('vault-term-output');
       term.textContent = JSON.stringify(res, null, 2);
       if (!resp.ok) throw new Error(res.error || 'Execution failed');
       return res;
     }
 
-    let currentCaseId = null;
-    async function execVaultSequence(step) {
+    async function runVaultStep(step) {
       try {
         if (step === 1) {
           const pr = document.getElementById('vault-pr-input').value.trim();
           const res = await callVaultService('/api/cases', { pr_url: pr, services: ['checkout-service'] });
-          currentCaseId = res.case_id;
+          vaultCaseId = res.case_id;
         } else if (step === 2) {
-          if (!currentCaseId) { alert('Please open a docket first.'); return; }
-          await callVaultService('/api/cases/review', { case_id: currentCaseId });
+          if (!vaultCaseId) { alert('Please open a docket first.'); return; }
+          await callVaultService('/api/cases/review', { case_id: vaultCaseId });
         } else if (step === 3) {
-          await callVaultService('/api/verdicts', { case_id: currentCaseId, command: 'CONDITIONS canary 5% for 30m; Priya owns rollback SLA 1.8s' });
+          await callVaultService('/api/verdicts', { case_id: vaultCaseId, command: 'CONDITIONS canary 5% for 30m; Priya owns rollback SLA 1.8s' });
         } else if (step === 4) {
-          const res = await callVaultService('/api/github/plan', { case_id: currentCaseId });
-          storedPlanHash = res.plan_hash;
-          document.getElementById('vault-plan-hash-lbl').innerText = 'PLAN HASH: ' + storedPlanHash.substring(0, 16) + '...';
+          const res = await callVaultService('/api/github/plan', { case_id: vaultCaseId });
+          vaultPlanHash = res.plan_hash;
+          document.getElementById('vault-plan-hash-label').innerText = 'PLAN HASH: ' + vaultPlanHash.substring(0, 16) + '...';
           document.getElementById('btn-vault-apply').disabled = false;
         } else if (step === 5) {
-          await callVaultService('/api/github/execute', { case_id: currentCaseId, plan_hash: storedPlanHash });
+          await callVaultService('/api/github/execute', { case_id: vaultCaseId, plan_hash: vaultPlanHash });
           document.getElementById('btn-vault-apply').disabled = true;
         } else if (step === 6) {
           await callVaultService('/api/audit/events', null, 'GET');
         }
       } catch (err) {
-        alert('Vault Execution Notice: ' + err.message);
+        alert('Vault Notice: ' + err.message);
       }
     }
 
@@ -1870,7 +1851,7 @@ Verification: 100% compliant.`);
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      initSpatialCanvas();
+      initThreeArena();
     });
   </script>
 </body>
