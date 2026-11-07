@@ -3,1319 +3,1854 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ship Court Atlas | 3D Cyber-Tribunal Cockpit</title>
+  <title>Ship Court — No Deploy Survives Cross-Examination</title>
+  
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Three.js for 3D Courtroom -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  
   <style>
     :root {
-      --bg-void: #05070b;
-      --bg-sidebar: #090c14;
-      --bg-card: #0f1422;
-      --bg-card-hover: #161c2e;
+      --bg-base: #06080e;
+      --bg-surface: #0b0f1a;
+      --bg-card: #101626;
+      --bg-card-hover: #161e33;
       --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-medium: rgba(255, 255, 255, 0.16);
-      --border-brass: rgba(217, 119, 6, 0.4);
-      --accent-coral: #ff4d55;
-      --accent-coral-glow: rgba(255, 77, 85, 0.3);
-      --accent-emerald: #10b981;
-      --accent-emerald-glow: rgba(16, 185, 129, 0.3);
-      --accent-gold: #f59e0b;
-      --accent-gold-bright: #fbbf24;
-      --accent-cyan: #06b6d4;
-      --text-pure: #ffffff;
+      --border-focus: rgba(167, 139, 250, 0.4);
+      --border-gold: rgba(251, 191, 36, 0.4);
+      
+      --purple-brand: #a78bfa;
+      --purple-glow: rgba(167, 139, 250, 0.25);
+      --cyan-bright: #22d3ee;
+      --cyan-glow: rgba(34, 211, 238, 0.25);
+      --emerald-pass: #34d399;
+      --emerald-glow: rgba(52, 211, 153, 0.25);
+      --rose-risk: #f87171;
+      --rose-glow: rgba(248, 113, 113, 0.25);
+      --amber-gavel: #fbbf24;
+      --amber-glow: rgba(251, 191, 36, 0.3);
+      
+      --text-white: #ffffff;
+      --text-body: #cbd5e1;
       --text-muted: #94a3b8;
       --text-dim: #64748b;
-      --font-display: 'Cinzel', serif;
+      
+      --font-display: 'Cinzel', Georgia, serif;
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
+      --font-mono: 'JetBrains Mono', Menlo, Consolas, monospace;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html, body {
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      background-color: var(--bg-void);
-      color: var(--text-pure);
+    html { scroll-behavior: smooth; }
+    
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-body);
       font-family: var(--font-sans);
-      font-size: 13px;
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
+      font-size: 15px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(120, 119, 198, 0.15), transparent),
+        radial-gradient(circle at 10% 30%, rgba(34, 211, 238, 0.05), transparent),
+        radial-gradient(circle at 90% 70%, rgba(167, 139, 250, 0.05), transparent);
     }
 
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: var(--bg-void); }
-    ::-webkit-scrollbar-thumb { background: #1f2738; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-base); }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
 
-    /* =========================================================================
-       APP SHELL: 100vw x 100vh FULL VIEWPORT GRID
-       ========================================================================= */
-    .viewport-app-shell {
-      width: 100vw;
-      height: 100vh;
-      display: grid;
-      grid-template-rows: 52px 1fr 44px;
-      overflow: hidden;
+    /* Container */
+    .container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 24px;
     }
 
-    /* 1. TOP HEADER (52px) */
-    header.cockpit-topbar {
-      height: 52px;
-      background: rgba(9, 12, 20, 0.96);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-medium);
-      padding: 0 20px;
+    /* Navigation */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(6, 8, 14, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      height: 64px;
+      display: flex;
+      align-items: center;
+    }
+    .navbar .container {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      z-index: 100;
+      width: 100%;
     }
-
-    .brand-section {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .brand-crest {
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      background: linear-gradient(135deg, #1f180c 0%, #0d0a05 100%);
-      border: 1px solid var(--accent-gold);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-display);
-      font-weight: 800;
-      font-size: 13px;
-      color: var(--accent-gold-bright);
-      box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
-    }
-
-    .brand-title {
-      font-family: var(--font-display);
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .brand-tag {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: rgba(255, 77, 85, 0.15);
-      border: 1px solid rgba(255, 77, 85, 0.3);
-      color: #fca5a5;
-    }
-
-    .cluster-pill-box {
-      display: flex;
-      align-items: center;
-      background: #06080e;
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      padding: 2px;
-      gap: 2px;
-    }
-
-    .cluster-tab {
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-muted);
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.15s ease;
-    }
-    .cluster-tab.active {
-      background: #ffffff;
-      color: #09090b;
-      font-weight: 700;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-    }
-
-    .top-telemetry-cluster {
+    .nav-brand {
       display: flex;
       align-items: center;
       gap: 12px;
+      text-decoration: none;
     }
-
-    .telemetry-chip {
+    .nav-crest {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #fbbf24, #d97706);
+      border-radius: 8px;
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 6px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
+      justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 0 16px var(--amber-glow);
+    }
+    .nav-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: #fff;
+    }
+    .nav-badge {
+      background: rgba(167, 139, 250, 0.12);
+      border: 1px solid rgba(167, 139, 250, 0.3);
+      color: var(--purple-brand);
       font-family: var(--font-mono);
       font-size: 11px;
-      color: var(--text-muted);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 600;
     }
-    .telemetry-chip .pulse-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-    }
-    .pulse-dot.green { background: var(--accent-emerald); box-shadow: 0 0 8px var(--accent-emerald); }
-    .pulse-dot.gold { background: var(--accent-gold); box-shadow: 0 0 8px var(--accent-gold); }
-
-    .btn-top-modal-trigger {
+    .nav-links {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 5px 12px;
-      border-radius: 6px;
-      background: #141c2c;
-      border: 1px solid var(--border-medium);
-      color: #ffffff;
-      font-size: 11.5px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s ease;
+      gap: 28px;
+      list-style: none;
     }
-    .btn-top-modal-trigger:hover {
-      background: #1f2b44;
-      border-color: var(--accent-gold);
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover {
+      color: #fff;
+    }
+    .nav-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(52, 211, 153, 0.1);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      color: var(--emerald-pass);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 4px 12px;
+      border-radius: 6px;
+    }
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--emerald-pass);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--emerald-pass);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
     }
 
-    /* 2. MAIN COCKPIT BODY (Fills remaining height) */
-    .cockpit-main-workspace {
-      display: grid;
-      grid-template-columns: 310px 1fr 380px;
-      height: 100%;
-      overflow: hidden;
+    /* Section Headers */
+    .section-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--purple-brand);
+      background: rgba(167, 139, 250, 0.1);
+      border: 1px solid rgba(167, 139, 250, 0.2);
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 36px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+    .section-desc {
+      font-size: 17px;
+      color: var(--text-muted);
+      max-width: 680px;
+      line-height: 1.6;
+    }
+
+    /* Hero Section */
+    .hero-section {
+      padding: 72px 0 64px 0;
       position: relative;
     }
-    @media (max-width: 1200px) {
-      .cockpit-main-workspace { grid-template-columns: 280px 1fr 320px; }
+    .hero-content {
+      text-align: center;
+      max-width: 880px;
+      margin: 0 auto;
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(251, 191, 36, 0.1);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      color: var(--amber-gavel);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+    .hero-headline {
+      font-family: var(--font-display);
+      font-size: 58px;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
+      background: linear-gradient(180deg, #ffffff 40%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-subhead {
+      font-size: 19px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 36px;
+    }
+    .hero-ctas {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #a78bfa, #7c3aed);
+      color: #fff;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 20px var(--purple-glow);
+      transition: all 0.2s;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(167, 139, 250, 0.4);
+    }
+    .btn-secondary {
+      background: var(--bg-surface);
+      color: var(--text-body);
+      border: 1px solid var(--border-subtle);
+      padding: 14px 24px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover {
+      background: var(--bg-card);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: #fff;
     }
 
-    /* =========================================================================
-       LEFT SIDEBAR (310px): EVIDENCE & SUBPOENA VAULT
-       ========================================================================= */
-    aside.sidebar-evidence {
-      background: var(--bg-sidebar);
-      border-right: 1px solid var(--border-medium);
+    /* Before vs After Card */
+    .problem-solution-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+    .diff-card {
+      background: var(--bg-surface);
+      border-radius: 12px;
+      padding: 24px 28px;
+      position: relative;
+    }
+    .diff-card.before {
+      border: 1px solid rgba(248, 113, 113, 0.3);
+      background: linear-gradient(180deg, rgba(248, 113, 113, 0.04), transparent);
+    }
+    .diff-card.after {
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      background: linear-gradient(180deg, rgba(52, 211, 153, 0.04), transparent);
+    }
+    .diff-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .diff-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .diff-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      letter-spacing: 1px;
+    }
+    .diff-tag.red { background: rgba(248, 113, 113, 0.15); color: var(--rose-risk); }
+    .diff-tag.green { background: rgba(52, 211, 153, 0.15); color: var(--emerald-pass); }
+    .diff-list {
+      list-style: none;
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
+      gap: 12px;
+    }
+    .diff-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .diff-list li strong {
+      color: #fff;
+    }
+    .icon-fail { color: var(--rose-risk); font-weight: 800; font-size: 15px; }
+    .icon-pass { color: var(--emerald-pass); font-weight: 800; font-size: 15px; }
+
+    /* Case Selector Ribbon */
+    .case-selector-ribbon {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 32px;
+      gap: 16px;
+    }
+    .case-chips {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow-x: auto;
+    }
+    .case-chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .case-chip:hover {
+      background: var(--bg-card-hover);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .case-chip.active {
+      background: rgba(167, 139, 250, 0.15);
+      border-color: var(--purple-brand);
+      color: #fff;
+      font-weight: 600;
+    }
+    .case-chip .badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+    }
+    .badge-high { background: rgba(248, 113, 113, 0.2); color: var(--rose-risk); }
+    .badge-med { background: rgba(251, 191, 36, 0.2); color: var(--amber-gavel); }
+
+    /* ACT 2: 3D Courtroom Theater */
+    .theater-section {
+      padding: 64px 0 80px 0;
+      border-top: 1px solid var(--border-subtle);
+      background: linear-gradient(180deg, rgba(16, 22, 38, 0.4), transparent);
+    }
+    .theater-container {
+      display: grid;
+      grid-template-columns: 58% 42%;
+      gap: 24px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+    }
+    
+    /* 3D Canvas Column */
+    .stage-column {
+      position: relative;
+      height: 640px;
+      background: #080c16;
+      display: flex;
+      flex-direction: column;
+    }
+    #three-courtroom-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .stage-overlay-header {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
       z-index: 10;
     }
+    .stage-case-pill {
+      background: rgba(6, 8, 14, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-subtle);
+      padding: 6px 14px;
+      border-radius: 8px;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .stage-case-pill .tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--amber-gavel);
+      font-weight: 700;
+    }
+    .stage-case-pill .name {
+      font-size: 13px;
+      color: #fff;
+      font-weight: 600;
+    }
+    .camera-control-toolbar {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(6, 8, 14, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-subtle);
+      padding: 4px;
+      border-radius: 8px;
+      z-index: 10;
+    }
+    .cam-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .cam-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .cam-btn.active {
+      color: #fff;
+      background: rgba(167, 139, 250, 0.25);
+      font-weight: 600;
+    }
+    .gavel-strike-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, rgba(251, 191, 36, 0.3) 0%, transparent 70%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.1s;
+      z-index: 5;
+    }
+    .gavel-strike-overlay.active {
+      opacity: 1;
+    }
 
-    .sidebar-section-header {
-      padding: 14px 18px 10px;
+    /* Scales Telemetry Card Floating in Stage */
+    .scales-hud {
+      position: absolute;
+      top: 70px;
+      left: 16px;
+      background: rgba(6, 8, 14, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 12px 16px;
+      width: 260px;
+      z-index: 10;
+    }
+    .scales-hud-title {
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #fff;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .hud-bar {
+      height: 6px;
+      background: #1e2638;
+      border-radius: 3px;
+      overflow: hidden;
+      display: flex;
+      margin-bottom: 6px;
+    }
+    .hud-bar-pros {
+      background: var(--rose-risk);
+      width: 50%;
+      transition: width 0.4s ease-out;
+    }
+    .hud-bar-def {
+      background: var(--emerald-pass);
+      width: 50%;
+      transition: width 0.4s ease-out;
+    }
+    .hud-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 10px;
+    }
+    .hud-labels .pros-val { color: var(--rose-risk); font-weight: 600; }
+    .hud-labels .def-val { color: var(--emerald-pass); font-weight: 600; }
+
+    /* Dialectic Feed Column */
+    .feed-column {
+      display: flex;
+      flex-direction: column;
+      height: 640px;
+      border-left: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+    }
+    .feed-header {
+      padding: 16px 20px;
       border-bottom: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      background: rgba(6, 8, 14, 0.4);
     }
-    .sidebar-section-header h3 {
+    .feed-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .feed-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ctrl-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-body);
       font-size: 12px;
-      font-weight: 700;
-      color: #ffffff;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-family: var(--font-mono);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .sidebar-scroll-body {
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      flex: 1;
-    }
-
-    /* Preset Selection Tiles */
-    .preset-selector-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .preset-row-btn {
-      padding: 9px 12px;
+      font-weight: 600;
+      padding: 6px 12px;
       border-radius: 6px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-muted);
-      font-family: var(--font-mono);
-      font-size: 11px;
-      text-align: left;
       cursor: pointer;
-      transition: all 0.15s ease;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 6px;
+      transition: all 0.2s;
     }
-    .preset-row-btn:hover {
+    .ctrl-btn:hover:not(:disabled) {
       background: var(--bg-card-hover);
-      color: #ffffff;
-      border-color: var(--border-medium);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.2);
     }
-    .preset-row-btn.active {
-      background: rgba(255, 77, 85, 0.12);
-      border-color: var(--accent-coral);
-      color: #ffffff;
+    .ctrl-btn.primary {
+      background: linear-gradient(135deg, #a78bfa, #7c3aed);
+      color: #fff;
+      border: none;
     }
-    .preset-row-btn.active .preset-indicator {
-      background: var(--accent-coral);
-    }
-
-    .preset-indicator {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--text-dim);
-    }
-
-    /* Subpoena / Incident Dossier Card */
-    .dossier-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .dossier-card.incident {
-      border-left: 3px solid var(--accent-coral);
-    }
-    .dossier-card.blast {
-      border-left: 3px solid var(--accent-gold);
-    }
-
-    .dossier-header-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: var(--font-mono);
-      font-size: 11px;
-    }
-    .dossier-header-bar strong { color: #ffffff; }
-
-    .dossier-body-text {
-      font-size: 11px;
-      color: var(--text-muted);
-      line-height: 1.5;
-    }
-
-    .dossier-stats-strip {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 4px;
-      padding-top: 6px;
-      border-top: 1px solid var(--border-subtle);
-      font-family: var(--font-mono);
-      font-size: 10px;
-    }
-    .dossier-stats-strip .stat-val {
-      font-weight: 700;
-      color: #ffffff;
-    }
-
-    /* Petition Input in Sidebar */
-    .petition-box {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .petition-textarea {
-      width: 100%;
-      background: #070910;
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      padding: 8px 10px;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: #ffffff;
-      outline: none;
-      resize: vertical;
-      min-height: 54px;
-    }
-    .petition-textarea:focus {
-      border-color: var(--accent-gold);
-    }
-
-    .btn-convene-trial {
-      width: 100%;
-      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-      color: #ffffff;
-      border: 1px solid var(--accent-gold-bright);
-      border-radius: 6px;
-      padding: 10px;
-      font-family: var(--font-display);
-      font-weight: 800;
-      font-size: 13px;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.3);
-      transition: all 0.15s ease;
-    }
-    .btn-convene-trial:hover:not(:disabled) {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      box-shadow: 0 4px 20px rgba(245, 158, 11, 0.45);
-    }
-    .btn-convene-trial:disabled {
+    .ctrl-btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
 
-    /* =========================================================================
-       CENTER STAGE: 3D CYBER-TRIBUNAL WEBGL CHAMBER (Three.js)
-       ========================================================================= */
-    main.center-stage-arena {
-      background: #04060a;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    #three-tribunal-canvas {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-
-    /* Floating Camera Overlay Controls */
-    .stage-camera-toolbar {
-      position: absolute;
-      top: 14px;
-      left: 14px;
-      z-index: 20;
-      display: flex;
-      gap: 6px;
-      padding: 4px;
-      border-radius: 8px;
-      background: rgba(9, 12, 20, 0.85);
-      backdrop-filter: blur(8px);
-      border: 1px solid var(--border-medium);
-    }
-
-    .cam-btn {
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-family: var(--font-mono);
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--text-muted);
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .cam-btn:hover {
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.08);
-    }
-    .cam-btn.active {
-      background: #ffffff;
-      color: #09090b;
-      font-weight: 700;
-    }
-
-    /* Ace Attorney Dramatic Objection Flash */
-    .stage-objection-banner {
-      position: absolute;
-      top: 45%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0) rotate(-6deg);
-      background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
-      color: #ffffff;
-      font-family: var(--font-display);
-      font-size: 38px;
-      font-weight: 900;
-      letter-spacing: 2px;
-      padding: 12px 42px;
-      border: 4px solid #ffffff;
-      box-shadow: 0 0 50px rgba(225, 29, 72, 0.85);
-      z-index: 50;
-      pointer-events: none;
-      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      text-shadow: 0 2px 6px rgba(0,0,0,0.7);
-    }
-    .stage-objection-banner.fire {
-      transform: translate(-50%, -50%) scale(1) rotate(-6deg);
-    }
-
-    /* Stage Floor Overlays: Speech Cards */
-    .stage-speech-overlay {
-      position: absolute;
-      bottom: 14px;
-      left: 14px;
-      right: 14px;
-      z-index: 20;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      pointer-events: none;
-    }
-
-    .speaker-dialog-card {
-      background: rgba(9, 12, 20, 0.92);
-      border: 1px solid var(--border-medium);
-      border-radius: 8px;
-      padding: 12px 16px;
-      backdrop-filter: blur(10px);
-      pointer-events: auto;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
-      transition: border-color 0.2s ease;
-    }
-    .speaker-dialog-card.pros {
-      border-left: 4px solid var(--accent-coral);
-    }
-    .speaker-dialog-card.def {
-      border-right: 4px solid var(--accent-emerald);
-      text-align: right;
-    }
-
-    .dialog-header {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-    .speaker-dialog-card.pros .dialog-header { color: var(--accent-coral); }
-    .speaker-dialog-card.def .dialog-header { color: var(--accent-emerald); }
-
-    .dialog-text {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: #cbd5e1;
-      max-height: 52px;
-      overflow-y: auto;
-      line-height: 1.45;
-    }
-
-    /* =========================================================================
-       RIGHT SIDEBAR (380px): DIALECTIC STREAM & JUDICIAL DECREE
-       ========================================================================= */
-    aside.sidebar-dialectic {
-      background: var(--bg-sidebar);
-      border-left: 1px solid var(--border-medium);
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-      z-index: 10;
-    }
-
-    .dialectic-feed-container {
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    .feed-scroll-area {
       flex: 1;
       overflow-y: auto;
-    }
-
-    /* Quantitative Leverage Meter */
-    .leverage-gauge-module {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      padding: 12px 14px;
-      margin-bottom: 4px;
-    }
-
-    .leverage-metric-line {
-      display: flex;
-      justify-content: space-between;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      margin-bottom: 6px;
-    }
-    .leverage-metric-line .pros-val { color: var(--accent-coral); font-weight: 700; }
-    .leverage-metric-line .def-val { color: var(--accent-emerald); font-weight: 700; }
-
-    .leverage-track {
-      height: 6px;
-      background: #000000;
-      border-radius: 3px;
-      overflow: hidden;
-      display: flex;
-    }
-    .leverage-track .fill-pros {
-      background: var(--accent-coral);
-      width: 50%;
-      transition: width 0.4s ease;
-    }
-    .leverage-track .fill-def {
-      background: var(--accent-emerald);
-      width: 50%;
-      transition: width 0.4s ease;
-    }
-
-    /* Signed Judicial Decree Scroll */
-    .judicial-decree-card {
-      background: linear-gradient(180deg, #181308 0%, #0d0a04 100%);
-      border: 2px solid var(--accent-gold);
-      border-radius: 8px;
-      padding: 14px 16px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
-      position: relative;
-      animation: unrollDecree 0.3s ease-out;
-    }
-    @keyframes unrollDecree {
-      from { transform: scaleY(0.8); opacity: 0; }
-      to { transform: scaleY(1); opacity: 1; }
-    }
-
-    .wax-seal-stamp {
-      position: absolute;
-      top: -10px;
-      right: 14px;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #e11d48, #881337);
-      border: 2px solid #fecdd3;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
-    }
-
-    .decree-title {
-      font-family: var(--font-display);
-      font-size: 12.5px;
-      font-weight: 800;
-      color: var(--accent-gold-bright);
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .decree-conditions-list {
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      color: #cbd5e1;
-      line-height: 1.5;
-    }
-    .decree-conditions-list ul {
-      margin-top: 4px;
-      padding-left: 16px;
-    }
-
-    /* Monospace Transcript Bubbles */
-    .chat-bubble-row {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      padding: 10px 12px;
-    }
-    .chat-bubble-row.pros { border-left: 3px solid var(--accent-coral); }
-    .chat-bubble-row.def { border-left: 3px solid var(--accent-emerald); }
-    .chat-bubble-row.jdg { border-left: 3px solid var(--accent-gold); }
-    .chat-bubble-row.clk { border-left: 3px solid var(--text-dim); }
-
-    .chat-row-header {
-      display: flex;
-      justify-content: space-between;
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      margin-bottom: 4px;
-    }
-    .chat-row-header .speaker.pros { color: var(--accent-coral); font-weight: 700; }
-    .chat-row-header .speaker.def { color: var(--accent-emerald); font-weight: 700; }
-    .chat-row-header .speaker.jdg { color: var(--accent-gold-bright); font-weight: 800; }
-    .chat-row-header .speaker.clk { color: var(--text-dim); }
-
-    .chat-row-content {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: #e2e8f0;
-      line-height: 1.45;
-      white-space: pre-wrap;
-    }
-
-    /* 3. BOTTOM PIPELINE DOCK (44px) */
-    footer.cockpit-bottomdock {
-      height: 44px;
-      background: #080b12;
-      border-top: 1px solid var(--border-medium);
-      padding: 0 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      z-index: 100;
-    }
-
-    .pipeline-rings-flow {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .ring-step-pill {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 3px 9px;
-      border-radius: 5px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-subtle);
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .ring-step-pill:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: #ffffff;
-      border-color: var(--border-medium);
-    }
-    .ring-step-pill.active {
-      border-color: var(--accent-gold);
-      color: var(--accent-gold-bright);
-      background: rgba(245, 158, 11, 0.1);
-    }
-
-    /* =========================================================================
-       MODAL DIALOGS (AGENT STUDIO, VOICE FLOOR, VAULT)
-       ========================================================================= */
-    .studio-modal-backdrop {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 10000;
-      align-items: center;
-      justify-content: center;
       padding: 20px;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(12px);
-    }
-    .studio-modal-backdrop.open { display: flex; }
-
-    .studio-modal-box {
-      width: 100%;
-      max-width: 960px;
-      max-height: 88vh;
-      background: #0a0e17;
-      border: 1px solid var(--border-medium);
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-    }
-
-    .modal-head {
-      padding: 14px 20px;
-      background: #07090f;
-      border-bottom: 1px solid var(--border-subtle);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .modal-head h4 {
-      font-size: 13.5px;
-      font-weight: 700;
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .modal-content-area {
-      padding: 20px;
-      overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 16px;
     }
 
-    .btn-modal-close {
+    /* Dialogue Message Cards */
+    .msg-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .msg-card.pros {
+      border-left: 3px solid var(--rose-risk);
+      background: linear-gradient(90deg, rgba(248, 113, 113, 0.04), transparent);
+    }
+    .msg-card.def {
+      border-left: 3px solid var(--emerald-pass);
+      background: linear-gradient(90deg, rgba(52, 211, 153, 0.04), transparent);
+    }
+    .msg-card.hist {
+      border-left: 3px solid var(--cyan-bright);
+      background: linear-gradient(90deg, rgba(34, 211, 238, 0.04), transparent);
+    }
+    .msg-card.rollback {
+      border-left: 3px solid #f59e0b;
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.04), transparent);
+    }
+    .msg-card.judge {
+      border-left: 3px solid var(--amber-gavel);
+      background: linear-gradient(90deg, rgba(251, 191, 36, 0.08), transparent);
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.1);
+    }
+    .msg-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .msg-sender {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .msg-sender.pros { color: var(--rose-risk); }
+    .msg-sender.def { color: var(--emerald-pass); }
+    .msg-sender.hist { color: var(--cyan-bright); }
+    .msg-sender.rollback { color: #f59e0b; }
+    .msg-sender.judge { color: var(--amber-gavel); }
+    .msg-time {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+    .msg-text {
+      font-size: 14px;
+      color: var(--text-body);
+      line-height: 1.5;
+    }
+    .objection-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-right: 6px;
+    }
+    .badge-blocking { background: rgba(248, 113, 113, 0.2); color: var(--rose-risk); }
+    .badge-warning { background: rgba(251, 191, 36, 0.2); color: var(--amber-gavel); }
+    .badge-mitigated { background: rgba(52, 211, 153, 0.2); color: var(--emerald-pass); }
+
+    /* Signed Decree Card */
+    .signed-decree-card {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(16, 22, 38, 0.8));
+      border: 1px solid var(--border-gold);
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      animation: fadeIn 0.4s ease-out;
+    }
+    .decree-stamp {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      width: 52px;
+      height: 52px;
+      border: 2px dashed var(--amber-gavel);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 9px;
+      font-weight: 800;
+      color: var(--amber-gavel);
+      text-transform: uppercase;
+      transform: rotate(-12deg);
+    }
+    .decree-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+    .decree-conditions {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+    }
+    .decree-conditions li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      color: var(--text-body);
+    }
+
+    /* ACT 3: 6-Stage Pipeline */
+    .pipeline-section {
+      padding: 80px 0;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .pipeline-stepper {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+      margin-top: 36px;
+    }
+    .pipe-step-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 20px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .pipe-step-card:hover {
+      background: var(--bg-card);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .pipe-step-card.active {
+      border-color: var(--purple-brand);
+      background: rgba(167, 139, 250, 0.08);
+      box-shadow: 0 4px 20px var(--purple-glow);
+    }
+    .pipe-step-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--purple-brand);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .pipe-step-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .pipe-step-agent {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .pipeline-detail-viewer {
+      margin-top: 24px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 24px 28px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+    .detail-left h4, .detail-right h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .detail-code {
+      background: #07090f;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #93c5fd;
+      line-height: 1.5;
+      overflow-x: auto;
+    }
+
+    /* ACT 4: Superpowers Showcase */
+    .superpowers-section {
+      padding: 80px 0;
+      border-top: 1px solid var(--border-subtle);
+      background: linear-gradient(180deg, transparent, rgba(16, 22, 38, 0.4));
+    }
+    .superpower-tabs {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 12px;
+    }
+    .sp-tab-btn {
       background: transparent;
       border: none;
-      color: var(--text-dim);
-      font-size: 16px;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: 8px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
     }
-    .btn-modal-close:hover { color: #ffffff; }
+    .sp-tab-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .sp-tab-btn.active {
+      color: #fff;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    .sp-tab-content {
+      margin-top: 24px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 32px;
+    }
+    .antigravity-sandbox {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: center;
+    }
+    .sandbox-preview {
+      background: #070a12;
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 20px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+    .breach-alert {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      background: rgba(248, 113, 113, 0.1);
+      border: 1px solid var(--rose-risk);
+      color: var(--rose-risk);
+      display: none;
+    }
+    .breach-alert.active {
+      display: block;
+      animation: fadeIn 0.3s;
+    }
+
+    /* ACT 5: Take the Bench (Judge Mode) */
+    .bench-section {
+      padding: 80px 0;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .bench-container {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.05), rgba(11, 15, 26, 0.95));
+      border: 1px solid var(--border-gold);
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 960px;
+      margin: 36px auto 0 auto;
+    }
+    .bench-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      margin-top: 24px;
+    }
+    .bench-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .bench-radio-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 14px 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s;
+    }
+    .bench-radio-card:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .bench-radio-card.selected {
+      border-color: var(--amber-gavel);
+      background: rgba(251, 191, 36, 0.1);
+    }
+    .bench-verdict-result {
+      background: #07090f;
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* ACT 6: Scorecard */
+    .scorecard-section {
+      padding: 80px 0 100px 0;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .scorecard-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-top: 36px;
+    }
+    .scorecard-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 24px 20px;
+    }
+    .scorecard-pillar {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--cyan-bright);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .scorecard-score {
+      font-size: 28px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .scorecard-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    .footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 40px 0;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    .footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .footer a:hover {
+      color: #fff;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Fullscreen 100vw x 100vh Shell -->
-  <div class="viewport-app-shell">
-    
-    <!-- 1. Top Header (52px) -->
-    <header class="cockpit-topbar">
-      <div class="brand-section">
-        <div class="brand-crest">SC</div>
-        <div class="brand-title">
-          <span>SHIP COURT</span>
-          <span class="brand-tag">v0.31 Live</span>
-        </div>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="#" class="nav-brand">
+        <div class="nav-crest">⚖️</div>
+        <span class="nav-title">SHIP COURT</span>
+        <span class="nav-badge">WeMakeDevs × Switch</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#story">The Story</a></li>
+        <li><a href="#courtroom">3D Courtroom</a></li>
+        <li><a href="#pipeline">6-Stage Pipeline</a></li>
+        <li><a href="#superpowers">Superpowers</a></li>
+        <li><a href="#take-the-bench">Judge Mode</a></li>
+        <li><a href="#scorecard">Scorecard</a></li>
+      </ul>
+      <div class="nav-status">
+        <div class="pulse-dot"></div>
+        <span>Switch: #ship-court · Live</span>
+      </div>
+    </div>
+  </nav>
 
-        <!-- Target Selector -->
-        <div class="cluster-pill-box">
-          <button class="cluster-tab active" id="btn-cluster-shop" onclick="switchPRTarget('shop')">
-            <span>📦</span>
-            <span>acme/shop (PR #482)</span>
-          </button>
-          <button class="cluster-tab" id="btn-cluster-switch" onclick="switchPRTarget('switch')">
-            <span>🐙</span>
-            <span>switch-AI (PR #17)</span>
-          </button>
+  <!-- ACT 1: Narrative Hero & Problem -->
+  <section class="hero-section" id="story">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-tag">
+          <span>🏆 Built for Flip the Switch Hackathon · Track 01 & 02</span>
+        </div>
+        <h1 class="hero-headline">No deploy survives cross-examination.</h1>
+        <p class="hero-subhead">
+          Traditional AI code review is passive and shallow: <em>"Looks good to me!"</em> Catastrophic production outages happen because nobody argued against shipping. Ship Court puts every pull request on trial before specialized adversarial AI agents — and nothing touches production until a verified human bangs the gavel.
+        </p>
+        <div class="hero-ctas">
+          <a href="#courtroom" class="btn-primary" onclick="launchDemoTrial()">
+            <span>⚡ Launch Interactive Courtroom Trial</span>
+            <span>↓</span>
+          </a>
+          <a href="#pipeline" class="btn-secondary">
+            <span>Explore 6-Stage Pipeline</span>
+          </a>
         </div>
       </div>
 
-      <!-- Center & Right Actions -->
-      <div class="top-telemetry-cluster">
-        <div class="telemetry-chip">
-          <div class="pulse-dot green"></div>
-          <span>GROQ QWEN-3.8-27B</span>
-        </div>
-        <div class="telemetry-chip">
-          <div class="pulse-dot gold"></div>
-          <span>MAGISTRATE: @Priya</span>
+      <!-- Before vs After -->
+      <div class="problem-solution-grid">
+        <div class="diff-card before">
+          <div class="diff-header">
+            <span class="diff-title">BEFORE SHIP COURT</span>
+            <span class="diff-tag red">DEPLOY & PRAY</span>
+          </div>
+          <ul class="diff-list">
+            <li>
+              <span class="icon-fail">✕</span>
+              <div><strong>"LGTM" rubber-stamp reviews:</strong> AI assistants blindly approve PRs without pressure-testing edge cases.</div>
+            </li>
+            <li>
+              <span class="icon-fail">✕</span>
+              <div><strong>Nobody argues against shipping:</strong> Silent assumptions go unchallenged until traffic spikes hit.</div>
+            </li>
+            <li>
+              <span class="icon-fail">✕</span>
+              <div><strong>Untested rollback folklore:</strong> SREs scramble during outages trying to figure out which command actually rolls back.</div>
+            </li>
+            <li>
+              <span class="icon-fail">✕</span>
+              <div><strong>Silent AI agent collisions:</strong> Teammates using coding agents unknowingly overwrite shared contracts.</div>
+            </li>
+          </ul>
         </div>
 
-        <button class="btn-top-modal-trigger" onclick="openStudioModal('modal-studio')">
-          <span>🛡️ Agent Studio</span>
-        </button>
-        <button class="btn-top-modal-trigger" onclick="openStudioModal('modal-boardroom')">
-          <span>🎙️ Voice Floor</span>
-        </button>
-        <button class="btn-top-modal-trigger" style="border-color:var(--accent-coral); color:#fca5a5;" onclick="openStudioModal('modal-vault')">
-          <span>🔐 Release Vault</span>
-        </button>
+        <div class="diff-card after">
+          <div class="diff-header">
+            <span class="diff-title">AFTER · SHIP COURT</span>
+            <span class="diff-tag green">DEPLOY ON TRIAL</span>
+          </div>
+          <ul class="diff-list">
+            <li>
+              <span class="icon-pass">✓</span>
+              <div><strong>Prosecutor must object:</strong> Files ≤3 evidence-backed objections citing historical outages (e.g. INC-017).</div>
+            </li>
+            <li>
+              <span class="icon-pass">✓</span>
+              <div><strong>Defender must prove or concede:</strong> Addresses every indictment with real test suites or formal concessions.</div>
+            </li>
+            <li>
+              <span class="icon-pass">✓</span>
+              <div><strong>Rollback Engineer proves reversibility:</strong> Validates rollback script and enforces &lt;1.8s rollback SLAs.</div>
+            </li>
+            <li>
+              <span class="icon-pass">✓</span>
+              <div><strong>Exclusive Human Gate:</strong> Only a verified human with Switch's <code>approver</code> role can issue the binding verdict.</div>
+            </li>
+          </ul>
+        </div>
       </div>
-    </header>
 
-    <!-- 2. Main Spatial Cockpit Workspace (Fills all remaining screen space) -->
-    <div class="cockpit-main-workspace">
-      
-      <!-- LEFT SIDEBAR: Evidence & Subpoena Vault -->
-      <aside class="sidebar-evidence">
-        <div class="sidebar-section-header">
-          <h3>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <span>Evidence &amp; Docket</span>
-          </h3>
-          <span style="font-family:var(--font-mono); font-size:10px; color:var(--accent-gold);" id="sidebar-docket-id">CASE-SC-0482</span>
+      <!-- Case Ribbon -->
+      <div class="case-selector-ribbon">
+        <span style="font-size:13px; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+          <span>Select Docket:</span>
+        </span>
+        <div class="case-chips">
+          <div class="case-chip active" id="chip-case-1" onclick="selectCasePreset(1)">
+            <span>PR #482: Dynamic Checkout Pricing</span>
+            <span class="badge badge-high">High Risk · INC-017</span>
+          </div>
+          <div class="case-chip" id="chip-case-2" onclick="selectCasePreset(2)">
+            <span>PR #104: Payment Webhook Idempotency</span>
+            <span class="badge badge-med">Race Condition</span>
+          </div>
+          <div class="case-chip" id="chip-case-3" onclick="selectCasePreset(3)">
+            <span>PR #209: Session Cache Flush</span>
+            <span class="badge badge-med">Downtime Risk</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ACT 2: Interactive 3D Courtroom Theater -->
+  <section class="theater-section" id="courtroom">
+    <div class="container">
+      <div style="margin-bottom:28px;">
+        <div class="section-badge">⚖️ ACT 2 · INTERACTIVE ARENA</div>
+        <h2 class="section-title">The Adversarial Courtroom Theater</h2>
+        <p class="section-desc">Watch specialized Switch AI agents cross-examine the release in real time. The 3D Scales of Justice physically tilt as points are scored, and Magistrate Priya delivers the final binding verdict.</p>
+      </div>
+
+      <div class="theater-container">
+        
+        <!-- 3D Arena Column -->
+        <div class="stage-column">
+          <div class="stage-overlay-header">
+            <div class="stage-case-pill">
+              <span class="tag">DOCKET SC-0482</span>
+              <span class="name" id="stage-active-pr-name">acme/shop · Dynamic Pricing ML</span>
+            </div>
+            <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-dim); background:rgba(6,8,14,0.85); padding:6px 12px; border-radius:8px; border:1px solid var(--border-subtle);">
+              Click & drag to orbit 3D space
+            </div>
+          </div>
+
+          <!-- Dynamic Scales HUD Overlay -->
+          <div class="scales-hud">
+            <div class="scales-hud-title">
+              <span>SCALES OF JUSTICE</span>
+              <span id="scales-verdict-hint" style="color:var(--rose-risk);">PROSECUTION LEADING</span>
+            </div>
+            <div class="hud-bar">
+              <div class="hud-bar-pros" id="hud-pros-fill"></div>
+              <div class="hud-bar-def" id="hud-def-fill"></div>
+            </div>
+            <div class="hud-labels">
+              <span class="pros-val" id="hud-pros-label">Pros: 65% (Risk)</span>
+              <span class="def-val" id="hud-def-label">Def: 35% (Mitigated)</span>
+            </div>
+          </div>
+
+          <!-- Gavel Strike Overlay Flash -->
+          <div class="gavel-strike-overlay" id="gavel-flash"></div>
+
+          <!-- Three.js Canvas -->
+          <canvas id="three-courtroom-canvas"></canvas>
+
+          <!-- Camera Controls -->
+          <div class="camera-control-toolbar">
+            <button class="cam-btn active" id="btn-cam-arena" onclick="setCameraView('arena')">Arena View</button>
+            <button class="cam-btn" id="btn-cam-scales" onclick="setCameraView('scales')">Scales 3D</button>
+            <button class="cam-btn" id="btn-cam-bench" onclick="setCameraView('bench')">Judge Dais</button>
+            <button class="cam-btn" style="color:var(--amber-gavel);" onclick="triggerGavelStrike()">🔨 Strike Gavel</button>
+          </div>
         </div>
 
-        <div class="sidebar-scroll-body">
-          
-          <!-- Presets -->
-          <div>
-            <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px;">Select Failure Scenario</div>
-            <div class="preset-selector-group">
-              <button class="preset-row-btn active" onclick="loadCockpitPreset(1, this)">
-                <span>01 Dynamic Pricing ML</span>
-                <span class="preset-indicator"></span>
+        <!-- Dialectic Transcript Column -->
+        <div class="feed-column">
+          <div class="feed-header">
+            <div class="feed-title">
+              <span>Dialectic Cross-Examination</span>
+              <span style="font-family:var(--font-mono); font-size:11px; color:var(--purple-brand); font-weight:normal;" id="feed-status-badge">Ready</span>
+            </div>
+            <div class="feed-controls">
+              <button class="ctrl-btn primary" id="btn-play-trial" onclick="startTrialPlayback()">
+                <span id="play-icon">▶</span>
+                <span id="play-text">Auto-Play Trial</span>
               </button>
-              <button class="preset-row-btn" onclick="loadCockpitPreset(2, this)">
-                <span>02 Drop user_sessions</span>
-                <span class="preset-indicator"></span>
+              <button class="ctrl-btn" id="btn-next-step" onclick="stepNextArgument()">
+                <span>Next Argument ⏭</span>
               </button>
-              <button class="preset-row-btn" onclick="loadCockpitPreset(3, this)">
-                <span>03 Redis Cache Fallback</span>
-                <span class="preset-indicator"></span>
-              </button>
-              <button class="preset-row-btn" onclick="loadCockpitPreset(4, this)">
-                <span>04 Digital Twin Canary</span>
-                <span class="preset-indicator"></span>
+              <button class="ctrl-btn" onclick="resetTrialState()">
+                <span>↺</span>
               </button>
             </div>
           </div>
 
-          <!-- Petition Box -->
-          <div class="petition-box">
-            <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-dim); text-transform:uppercase;">Petition / Diff Spec</div>
-            <textarea id="cockpit-task-input" class="petition-textarea">Dynamic checkout pricing rollout with ML price optimization model</textarea>
-            <button class="btn-convene-trial" id="btn-convene-trial" onclick="conveneCockpitDebate()">
-              <span>⚡</span>
-              <span>Convene 3D Trial</span>
+          <div class="feed-scroll-area" id="feed-scroll-box">
+            <!-- Messages injected dynamically -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ACT 3: 6-Stage Pipeline -->
+  <section class="pipeline-section" id="pipeline">
+    <div class="container">
+      <div class="section-badge">🔄 ACT 3 · ARCHITECTURE</div>
+      <h2 class="section-title">The 6-Stage Release Lifecycle</h2>
+      <p class="section-desc">Every release moves through a deterministic pipeline orchestrated by Switch rooms, role permissions, and cryptographically verified state machines.</p>
+
+      <div class="pipeline-stepper">
+        <div class="pipe-step-card active" onclick="showPipelineStep(1)">
+          <div class="pipe-step-num">STAGE 01</div>
+          <div class="pipe-step-title">Case Intake</div>
+          <div class="pipe-step-agent">Court Clerk (@clerk)</div>
+        </div>
+        <div class="pipe-step-card" onclick="showPipelineStep(2)">
+          <div class="pipe-step-num">STAGE 02</div>
+          <div class="pipe-step-title">Cross-Exam</div>
+          <div class="pipe-step-agent">Prosecutor (@prosecutor)</div>
+        </div>
+        <div class="pipe-step-card" onclick="showPipelineStep(3)">
+          <div class="pipe-step-num">STAGE 03</div>
+          <div class="pipe-step-title">Factual Defense</div>
+          <div class="pipe-step-agent">Defender (@defender)</div>
+        </div>
+        <div class="pipe-step-card" onclick="showPipelineStep(4)">
+          <div class="pipe-step-num">STAGE 04</div>
+          <div class="pipe-step-title">Reversibility</div>
+          <div class="pipe-step-agent">Rollback Engineer (@rollback)</div>
+        </div>
+        <div class="pipe-step-card" onclick="showPipelineStep(5)">
+          <div class="pipe-step-num">STAGE 05</div>
+          <div class="pipe-step-title">Human Gate</div>
+          <div class="pipe-step-agent">Release Judge (@Priya)</div>
+        </div>
+        <div class="pipe-step-card" onclick="showPipelineStep(6)">
+          <div class="pipe-step-num">STAGE 06</div>
+          <div class="pipe-step-title">Signed Brief</div>
+          <div class="pipe-step-agent">Switch Registry</div>
+        </div>
+      </div>
+
+      <div class="pipeline-detail-viewer" id="pipeline-detail-panel">
+        <div class="detail-left">
+          <h4 id="pipe-detail-title">Stage 01: Case Intake & Courtroom Convening</h4>
+          <p id="pipe-detail-desc" style="font-size:14px; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
+            A developer proposes a release via pull request. Ship Court creates an isolated Switch room <code>#ship-court</code>, registers the active case, assigns role identities, and queries incident history for precedent.
+          </p>
+          <div style="display:flex; gap:12px; font-family:var(--font-mono); font-size:12px;">
+            <span style="color:var(--cyan-bright);">State: INTAKE</span>
+            <span style="color:var(--text-dim);">·</span>
+            <span style="color:var(--emerald-pass);">Switch Room: #ship-court</span>
+          </div>
+        </div>
+        <div class="detail-right">
+          <h4>Switch Protocol Event</h4>
+          <div class="detail-code" id="pipe-detail-code">
+{
+  "event": "courtroom.convened",
+  "case_id": "SC-0482",
+  "pr_url": "https://github.com/acme/shop/pull/482",
+  "requested_by": "Priya",
+  "state": "OPEN",
+  "assigned_agents": ["clerk", "prosecutor", "historian", "defender", "rollback"]
+}
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ACT 4: Superpowers Showcase -->
+  <section class="superpowers-section" id="superpowers">
+    <div class="container">
+      <div class="section-badge">🛡️ ACT 4 · DEEP TECH SUPERPOWERS</div>
+      <h2 class="section-title">Beyond the Courtroom: Cross-Machine Integrity</h2>
+      <p class="section-desc">Solving the two biggest failure modes of modern AI software development: autonomous agent file collisions and meeting-to-deployment amnesia.</p>
+
+      <div class="superpower-tabs">
+        <button class="sp-tab-btn active" onclick="selectSuperpowerTab('antigravity')">
+          <span>🛡️ Antigravity Multi-Agent Scope Guard</span>
+        </button>
+        <button class="sp-tab-btn" onclick="selectSuperpowerTab('voice')">
+          <span>🎙️ Discord Voice Huddle Bridge</span>
+        </button>
+        <button class="sp-tab-btn" onclick="selectSuperpowerTab('vault')">
+          <span>🔐 Cryptographic Release Vault</span>
+        </button>
+      </div>
+
+      <!-- Tab 1: Antigravity -->
+      <div class="sp-tab-content" id="tab-sp-antigravity">
+        <div class="antigravity-sandbox">
+          <div>
+            <div style="font-size:11px; font-family:var(--font-mono); color:var(--purple-brand); margin-bottom:8px;">TRACK 02 · CREATIVE WORKFLOW</div>
+            <h3 style="font-size:22px; font-weight:800; color:#fff; margin-bottom:12px;">PreToolUse Cross-Machine Conflict Barrier</h3>
+            <p style="font-size:14px; color:var(--text-muted); line-height:1.6; margin-bottom:20px;">
+              When Teammate 1 and Teammate 2 simultaneously unleash autonomous coding agents (Antigravity, Cursor, Claude Code), they silently overwrite shared billing modules. Ship Court embeds a <code>PreToolUse</code> hook that intercepts file writes across machines, issuing instant subpoenas and freezing unauthorized mutations.
+            </p>
+            <button class="btn-primary" onclick="simulateAntigravityBreach()">
+              <span>🚨 Simulate Teammate 2 Conflict on pricing/engine.py</span>
             </button>
           </div>
 
-          <!-- Incident Dossier: INC-017 -->
-          <div class="dossier-card incident">
-            <div class="dossier-header-bar">
-              <strong>INC-017 &middot; PRICING DIVERGENCE</strong>
-              <span style="color:var(--accent-coral);">HIGH PRECEDENT</span>
+          <div class="sandbox-preview">
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px; color:var(--text-dim);">
+              <span>AGENT FILE LOCK MONITOR</span>
+              <span id="ag-monitor-status" style="color:var(--emerald-pass);">MONITORING ACTIVE</span>
             </div>
-            <div class="dossier-body-text">
-              Uncached pricing recalculation caused client/server divergence. Resulted in 41 failed checkouts and 14m revenue stall.
-            </div>
-            <div class="dossier-stats-strip">
-              <div>Service: <span class="stat-val">checkout-service</span></div>
-              <div>Rollback: <span class="stat-val">v1.88.4 verified</span></div>
-            </div>
-          </div>
-
-          <!-- Parallel Earth Blast Radius Dossier -->
-          <div class="dossier-card blast">
-            <div class="dossier-header-bar">
-              <strong>PARALLEL EARTH &middot; BLAST</strong>
-              <span style="color:var(--accent-gold);">DIGITAL TWIN</span>
-            </div>
-            <div class="dossier-body-text">
-              Modeled downstream cascade touches 4 Tier-1 nodes: pricing-engine &rarr; checkout-service &rarr; payment-gateway.
-            </div>
-            <div class="dossier-stats-strip">
-              <div>Exposure: <span class="stat-val" id="dossier-rev-risk">$9,200 / min</span></div>
-              <div>Canary Pass: <span class="stat-val">98.5%</span></div>
+            <div style="color:var(--cyan-bright); margin-bottom:4px;">Teammate 1 (Assigned): services/pricing/engine.py [LOCKED]</div>
+            <div style="color:var(--text-dim); margin-bottom:12px;">Teammate 2 (Assigned): services/checkout/cart.py</div>
+            
+            <div class="breach-alert" id="ag-breach-box">
+              <div style="font-weight:700; margin-bottom:4px;">🚨 ANTIGRAVITY PRETOOLUSE BLOCKED MUTATION</div>
+              <div style="font-size:11px; opacity:0.9;">
+                Agent 'teammate-2-checkout' attempted unauthorized edit to 'services/pricing/engine.py'. Subpoena CASE-AG-101 issued. Execution frozen until human clearance.
+              </div>
             </div>
           </div>
-
-          <!-- Subpoena AG-101 (Antigravity Scope) -->
-          <div class="dossier-card">
-            <div class="dossier-header-bar">
-              <strong>SUBPOENA CASE-AG-101</strong>
-              <span style="color:var(--accent-emerald);">RING 1 GUARD</span>
-            </div>
-            <div class="dossier-body-text">
-              Teammate 3 (checkout) attempted unauthorized modification to <code>services/pricing/engine.py</code>. Execution frozen.
-            </div>
-          </div>
-
-        </div>
-      </aside>
-
-      <!-- CENTER: Expansive 3D Cyber-Tribunal Arena (Three.js) -->
-      <main class="center-stage-arena">
-        
-        <!-- Camera Toolbar -->
-        <div class="stage-camera-toolbar">
-          <button class="cam-btn active" id="btn-cam-wide" onclick="setTribunalCam('wide')">Arena Wide</button>
-          <button class="cam-btn" id="btn-cam-bench" onclick="setTribunalCam('bench')">Judge Dais</button>
-          <button class="cam-btn" id="btn-cam-scales" onclick="setTribunalCam('scales')">Scales 3D</button>
-          <button class="cam-btn" style="color:var(--accent-coral);" onclick="triggerArenaGavelSlam()">Slam Gavel</button>
-        </div>
-
-        <!-- Objection Flash Banner -->
-        <div class="stage-objection-banner" id="stage-objection-banner">OBJECTION!</div>
-
-        <!-- 3D WebGL Canvas Holder -->
-        <div id="three-tribunal-canvas"></div>
-
-        <!-- Stage Speech Cards (Float over 3D arena bottom) -->
-        <div class="stage-speech-overlay">
-          <!-- Prosecution Card -->
-          <div class="speaker-dialog-card pros">
-            <div class="dialog-header">⚔️ @prosecutor &middot; ADVERSARIAL RISK</div>
-            <div class="dialog-text" id="pros-dialog-text">
-              "Subpoenaing incident records... Ready to interrogate monetary blast radius and cache divergence."
-            </div>
-          </div>
-
-          <!-- Defense Card -->
-          <div class="speaker-dialog-card def">
-            <div class="dialog-header">@defender &middot; SRE MITIGATION 🛡️</div>
-            <div class="dialog-text" id="def-dialog-text">
-              "Circuit breaker armed. Proposing 5% canary stepping with 1.8s automated rollback SLA."
-            </div>
-          </div>
-        </div>
-
-      </main>
-
-      <!-- RIGHT SIDEBAR: Dialectic Stream & Signed Judicial Decree -->
-      <aside class="sidebar-dialectic">
-        <div class="sidebar-section-header">
-          <h3>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            <span>Dialectic Transcript</span>
-          </h3>
-          <span style="font-family:var(--font-mono); font-size:10px; color:var(--accent-emerald);" id="status-verdict-tag">UNPROVEN</span>
-        </div>
-
-        <div class="dialectic-feed-container" id="dialectic-feed-box">
-          
-          <!-- Leverage Gauge -->
-          <div class="leverage-gauge-module">
-            <div class="leverage-metric-line">
-              <span class="pros-val" id="val-pros-score">Prosecution: 50 pts (50%)</span>
-              <span class="def-val" id="val-def-score">Defense: 50 pts (50%)</span>
-            </div>
-            <div class="leverage-track">
-              <div class="fill-pros" id="track-fill-pros"></div>
-              <div class="fill-def" id="track-fill-def"></div>
-            </div>
-          </div>
-
-          <!-- Signed Judicial Decree Scroll -->
-          <div id="decree-scroll-slot" style="display:none;"></div>
-
-          <!-- Monospace Chat Stream -->
-          <div class="chat-bubble-row clk">
-            <div class="chat-row-header">
-              <span class="speaker clk">@court-clerk (Bailiff)</span>
-              <span style="color:var(--text-dim); font-size:10px;">INITIALIZED</span>
-            </div>
-            <div class="chat-row-content">Case convened. Click 'Convene 3D Trial' on the left to begin unscripted cross-examination across Groq Qwen-3.8-27b.</div>
-          </div>
-
-        </div>
-      </aside>
-
-    </div>
-
-    <!-- 3. Bottom Pipeline Dock (44px) -->
-    <footer class="cockpit-bottomdock">
-      <div class="pipeline-rings-flow">
-        <div class="ring-step-pill active" onclick="openStudioModal('modal-studio')">
-          <span>Ring 1: Scope Guard</span>
-          <span style="color:var(--accent-emerald);">● 3 Active</span>
-        </div>
-        <div class="ring-step-pill active" onclick="openStudioModal('modal-boardroom')">
-          <span>Ring 2: Voice Floor</span>
-          <span style="color:var(--accent-gold);">● Huddle Monitored</span>
-        </div>
-        <div class="ring-step-pill active">
-          <span>Ring 3: Courtroom</span>
-          <span style="color:#ffffff;">● 3D Arena Ready</span>
-        </div>
-        <div class="ring-step-pill active">
-          <span>Ring 4: Parallel Earth</span>
-          <span style="color:var(--accent-coral);">● $9.2k/min SLA 1.8s</span>
-        </div>
-        <div class="ring-step-pill active" onclick="openStudioModal('modal-vault')">
-          <span>Ring 5: Gated GitHub</span>
-          <span style="color:var(--accent-emerald);">● auto_approve: false</span>
         </div>
       </div>
 
-      <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-dim);">
-        FAIL-CLOSED OPERATOR AUTHENTICATION ARMED &middot; SHA-256 VERIFIED
-      </div>
-    </footer>
-
-  </div>
-
-  <!-- =========================================================================
-       MODALS: AGENT STUDIO, VOICE FLOOR, VAULT
-       ========================================================================= -->
-  <!-- 1. Agent Studio Modal -->
-  <div class="studio-modal-backdrop" id="modal-studio">
-    <div class="studio-modal-box">
-      <div class="modal-head">
-        <h4><span>🛡️</span> Antigravity Multi-Agent Studio &middot; Scope Guard</h4>
-        <button class="btn-modal-close" onclick="closeStudioModal('modal-studio')">&times;</button>
-      </div>
-      <div class="modal-content-area">
-        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:14px;">
-          <div style="background:#0f1422; border:1px solid var(--border-subtle); border-radius:8px; padding:14px;">
-            <div style="font-family:var(--font-mono); font-weight:700; color:#fff; margin-bottom:4px;">teammate-1-frontend</div>
-            <div style="font-size:11px; color:var(--text-muted); line-height:1.6;">
-              Scope: <code>frontend/**</code>, <code>ui/**</code><br>
-              Status: <span style="color:var(--accent-emerald); font-weight:700;">ACTIVE</span>
-            </div>
-            <button class="btn-top-modal-trigger" style="margin-top:10px; width:100%; justify-content:center;" onclick="alert('Safe edit on cart.tsx verified.')">Test cart.tsx</button>
-          </div>
-
-          <div style="background:#0f1422; border:1px solid var(--border-subtle); border-radius:8px; padding:14px;">
-            <div style="font-family:var(--font-mono); font-weight:700; color:#fff; margin-bottom:4px;">teammate-2-pricing</div>
-            <div style="font-size:11px; color:var(--text-muted); line-height:1.6;">
-              Scope: <code>services/pricing/**</code>, <code>models/**</code><br>
-              Status: <span style="color:var(--accent-emerald); font-weight:700;">ACTIVE</span>
-            </div>
-            <button class="btn-top-modal-trigger" style="margin-top:10px; width:100%; justify-content:center;" onclick="alert('Safe edit on models.py verified.')">Test models.py</button>
-          </div>
-
-          <div style="background:#0f1422; border:1px solid var(--border-subtle); border-radius:8px; padding:14px;" id="modal-card-agent-3">
-            <div style="font-family:var(--font-mono); font-weight:700; color:#fff; margin-bottom:4px;">teammate-3-checkout</div>
-            <div style="font-size:11px; color:var(--text-muted); line-height:1.6;">
-              Scope: <code>services/checkout/**</code>, <code>api/v1/**</code><br>
-              Status: <span style="color:var(--accent-emerald); font-weight:700;" id="modal-status-agent-3">ACTIVE</span>
-            </div>
-            <button class="btn-top-modal-trigger" style="margin-top:10px; width:100%; justify-content:center;" onclick="alert('Safe edit on payment.py verified.')">Test payment.py</button>
-          </div>
-        </div>
-
-        <div style="background:#070a12; border:1px solid var(--border-medium); border-radius:8px; padding:16px;">
-          <div style="font-weight:700; font-size:13px; color:#fff; margin-bottom:4px;">PreToolUse Hook Conflict Simulator</div>
-          <p style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">Trigger an out-of-bounds file edit where teammate-3-checkout attempts to modify services/pricing/engine.py.</p>
-          <div style="display:flex; gap:10px;">
-            <button class="btn-convene-trial" style="width:auto;" onclick="triggerStudioBreach()">🚨 Trigger Unauthorized Edit</button>
-            <button class="btn-top-modal-trigger" onclick="resetStudioBreach()">Reset Agents</button>
-          </div>
-          <div id="modal-breach-alert" style="display:none; margin-top:12px; background:rgba(255,77,85,0.12); border:1px solid var(--accent-coral); border-radius:6px; padding:12px; font-family:var(--font-mono); font-size:11px; color:#cbd5e1;">
-            <strong style="color:var(--accent-coral);">[PRETOOLUSE HOOK BREACH DETECTED]</strong><br>
-            Teammate 3 frozen. Out-of-bounds write to <code>services/pricing/engine.py</code> blocked before disk write.<br>
-            Subpoena CASE-AG-101 opened and sent to Discord #meeting-floor.
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 2. Boardroom OS Modal -->
-  <div class="studio-modal-backdrop" id="modal-boardroom">
-    <div class="studio-modal-box">
-      <div class="modal-head">
-        <h4><span>🎙️</span> Boardroom OS &middot; Discord Voice #meeting-floor</h4>
-        <button class="btn-modal-close" onclick="closeStudioModal('modal-boardroom')">&times;</button>
-      </div>
-      <div class="modal-content-area">
-        <div style="background:#0c101a; border:1px solid var(--border-subtle); border-radius:8px; padding:14px; display:flex; justify-content:space-between; align-items:center;">
+      <!-- Tab 2: Voice -->
+      <div class="sp-tab-content" id="tab-sp-voice" style="display:none;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:center;">
           <div>
-            <div style="font-weight:700; color:#fff;">Active Voice Huddle &middot; Discord #meeting-floor</div>
-            <div style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono);">Engineers: David, Sarah, Alex, Priya + ChatGPT On-Call Sentinel</div>
+            <div style="font-size:11px; font-family:var(--font-mono); color:var(--cyan-bright); margin-bottom:8px;">VOICE-TO-DEPLOYMENT CONTINUITY</div>
+            <h3 style="font-size:22px; font-weight:800; color:#fff; margin-bottom:12px;">Discord Voice Floor Bridge & RFC Reasons</h3>
+            <p style="font-size:14px; color:var(--text-muted); line-height:1.6;">
+              Architecture decisions made in team huddles normally vanish into voice history. The Ship Court Discord voice bot transcribes speaking intent, manages hand-raising floor control (RFC reason codes), and writes voice agreements straight into the court docket.
+            </p>
           </div>
-          <span style="font-family:var(--font-mono); font-size:11px; color:var(--accent-emerald);">● VAD MONITORING</span>
+          <div style="background:#070a12; border:1px solid var(--border-subtle); border-radius:10px; padding:20px;">
+            <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-dim); margin-bottom:12px;">DISCORD STAGE: #meeting-floor</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; justify-content:space-between; font-size:13px; color:#fff;">
+                <span>🟢 @Ganesh (Speaking)</span>
+                <span style="font-family:var(--font-mono); color:var(--cyan-bright); font-size:11px;">"Cap canary at 5%"</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--text-muted);">
+                <span>✋ @Arjit (Queued)</span>
+                <span style="font-family:var(--font-mono); color:var(--amber-gavel); font-size:11px;">RFC-EMERGENCY</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Vault -->
+      <div class="sp-tab-content" id="tab-sp-vault" style="display:none;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:center;">
+          <div>
+            <div style="font-size:11px; font-family:var(--font-mono); color:var(--amber-gavel); margin-bottom:8px;">CRYPTOGRAPHIC INTEGRITY</div>
+            <h3 style="font-size:22px; font-weight:800; color:#fff; margin-bottom:12px;">SHA-256 Plan Hash & Release Gating</h3>
+            <p style="font-size:14px; color:var(--text-muted); line-height:1.6;">
+              No rogue CI/CD runner or agent can bypass the courtroom verdict. The Release Vault signs the release brief with a SHA-256 plan hash and Merkle audit log. GitHub webhook merges are rejected unless the hash matches an authorized human verdict.
+            </p>
+          </div>
+          <div style="background:#070a12; border:1px solid var(--border-subtle); border-radius:10px; padding:20px; font-family:var(--font-mono); font-size:12px;">
+            <div style="color:var(--text-dim); margin-bottom:8px;">CRYPTOGRAPHIC VERIFICATION STATUS</div>
+            <div style="color:var(--emerald-pass); margin-bottom:4px;">✓ Plan Hash: 8f9b2c...a41e (VERIFIED)</div>
+            <div style="color:var(--emerald-pass); margin-bottom:4px;">✓ Human Approver: Priya (AUTHENTICATED)</div>
+            <div style="color:var(--emerald-pass);">✓ Merkle Leaf: SC-0482 (REGISTERED)</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ACT 5: Take the Bench (Judge Mode) -->
+  <section class="bench-section" id="take-the-bench">
+    <div class="container">
+      <div style="text-align:center; max-width:720px; margin:0 auto;">
+        <div class="section-badge" style="color:var(--amber-gavel); border-color:var(--amber-glow); background:rgba(251,191,36,0.1);">👑 ACT 5 · YOUR TURN</div>
+        <h2 class="section-title">Take the Bench, Your Honor</h2>
+        <p class="section-desc">Experience Ship Court as the Human Release Judge holding the exclusive <code>approver</code> role. Review the indictment and issue the binding verdict.</p>
+      </div>
+
+      <div class="bench-container">
+        <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border-subtle); padding-bottom:16px;">
+          <div>
+            <div style="font-family:var(--font-display); font-size:18px; font-weight:800; color:#fff;">Case SC-0482: Dynamic Pricing Rollout</div>
+            <div style="font-size:13px; color:var(--text-muted);">Repository: acme/shop · Target Branch: main · Rollback SLA: 1.8s</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-family:var(--font-mono); font-size:11px; color:var(--amber-gavel);">EXCLUSIVE GATE</div>
+            <div style="font-size:13px; font-weight:700; color:#fff;">Magistrate Role Active</div>
+          </div>
         </div>
 
-        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;">
-          <button class="btn-top-modal-trigger" style="justify-content:center; font-size:11px;" onclick="addFloorRequest('clarification', 'Clarify checkout retry budget under peak traffic')">+ Clarification</button>
-          <button class="btn-top-modal-trigger" style="justify-content:center; font-size:11px;" onclick="addFloorRequest('incident', 'Subpoena INC-017 Pricing Divergence')">+ Precedent (INC-017)</button>
-          <button class="btn-top-modal-trigger" style="justify-content:center; font-size:11px;" onclick="addFloorRequest('mitigation', 'Propose 5% canary stepping with 1.8s rollback')">+ Canary Mitigation</button>
-          <button class="btn-top-modal-trigger" style="justify-content:center; font-size:11px;" onclick="addFloorRequest('hazard', 'Expose database table lock contention')">+ Outage Blocker</button>
+        <div class="bench-form">
+          <div class="bench-options">
+            <div style="font-size:13px; font-weight:700; color:#fff; margin-bottom:4px;">Select Judicial Decree:</div>
+            
+            <div class="bench-radio-card" id="card-verdict-approve" onclick="selectJudgeVerdict('APPROVE')">
+              <span style="font-size:18px;">🟢</span>
+              <div>
+                <div style="font-weight:700; color:#fff; font-size:14px;">APPROVE (Unconditional)</div>
+                <div style="font-size:12px; color:var(--text-muted);">All risks accounted for; immediate merge allowed.</div>
+              </div>
+            </div>
+
+            <div class="bench-radio-card selected" id="card-verdict-conditions" onclick="selectJudgeVerdict('CONDITIONS')">
+              <span style="font-size:18px;">🟡</span>
+              <div>
+                <div style="font-weight:700; color:#fff; font-size:14px;">SHIP WITH CONDITIONS (Recommended)</div>
+                <div style="font-size:12px; color:var(--text-muted);">Require 5% canary stepping + alert configuration.</div>
+              </div>
+            </div>
+
+            <div class="bench-radio-card" id="card-verdict-block" onclick="selectJudgeVerdict('BLOCK')">
+              <span style="font-size:18px;">🔴</span>
+              <div>
+                <div style="font-weight:700; color:#fff; font-size:14px;">BLOCK DEPLOYMENT</div>
+                <div style="font-size:12px; color:var(--text-muted);">Remand PR to engineering; high outage probability.</div>
+              </div>
+            </div>
+
+            <button class="btn-primary" style="margin-top:12px; justify-content:center; background:linear-gradient(135deg, #fbbf24, #d97706); color:#000; font-weight:800;" onclick="issueJudgeDecree()">
+              <span>🔨 Strike Gavel & Issue Binding Decree</span>
+            </button>
+          </div>
+
+          <div class="bench-verdict-result">
+            <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-dim); display:flex; justify-content:space-between;">
+              <span>RELEASE BRIEF GENERATOR</span>
+              <span id="brief-status" style="color:var(--emerald-pass);">READY FOR SIGNATURE</span>
+            </div>
+            
+            <div id="brief-rendered-view" style="font-size:13px; line-height:1.6; color:var(--text-body);">
+              <strong>Magistrate:</strong> <span id="brief-judge-name">Judge Priya</span><br>
+              <strong>Verdict:</strong> <span style="color:var(--amber-gavel); font-weight:700;" id="brief-verdict-text">SHIP WITH CONDITIONS</span><br>
+              <strong>Mandatory Conditions:</strong>
+              <ul style="margin-left:18px; margin-top:6px; color:var(--text-muted);">
+                <li>Canary rollout capped at 5% traffic</li>
+                <li>Add pricing consistency alert (DevOps)</li>
+                <li>Rehearse rollback SLA &lt; 1.8s verified</li>
+              </ul>
+            </div>
+
+            <div style="border-top:1px solid var(--border-subtle); padding-top:12px; font-family:var(--font-mono); font-size:11px; color:var(--text-dim); display:flex; justify-content:space-between; align-items:center;">
+              <span>SHA-256: 7d8c4...e19b</span>
+              <button class="ctrl-btn" onclick="copyBriefText()">Copy Markdown</button>
+            </div>
+          </div>
         </div>
 
-        <div style="border:1px solid var(--border-subtle); border-radius:8px; overflow:hidden;">
-          <table style="width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:11px; text-align:left;">
-            <thead>
-              <tr style="background:#080b12; border-bottom:1px solid var(--border-subtle); color:var(--text-dim);">
-                <th style="padding:10px 14px;">REASON</th>
-                <th style="padding:10px 14px;">SCRIPT PREVIEW</th>
-                <th style="padding:10px 14px;">STATE</th>
-                <th style="padding:10px 14px;">CHAIR ACTION</th>
-              </tr>
-            </thead>
-            <tbody id="modal-floor-tbody">
-              <tr style="border-bottom:1px solid var(--border-subtle);">
-                <td style="padding:10px 14px;"><span style="color:var(--accent-gold); font-weight:700;">CLARIFICATION</span></td>
-                <td style="padding:10px 14px; color:#ffffff;">"Clarify checkout retry budget under peak traffic to avoid thread exhaustion"</td>
-                <td style="padding:10px 14px; color:var(--text-muted);">WAITING (85s TTL)</td>
-                <td style="padding:10px 14px;"><button class="btn-top-modal-trigger" style="padding:3px 8px; font-size:10px;" onclick="grantFloorMock(this)">Grant Floor (30s)</button></td>
-              </tr>
-            </tbody>
-          </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACT 6: Scorecard & Technical Evidence -->
+  <section class="scorecard-section" id="scorecard">
+    <div class="container">
+      <div style="margin-bottom:28px;">
+        <div class="section-badge">📊 ACT 6 · BUILT FOR THE JUDGES</div>
+        <h2 class="section-title">Evaluation Matrix & Verification</h2>
+        <p class="section-desc">Passing every rigor of the Flip the Switch scorecard with deterministic test suites, high-concurrency benchmarks, and deep multi-agent coordination.</p>
+      </div>
+
+      <div class="scorecard-grid">
+        <div class="scorecard-card">
+          <div class="scorecard-pillar">PILLAR 01 · 25%</div>
+          <div class="scorecard-score">Use of Switch</div>
+          <div class="scorecard-desc">
+            Passes the Remove-Switch test: 9 distributed agents coordinate through one shared Switch room <code>#ship-court</code> with role aliases and an exclusive <code>approver</code> gate.
+          </div>
+        </div>
+
+        <div class="scorecard-card">
+          <div class="scorecard-pillar">PILLAR 02 · 25%</div>
+          <div class="scorecard-score">Technical Execution</div>
+          <div class="scorecard-desc">
+            42 passed pytest tests, 20,000-request load test (0 dropped connections), and deterministic finite-state machines (<code>CaseState</code>, <code>FloorState</code>).
+          </div>
+        </div>
+
+        <div class="scorecard-card">
+          <div class="scorecard-pillar">PILLAR 03 · 25%</div>
+          <div class="scorecard-score">Creativity & Impact</div>
+          <div class="scorecard-desc">
+            Track 01 (adversarial release courtroom) meets Track 02 (Antigravity cross-machine collision prevention & Discord voice huddle continuity).
+          </div>
+        </div>
+
+        <div class="scorecard-card">
+          <div class="scorecard-pillar">PILLAR 04 · 25%</div>
+          <div class="scorecard-score">Presentation & Docs</div>
+          <div class="scorecard-desc">
+            Production-grade 3D judicial console, full documentation suite, declarative Switch templates, and offline-safe execution.
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- 3. Release Vault Modal -->
-  <div class="studio-modal-backdrop" id="modal-vault">
-    <div class="studio-modal-box">
-      <div class="modal-head">
-        <h4><span>🔐</span> Autonomous GitHub Operations Agent &middot; Release Vault</h4>
-        <button class="btn-modal-close" onclick="closeStudioModal('modal-vault')">&times;</button>
-      </div>
-      <div class="modal-content-area">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-          <div>
-            <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-dim); margin-bottom:4px;">Operator Credential (SHIPCOURT_TOKEN)</div>
-            <input id="vault-token-input" type="password" value="__TOKEN_PLACEHOLDER__" style="width:100%; background:#07090f; border:1px solid var(--border-subtle); border-radius:6px; padding:8px 12px; font-family:var(--font-mono); font-size:11px; color:#fff; outline:none;">
-          </div>
-          <div>
-            <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-dim); margin-bottom:4px;">Target Pull Request</div>
-            <input id="vault-pr-input" value="https://github.com/GaneshNair007/switch-AI/pull/17" style="width:100%; background:#07090f; border:1px solid var(--border-subtle); border-radius:6px; padding:8px 12px; font-family:var(--font-mono); font-size:11px; color:#fff; outline:none;">
-          </div>
-        </div>
-
-        <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap:8px;">
-          <button class="btn-top-modal-trigger" style="justify-content:center; font-size:10px;" onclick="runVaultStep(1)">1. Open Docket</button>
-          <button class="btn-top-modal-trigger" style="justify-content:center; font-size:10px;" onclick="runVaultStep(2)">2. Review</button>
-          <button class="btn-top-modal-trigger" style="justify-content:center; font-size:10px;" onclick="runVaultStep(3)">3. Sign Verdict</button>
-          <button class="btn-top-modal-trigger" style="justify-content:center; font-size:10px;" onclick="runVaultStep(4)">4. Preview Plan</button>
-          <button class="btn-convene-trial" style="justify-content:center; font-size:10px; padding:6px;" id="btn-vault-apply" onclick="runVaultStep(5)" disabled>5. Apply GitHub</button>
-          <button class="btn-top-modal-trigger" style="justify-content:center; font-size:10px;" onclick="runVaultStep(6)">6. Audit Trail</button>
-        </div>
-
-        <div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-family:var(--font-mono); font-size:10px; color:var(--text-dim);">
-            <span>CRYPTOGRAPHIC LEDGER STREAM</span>
-            <span id="vault-plan-hash-label">PLAN HASH: NONE</span>
-          </div>
-          <pre style="background:#04060b; border:1px solid var(--border-subtle); border-radius:6px; padding:14px; font-family:var(--font-mono); font-size:11px; color:#94a3b8; max-height:260px; overflow-y:auto; line-height:1.5;" id="vault-term-output">// Click '1. Open Docket' to begin cryptographic release lifecycle.</pre>
-        </div>
-      </div>
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p style="margin-bottom:8px;">Ship Court — Built for Flip the Switch by WeMakeDevs × DevTools Academy powered by Switch AI</p>
+      <p style="font-family:var(--font-mono); font-size:11px;">Team: Arjit Ujjawal · Ganesh Nair · Jayvee Shah · MIT License</p>
     </div>
-  </div>
+  </footer>
 
-  <!-- Client-Side Engine: Three.js 3D Courtroom, Physical Scales, Gavel Strike, & APIs -->
+  <!-- Credential Holder (Replaced by dashboard_html.py) -->
+  <input type="hidden" id="vault-token-input" value="__TOKEN_PLACEHOLDER__">
+
+  <!-- Application Logic -->
   <script>
     // =========================================================================
-    // 1. Modal Controller
+    // 1. Interactive Trial Scenarios & Dialectic Database
     // =========================================================================
-    function openStudioModal(id) {
-      const modal = document.getElementById(id);
-      if (modal) modal.classList.add('open');
-    }
-    function closeStudioModal(id) {
-      const modal = document.getElementById(id);
-      if (modal) modal.classList.remove('open');
-    }
-    window.addEventListener('keydown', e => {
-      if (e.key === 'Escape') {
-        document.querySelectorAll('.studio-modal-backdrop').forEach(m => m.classList.remove('open'));
+    const SCENARIOS = {
+      1: {
+        id: "SC-0482",
+        name: "acme/shop · Dynamic Pricing ML",
+        task: "Dynamic checkout pricing rollout with ML price optimization model",
+        precedent: "INC-017 Pricing Divergence ($9,200/min revenue stall)",
+        script: [
+          { sender: "clerk", name: "@court-clerk (Bailiff)", text: "Hear ye! Case SC-0482 is convened in #ship-court. Docket: Dynamic checkout pricing in acme/shop. Reading incident precedents...", badge: null },
+          { sender: "historian", name: "@historian (Incident Memory)", text: "Precedent match found: INC-017. Uncached pricing recalculation previously caused client/server total divergence, resulting in 41 failed checkouts.", badge: "PRECEDENT" },
+          { sender: "pros", name: "@prosecutor (Adversarial Risk)", text: "OBJECTION 1: The ML pricing model recalculates totals at the final payment step without a shared cache lock. This replicates INC-017's cart divergence.", badge: "BLOCKING" },
+          { sender: "pros", name: "@prosecutor (Adversarial Risk)", text: "OBJECTION 2: Zero alerting exists for pricing mismatches between checkout-service and payment-gateway in Datadog/Prometheus configs.", badge: "BLOCKING" },
+          { sender: "def", name: "@defender (Engineering Defense)", text: "Addressing Objection 1: PR includes a redis-based idempotency token for cart totals. Latency test passed under 120ms.", badge: "MITIGATED" },
+          { sender: "def", name: "@defender (Engineering Defense)", text: "CONCESSION on Objection 2: We acknowledge no dedicated mismatch alert is provisioned yet in staging.", badge: "CONCEDED" },
+          { sender: "rollback", name: "@rollback (Rollback Engineer)", text: "Rollback runbook verified: './scripts/rollback.sh checkout-service v2.13.2'. Target rollback SLA is 1.8 seconds. Health check passes.", badge: "VERIFIED" },
+          { sender: "judge", name: "@judge-priya (Chief Magistrate)", text: "Having heard cross-examination, I rule: SHIP WITH CONDITIONS. Rollout is restricted to 5% canary stepping, and mismatch alerting must be enabled before full traffic.", badge: "VERDICT" }
+        ],
+        prosScore: 65,
+        defScore: 35,
+        verdict: "CONDITIONS"
+      },
+      2: {
+        id: "SC-0104",
+        name: "acme/billing · Payment Webhook Idempotency",
+        task: "Stripe webhook worker refactor with async task dispatch",
+        precedent: "INC-044 Duplicate Charge Incident ($14,500 overbilling)",
+        script: [
+          { sender: "clerk", name: "@court-clerk (Bailiff)", text: "Docket SC-0104 convened. Indictment: Refactoring Stripe payment webhooks from synchronous handler to Celery worker.", badge: null },
+          { sender: "pros", name: "@prosecutor (Adversarial Risk)", text: "OBJECTION 1: Asynchronous execution opens a 400ms window where duplicate webhooks can process simultaneously without a distributed lock.", badge: "BLOCKING" },
+          { sender: "def", name: "@defender (Engineering Defense)", text: "Addressing Objection 1: PostgreSQL unique constraint on stripe_event_id guarantees atomic rejection at database level.", badge: "MITIGATED" },
+          { sender: "rollback", name: "@rollback (Rollback Engineer)", text: "Rollback certified: Revert to commit a91f82. Reversibility verified in 1.2s.", badge: "VERIFIED" },
+          { sender: "judge", name: "@judge-priya (Chief Magistrate)", text: "Database constraint conclusively mitigates duplicate charge race. VERDICT: APPROVED for production.", badge: "APPROVED" }
+        ],
+        prosScore: 25,
+        defScore: 75,
+        verdict: "APPROVE"
+      },
+      3: {
+        id: "SC-0209",
+        name: "acme/auth · Session Cache Flush",
+        task: "Flush Redis session cluster to apply new OAuth claims",
+        precedent: "INC-089 Global Auth Lockout (89k users de-authenticated)",
+        script: [
+          { sender: "clerk", name: "@court-clerk (Bailiff)", text: "Docket SC-0209 convened. Indictment: Global session flush to force claim token refreshes.", badge: null },
+          { sender: "pros", name: "@prosecutor (Adversarial Risk)", text: "OBJECTION 1: Flushing session cache forces an immediate 50,000 req/sec thundering herd against primary Postgres database.", badge: "BLOCKING" },
+          { sender: "def", name: "@defender (Engineering Defense)", text: "We planned to run this at 2:00 AM UTC with read replicas enabled.", badge: "WARNING" },
+          { sender: "pros", name: "@prosecutor (Adversarial Risk)", text: "Read replicas have a 3-second replication lag for OAuth writes. Thundering herd will crash the replica pool.", badge: "BLOCKING" },
+          { sender: "judge", name: "@judge-priya (Chief Magistrate)", text: "High risk of database collapse. VERDICT: BLOCKED. Engineering must implement gradual token migration instead of cache flush.", badge: "BLOCKED" }
+        ],
+        prosScore: 85,
+        defScore: 15,
+        verdict: "BLOCK"
       }
-    });
+    };
 
-    function switchPRTarget(name) {
-      document.getElementById('btn-cluster-shop').classList.toggle('active', name === 'shop');
-      document.getElementById('btn-cluster-switch').classList.toggle('active', name === 'switch');
-      const prInp = document.getElementById('vault-pr-input');
-      if (name === 'switch') prInp.value = "https://github.com/GaneshNair007/switch-AI/pull/17";
-      else prInp.value = "https://github.com/acme/shop/pull/482";
-    }
+    let activeScenarioId = 1;
+    let playbackIndex = 0;
+    let isPlaying = false;
+    let playbackTimer = null;
 
     // =========================================================================
-    // 2. Presets & Trial Trigger
-    // =========================================================================
-    function loadCockpitPreset(idx, btn) {
-      document.querySelectorAll('.preset-row-btn').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
-
-      const task = document.getElementById('cockpit-task-input');
-      if (idx === 1) task.value = "Dynamic checkout pricing rollout with ML price optimization model";
-      else if (idx === 2) task.value = "Drop database table user_sessions during active peak hours without backup";
-      else if (idx === 3) task.value = "Add Redis caching to product search queries with 60s TTL and automatic DB fallback";
-      else task.value = "Deploy parallel earth blast-radius simulation engine to production canary";
-    }
-
-    // =========================================================================
-    // 3. Three.js Cinematic 3D Courtroom Arena
+    // 2. Three.js 3D Courtroom Arena & Physics
     // =========================================================================
     let scene, camera, renderer;
-    let gavelGroup, gavelPivot, scalesCrossbar, scalesPanLeft, scalesPanRight;
-    let targetCameraPos = new THREE.Vector3(0, 38, 70);
-    let targetLookAt = new THREE.Vector3(0, 10, 0);
-    let currentLookAt = new THREE.Vector3(0, 10, 0);
-    let shockwaveMesh = null;
-    let particlesGroup = null;
-    let targetScalesAngle = 0;
-    let currentScalesAngle = 0;
-    let droppingWeights = [];
+    let scaleBeam, leftPan, rightPan;
+    let gavelPivot, gavelHead;
+    let targetBeamAngle = 0;
+    let currentBeamAngle = 0;
+    let targetCameraPos = new THREE.Vector3(0, 5, 12);
+    let targetCameraLook = new THREE.Vector3(0, 2, 0);
 
-    function initThreeArena() {
-      const container = document.getElementById('three-tribunal-canvas');
-      if (!container) return;
-
-      const w = container.clientWidth || 800;
-      const h = container.clientHeight || 600;
+    function initThreeScene() {
+      const container = document.querySelector('.stage-column');
+      const canvas = document.getElementById('three-courtroom-canvas');
+      
+      const width = container.clientWidth;
+      const height = container.clientHeight;
 
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x04060a);
-      scene.fog = new THREE.FogExp2(0x04060a, 0.008);
+      scene.background = new THREE.Color(0x080c16);
+      scene.fog = new THREE.FogExp2(0x080c16, 0.035);
 
-      camera = new THREE.PerspectiveCamera(40, w / h, 1, 1000);
-      camera.position.set(0, 38, 70);
-      camera.lookAt(0, 10, 0);
+      camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+      camera.position.set(0, 5.5, 12);
 
-      renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(w, h);
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, powerPreference: 'high-performance' });
+      renderer.setSize(width, height);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.shadowMap.enabled = true;
-      container.appendChild(renderer.domElement);
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-      // Floor: Reflective Dark Marble with Brass Ring Inlay
-      const floorGeo = new THREE.PlaneGeometry(160, 160);
+      // Studio Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      scene.add(ambientLight);
+
+      const dirLight = new THREE.DirectionalLight(0xfff5e6, 1.2);
+      dirLight.position.set(5, 12, 8);
+      dirLight.castShadow = true;
+      dirLight.shadow.mapSize.width = 1024;
+      dirLight.shadow.mapSize.height = 1024;
+      scene.add(dirLight);
+
+      const rimLight = new THREE.PointLight(0xa78bfa, 2, 20);
+      rimLight.position.set(-6, 6, -4);
+      scene.add(rimLight);
+
+      const goldSpot = new THREE.PointLight(0xfbbf24, 2.5, 15);
+      goldSpot.position.set(0, 7, 1);
+      scene.add(goldSpot);
+
+      // Floor (Polished Marble)
+      const floorGeo = new THREE.PlaneGeometry(32, 32);
       const floorMat = new THREE.MeshStandardMaterial({
-        color: 0x090c14,
-        roughness: 0.15,
-        metalness: 0.2
+        color: 0x0c111f,
+        roughness: 0.2,
+        metalness: 0.5
       });
       const floor = new THREE.Mesh(floorGeo, floorMat);
       floor.rotation.x = -Math.PI / 2;
-      floor.position.y = 0;
+      floor.receiveShadow = true;
       scene.add(floor);
 
-      const ringGeo = new THREE.RingGeometry(38, 38.6, 64);
+      // Brass Circular Inlay Rings on Floor
+      const ringGeo = new THREE.RingGeometry(3.8, 3.86, 64);
       const ringMat = new THREE.MeshBasicMaterial({ color: 0xd97706, side: THREE.DoubleSide });
       const ring = new THREE.Mesh(ringGeo, ringMat);
       ring.rotation.x = -Math.PI / 2;
-      ring.position.y = 0.05;
+      ring.position.y = 0.01;
       scene.add(ring);
 
-      const grid = new THREE.GridHelper(160, 32, 0x1f2738, 0x0b101c);
-      grid.position.y = 0.02;
-      scene.add(grid);
+      // Dais (Judge Platform)
+      const daisGeo = new THREE.CylinderGeometry(4.5, 4.8, 0.6, 48);
+      const daisMat = new THREE.MeshStandardMaterial({ color: 0x111625, roughness: 0.4 });
+      const dais = new THREE.Mesh(daisGeo, daisMat);
+      dais.position.set(0, 0.3, -2.5);
+      dais.receiveShadow = true;
+      scene.add(dais);
 
-      // Ambient & Volumetric Spotlights
-      const amb = new THREE.AmbientLight(0xffffff, 0.6);
-      scene.add(amb);
-
-      const judgeSpot = new THREE.SpotLight(0xfef08a, 1.2);
-      judgeSpot.position.set(0, 50, -10);
-      judgeSpot.target.position.set(0, 16, -20);
-      scene.add(judgeSpot);
-      scene.add(judgeSpot.target);
-
-      const arenaDirLight = new THREE.DirectionalLight(0xffffff, 0.5);
-      arenaDirLight.position.set(40, 60, 40);
-      scene.add(arenaDirLight);
-
-      // Build 3D Entities
-      buildMagistrateBench();
+      // Build 3D Scales of Justice
       buildScalesOfJustice();
-      buildHolographicDocket();
-      buildParticles();
 
-      // Mouse Orbit
-      let dragging = false;
-      let prevM = { x: 0, y: 0 };
-      container.addEventListener('mousedown', e => {
-        dragging = true;
-        prevM = { x: e.clientX, y: e.clientY };
-      });
-      window.addEventListener('mouseup', () => dragging = false);
-      container.addEventListener('mousemove', e => {
-        if (dragging) {
-          const dx = e.clientX - prevM.x;
-          const dy = e.clientY - prevM.y;
-          targetCameraPos.x -= dx * 0.1;
-          targetCameraPos.y = Math.max(15, Math.min(65, targetCameraPos.y + dy * 0.1));
-          prevM = { x: e.clientX, y: e.clientY };
-        }
-      });
+      // Build 3D Gavel on Sound Block
+      buildJudgeGavel();
 
-      container.addEventListener('wheel', e => {
-        e.preventDefault();
-        targetCameraPos.z = Math.max(35, Math.min(120, targetCameraPos.z + e.deltaY * 0.08));
-      });
+      // Mouse Orbit Controls (Manual implementation)
+      setupOrbitInteraction(canvas);
 
-      window.addEventListener('resize', onArenaResize);
-      arenaLoop();
+      window.addEventListener('resize', onWindowResize);
+      animate();
     }
 
-    function onArenaResize() {
-      const container = document.getElementById('three-tribunal-canvas');
+    function buildScalesOfJustice() {
+      const scalesGroup = new THREE.Group();
+      scalesGroup.position.set(0, 1.8, 0.5);
+
+      const brassMat = new THREE.MeshStandardMaterial({
+        color: 0xf59e0b,
+        metalness: 0.85,
+        roughness: 0.25
+      });
+
+      // Pillar Base & Column
+      const baseGeo = new THREE.CylinderGeometry(0.7, 0.9, 0.3, 32);
+      const baseMesh = new THREE.Mesh(baseGeo, brassMat);
+      scalesGroup.add(baseMesh);
+
+      const pillarGeo = new THREE.CylinderGeometry(0.12, 0.16, 3.2, 24);
+      const pillarMesh = new THREE.Mesh(pillarGeo, brassMat);
+      pillarMesh.position.y = 1.6;
+      pillarMesh.castShadow = true;
+      scalesGroup.add(pillarMesh);
+
+      // Fulcrum
+      const fulcrumGeo = new THREE.SphereGeometry(0.25, 24, 24);
+      const fulcrumMesh = new THREE.Mesh(fulcrumGeo, brassMat);
+      fulcrumMesh.position.y = 3.2;
+      scalesGroup.add(fulcrumMesh);
+
+      // Crossbar (Beam)
+      const beamGeo = new THREE.CylinderGeometry(0.06, 0.06, 3.8, 16);
+      beamGeo.rotateZ(Math.PI / 2);
+      scaleBeam = new THREE.Mesh(beamGeo, brassMat);
+      scaleBeam.position.y = 3.2;
+      scaleBeam.castShadow = true;
+      scalesGroup.add(scaleBeam);
+
+      // Left Pan (Prosecution / Red)
+      leftPan = createPanMesh(0xf87171);
+      leftPan.position.set(-1.8, -1.2, 0);
+      scaleBeam.add(leftPan);
+
+      // Right Pan (Defense / Emerald)
+      rightPan = createPanMesh(0x34d399);
+      rightPan.position.set(1.8, -1.2, 0);
+      scaleBeam.add(rightPan);
+
+      scene.add(scalesGroup);
+    }
+
+    function createPanMesh(accentColor) {
+      const panGroup = new THREE.Group();
+
+      const brassMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.8, roughness: 0.3 });
+      const dishGeo = new THREE.CylinderGeometry(0.7, 0.5, 0.12, 32);
+      const dishMesh = new THREE.Mesh(dishGeo, brassMat);
+      dishMesh.castShadow = true;
+      panGroup.add(dishMesh);
+
+      // Glowing weight disc in pan
+      const discGeo = new THREE.CylinderGeometry(0.45, 0.45, 0.08, 24);
+      const discMat = new THREE.MeshStandardMaterial({
+        color: accentColor,
+        emissive: accentColor,
+        emissiveIntensity: 0.4,
+        roughness: 0.2
+      });
+      const discMesh = new THREE.Mesh(discGeo, discMat);
+      discMesh.position.y = 0.07;
+      panGroup.add(discMesh);
+
+      // Strings
+      const stringMat = new THREE.LineBasicMaterial({ color: 0x94a3b8 });
+      for (let i = 0; i < 3; i++) {
+        const ang = (i * Math.PI * 2) / 3;
+        const pts = [
+          new THREE.Vector3(0, 1.2, 0),
+          new THREE.Vector3(Math.cos(ang) * 0.6, 0.06, Math.sin(ang) * 0.6)
+        ];
+        const lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
+        const line = new THREE.Line(lineGeo, stringMat);
+        panGroup.add(line);
+      }
+
+      return panGroup;
+    }
+
+    function buildJudgeGavel() {
+      const daisGroup = new THREE.Group();
+      daisGroup.position.set(0, 0.8, -2.8);
+
+      // Sound Block
+      const blockGeo = new THREE.CylinderGeometry(0.65, 0.75, 0.25, 24);
+      const blockMat = new THREE.MeshStandardMaterial({ color: 0x1f293d, roughness: 0.3, metalness: 0.4 });
+      const blockMesh = new THREE.Mesh(blockGeo, blockMat);
+      blockMesh.castShadow = true;
+      blockMesh.receiveShadow = true;
+      daisGroup.add(blockMesh);
+
+      // Gavel Pivot
+      gavelPivot = new THREE.Group();
+      gavelPivot.position.set(0.6, 0.15, 0);
+
+      const woodMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.3 });
+      const brassRingMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.2 });
+
+      // Handle
+      const handleGeo = new THREE.CylinderGeometry(0.04, 0.05, 1.1, 16);
+      handleGeo.rotateZ(Math.PI / 2.2);
+      const handleMesh = new THREE.Mesh(handleGeo, woodMat);
+      handleMesh.position.set(-0.4, 0.12, 0);
+      gavelPivot.add(handleMesh);
+
+      // Head
+      gavelHead = new THREE.Group();
+      gavelHead.position.set(-0.85, 0.25, 0);
+
+      const headGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.55, 24);
+      headGeo.rotateX(Math.PI / 2);
+      const headMesh = new THREE.Mesh(headGeo, woodMat);
+      headMesh.castShadow = true;
+      gavelHead.add(headMesh);
+
+      const ring1 = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.08, 24), brassRingMat);
+      ring1.rotateX(Math.PI / 2);
+      ring1.position.z = 0.2;
+      gavelHead.add(ring1);
+
+      const ring2 = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.08, 24), brassRingMat);
+      ring2.rotateX(Math.PI / 2);
+      ring2.position.z = -0.2;
+      gavelHead.add(ring2);
+
+      gavelPivot.add(gavelHead);
+      daisGroup.add(gavelPivot);
+
+      scene.add(daisGroup);
+    }
+
+    function setupOrbitInteraction(canvas) {
+      let isDragging = false;
+      let prevX = 0, prevY = 0;
+      let theta = 0, phi = 0.35;
+      const radius = 11;
+
+      canvas.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        prevX = e.clientX;
+        prevY = e.clientY;
+      });
+
+      window.addEventListener('mouseup', () => isDragging = false);
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - prevX;
+        const dy = e.clientY - prevY;
+        prevX = e.clientX;
+        prevY = e.clientY;
+
+        theta -= dx * 0.006;
+        phi = Math.max(0.15, Math.min(Math.PI / 2.2, phi + dy * 0.006));
+
+        targetCameraPos.x = radius * Math.sin(theta) * Math.cos(phi);
+        targetCameraPos.y = radius * Math.sin(phi) + 2;
+        targetCameraPos.z = radius * Math.cos(theta) * Math.cos(phi);
+      });
+    }
+
+    function onWindowResize() {
+      const container = document.querySelector('.stage-column');
       if (!container || !renderer || !camera) return;
       const w = container.clientWidth;
       const h = container.clientHeight;
@@ -1324,534 +1859,356 @@
       renderer.setSize(w, h);
     }
 
-    function buildMagistrateBench() {
-      // Elevated Stone Dais
-      const daisGeo = new THREE.CylinderGeometry(28, 30, 4, 32);
-      const daisMat = new THREE.MeshStandardMaterial({ color: 0x0f1524, roughness: 0.3 });
-      const dais = new THREE.Mesh(daisGeo, daisMat);
-      dais.position.set(0, 2, -22);
-      scene.add(dais);
-
-      // Curved Mahogany Desk
-      const deskGeo = new THREE.BoxGeometry(26, 7, 6);
-      const deskMat = new THREE.MeshStandardMaterial({ color: 0x1f160e, roughness: 0.25, metalness: 0.2 });
-      const desk = new THREE.Mesh(deskGeo, deskMat);
-      desk.position.set(0, 7.5, -20);
-      scene.add(desk);
-
-      // Brass Inlaid Balustrade Top
-      const trimGeo = new THREE.BoxGeometry(26.4, 0.6, 6.4);
-      const trimMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.8, roughness: 0.2 });
-      const trim = new THREE.Mesh(trimGeo, trimMat);
-      trim.position.set(0, 11, -20);
-      scene.add(trim);
-
-      // Marble Sound Block
-      const blockGeo = new THREE.CylinderGeometry(2.5, 2.7, 1.2, 16);
-      const blockMat = new THREE.MeshStandardMaterial({ color: 0x06090f, roughness: 0.1, metalness: 0.1 });
-      const soundBlock = new THREE.Mesh(blockGeo, blockMat);
-      soundBlock.position.set(0, 11.6, -19);
-      scene.add(soundBlock);
-
-      // 3D Brass Gavel
-      gavelGroup = new THREE.Group();
-      gavelGroup.position.set(0, 12.2, -19);
-
-      // Handle Pivot at the base
-      gavelPivot = new THREE.Group();
-      gavelGroup.add(gavelPivot);
-
-      const handleGeo = new THREE.CylinderGeometry(0.3, 0.45, 7, 12);
-      const handleMat = new THREE.MeshStandardMaterial({ color: 0x2d1e0d, roughness: 0.3 });
-      const handle = new THREE.Mesh(handleGeo, handleMat);
-      handle.position.set(0, 3.5, 0);
-      gavelPivot.add(handle);
-
-      const headGeo = new THREE.CylinderGeometry(1.2, 1.2, 4, 16);
-      const headMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.85, roughness: 0.2 });
-      const head = new THREE.Mesh(headGeo, headMat);
-      head.rotation.z = Math.PI / 2;
-      head.position.set(0, 7, 0);
-      gavelPivot.add(head);
-
-      scene.add(gavelGroup);
-
-      // Shockwave Ring
-      const shockGeo = new THREE.RingGeometry(0.5, 1.2, 32);
-      const shockMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24, side: THREE.DoubleSide, transparent: true, opacity: 0 });
-      shockwaveMesh = new THREE.Mesh(shockGeo, shockMat);
-      shockwaveMesh.rotation.x = -Math.PI / 2;
-      shockwaveMesh.position.set(0, 11.7, -19);
-      scene.add(shockwaveMesh);
-    }
-
-    function buildScalesOfJustice() {
-      const scalesGroup = new THREE.Group();
-      scalesGroup.position.set(0, 0, 4);
-
-      // Center Pillar
-      const pillarGeo = new THREE.CylinderGeometry(0.6, 0.9, 18, 16);
-      const brassMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.85, roughness: 0.2 });
-      const pillar = new THREE.Mesh(pillarGeo, brassMat);
-      pillar.position.set(0, 9, 0);
-      scalesGroup.add(pillar);
-
-      // Fulcrum
-      const fulcrumGeo = new THREE.SphereGeometry(1.1, 16, 16);
-      const fulcrum = new THREE.Mesh(fulcrumGeo, brassMat);
-      fulcrum.position.set(0, 18, 0);
-      scalesGroup.add(fulcrum);
-
-      // Crossbar (Rotates dynamically!)
-      scalesCrossbar = new THREE.Group();
-      scalesCrossbar.position.set(0, 18, 0);
-
-      const barGeo = new THREE.BoxGeometry(26, 0.6, 0.6);
-      const bar = new THREE.Mesh(barGeo, brassMat);
-      scalesCrossbar.add(bar);
-
-      // Left & Right Dish Assemblies
-      scalesPanLeft = createScaleDish(-12);
-      scalesPanRight = createScaleDish(12);
-
-      scalesCrossbar.add(scalesPanLeft);
-      scalesCrossbar.add(scalesPanRight);
-      scalesGroup.add(scalesCrossbar);
-
-      scene.add(scalesGroup);
-    }
-
-    function createScaleDish(xOffset) {
-      const dishGroup = new THREE.Group();
-      dishGroup.position.set(xOffset, 0, 0);
-
-      const chainMat = new THREE.LineBasicMaterial({ color: 0xd97706 });
-      const pts1 = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(-2.5, -6, 0)];
-      const pts2 = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(2.5, -6, 0)];
-      const line1 = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts1), chainMat);
-      const line2 = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts2), chainMat);
-      dishGroup.add(line1);
-      dishGroup.add(line2);
-
-      const dishGeo = new THREE.CylinderGeometry(3.5, 2.5, 0.8, 16);
-      const dishMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.8, roughness: 0.2 });
-      const dish = new THREE.Mesh(dishGeo, dishMat);
-      dish.position.set(0, -6.4, 0);
-      dishGroup.add(dish);
-
-      return dishGroup;
-    }
-
-    function buildHolographicDocket() {
-      const docketGroup = new THREE.Group();
-      docketGroup.position.set(0, 0, 18);
-
-      const baseGeo = new THREE.CylinderGeometry(3.5, 4, 1.5, 8);
-      const baseMat = new THREE.MeshStandardMaterial({ color: 0x0f1524, roughness: 0.2 });
-      const base = new THREE.Mesh(baseGeo, baseMat);
-      base.position.set(0, 0.75, 0);
-      docketGroup.add(base);
-
-      // Rotating Hologram Planes
-      const holoGeo = new THREE.BoxGeometry(3, 4, 0.1);
-      const holoMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.6 });
-      const holoDoc = new THREE.Mesh(holoGeo, holoMat);
-      holoDoc.position.set(0, 4.5, 0);
-      holoDoc.userData = { isHolo: true };
-      docketGroup.add(holoDoc);
-
-      scene.add(docketGroup);
-    }
-
-    function buildParticles() {
-      particlesGroup = new THREE.Group();
-      const pGeo = new THREE.BufferGeometry();
-      const count = 40;
-      const pos = new Float32Array(count * 3);
-      for (let i = 0; i < count * 3; i++) {
-        pos[i] = (Math.random() - 0.5) * 60;
-      }
-      pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-      const pMat = new THREE.PointsMaterial({ color: 0xfbbf24, size: 0.6, transparent: true, opacity: 0.4 });
-      const points = new THREE.Points(pGeo, pMat);
-      particlesGroup.add(points);
-      scene.add(particlesGroup);
-    }
-
-    function setTribunalCam(preset) {
-      document.getElementById('btn-cam-wide').classList.toggle('active', preset === 'wide');
-      document.getElementById('btn-cam-bench').classList.toggle('active', preset === 'bench');
-      document.getElementById('btn-cam-scales').classList.toggle('active', preset === 'scales');
-
-      if (preset === 'wide') {
-        targetCameraPos.set(0, 38, 70);
-        targetLookAt.set(0, 10, 0);
-      } else if (preset === 'bench') {
-        targetCameraPos.set(0, 24, 10);
-        targetLookAt.set(0, 15, -20);
-      } else if (preset === 'scales') {
-        targetCameraPos.set(0, 22, 32);
-        targetLookAt.set(0, 14, 4);
+    function setCameraView(view) {
+      document.querySelectorAll('.cam-btn').forEach(b => b.classList.remove('active'));
+      if (view === 'arena') {
+        document.getElementById('btn-cam-arena')?.classList.add('active');
+        targetCameraPos.set(0, 5.5, 12);
+        targetCameraLook.set(0, 2, 0);
+      } else if (view === 'scales') {
+        document.getElementById('btn-cam-scales')?.classList.add('active');
+        targetCameraPos.set(0, 3.8, 5.5);
+        targetCameraLook.set(0, 3.2, 0.5);
+      } else if (view === 'bench') {
+        document.getElementById('btn-cam-bench')?.classList.add('active');
+        targetCameraPos.set(1.5, 2.2, -0.8);
+        targetCameraLook.set(0, 1.2, -2.8);
       }
     }
 
-    let isStrikingGavel = false;
-    let gavelStrikeStart = 0;
-    function triggerArenaGavelSlam() {
-      isStrikingGavel = true;
-      gavelStrikeStart = Date.now();
-    }
+    function triggerGavelStrike() {
+      const flash = document.getElementById('gavel-flash');
+      flash.classList.add('active');
+      setTimeout(() => flash.classList.remove('active'), 250);
 
-    function spawnWeightSphere(isPros) {
-      const geo = isPros ? new THREE.SphereGeometry(0.8, 12, 12) : new THREE.CylinderGeometry(0.9, 0.9, 0.4, 12);
-      const mat = new THREE.MeshStandardMaterial({
-        color: isPros ? 0x1f2430 : 0x10b981,
-        metalness: isPros ? 0.9 : 0.5,
-        roughness: 0.2
-      });
-      const mesh = new THREE.Mesh(geo, mat);
-      const startX = isPros ? -12 : 12;
-      mesh.position.set(startX, 26, 4);
-      mesh.userData = { velY: 0, targetY: isPros ? 11.8 : 11.8, isBouncing: true };
-      scene.add(mesh);
-      droppingWeights.push(mesh);
-    }
-
-    function arenaLoop() {
-      requestAnimationFrame(arenaLoop);
-
-      // Smooth camera interpolation
-      camera.position.lerp(targetCameraPos, 0.05);
-      currentLookAt.lerp(targetLookAt, 0.05);
-      camera.lookAt(currentLookAt);
-
-      // Hologram rotation
-      scene.traverse(obj => {
-        if (obj.userData && obj.userData.isHolo) {
-          obj.rotation.y += 0.015;
-          obj.position.y = 4.5 + Math.sin(Date.now() * 0.003) * 0.3;
-        }
-      });
-
-      // Smooth Scales Balancing
-      currentScalesAngle += (targetScalesAngle - currentScalesAngle) * 0.06;
-      if (scalesCrossbar) {
-        scalesCrossbar.rotation.z = currentScalesAngle;
-        // Keep dishes vertical
-        scalesPanLeft.rotation.z = -currentScalesAngle;
-        scalesPanRight.rotation.z = -currentScalesAngle;
-      }
-
-      // Animated Gavel Strike
-      if (isStrikingGavel && gavelPivot) {
-        const elapsed = (Date.now() - gavelStrikeStart) / 1000;
-        if (elapsed < 0.2) {
-          gavelPivot.rotation.z = -elapsed * 5.0; // raise back
-        } else if (elapsed < 0.32) {
-          gavelPivot.rotation.z = -(0.2 * 5.0) + (elapsed - 0.2) * 12.0; // slam down
+      // Animate gavel pivot
+      let step = 0;
+      const strikeInterval = setInterval(() => {
+        step++;
+        if (step <= 5) {
+          gavelPivot.rotation.z = step * 0.12; // lift up
+        } else if (step <= 8) {
+          gavelPivot.rotation.z = -0.15; // SLAM down
         } else {
           gavelPivot.rotation.z = 0;
-          isStrikingGavel = false;
-
-          // Shockwave burst & camera shake
-          if (shockwaveMesh) {
-            shockwaveMesh.scale.set(1, 1, 1);
-            shockwaveMesh.material.opacity = 1.0;
-          }
-          targetCameraPos.x += (Math.random() - 0.5) * 1.5;
+          clearInterval(strikeInterval);
         }
+      }, 35);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // Smooth camera interpolation
+      camera.position.lerp(targetCameraPos, 0.06);
+      camera.lookAt(targetCameraLook);
+
+      // Smooth scales tilting physics
+      currentBeamAngle += (targetBeamAngle - currentBeamAngle) * 0.08;
+      if (scaleBeam) {
+        scaleBeam.rotation.z = currentBeamAngle;
+        // Keep pans upright relative to gravity
+        if (leftPan) leftPan.rotation.z = -currentBeamAngle;
+        if (rightPan) rightPan.rotation.z = -currentBeamAngle;
       }
 
-      // Shockwave expand
-      if (shockwaveMesh && shockwaveMesh.material.opacity > 0) {
-        shockwaveMesh.scale.multiplyScalar(1.08);
-        shockwaveMesh.material.opacity -= 0.04;
-      }
-
-      // Dropping weights physics
-      for (let i = droppingWeights.length - 1; i >= 0; i--) {
-        const w = droppingWeights[i];
-        if (w.userData.isBouncing) {
-          w.userData.velY -= 0.04;
-          w.position.y += w.userData.velY;
-          if (w.position.y <= w.userData.targetY) {
-            w.position.y = w.userData.targetY;
-            w.userData.velY = -w.userData.velY * 0.4;
-            if (Math.abs(w.userData.velY) < 0.05) w.userData.isBouncing = false;
-          }
-        }
-      }
-
-      if (renderer && scene && camera) {
-        renderer.render(scene, camera);
-      }
+      renderer.render(scene, camera);
     }
 
     // =========================================================================
-    // 4. Trial Runner: Unscripted Groq Dialectic & Camera Choreography
+    // 3. Dialectic Feed & Step-by-Step Playback
     // =========================================================================
-    async function conveneCockpitDebate() {
-      const task = document.getElementById('cockpit-task-input').value.trim();
-      const token = document.getElementById('vault-token-input').value.trim();
-      if (!task) return;
-
-      const btn = document.getElementById('btn-convene-trial');
-      btn.disabled = true;
-      btn.innerHTML = '<span>⚡ Cross-Examining in Groq Qwen-3.8-27b...</span>';
-      document.getElementById('status-verdict-tag').innerText = 'CROSS-EXAMINATION ACTIVE';
-
-      // Flash Ace Attorney Objection banner
-      const banner = document.getElementById('stage-objection-banner');
-      banner.classList.add('fire');
-      setTimeout(() => banner.classList.remove('fire'), 800);
-
-      // Cut camera to scales
-      setTribunalCam('scales');
-
-      const feed = document.getElementById('dialectic-feed-box');
-      feed.innerHTML = `
-        <div class="chat-bubble-row clk">
-          <div class="chat-row-header">
-            <span class="speaker clk">@court-clerk (Bailiff)</span>
-            <span style="color:var(--text-dim); font-size:10px;">${new Date().toLocaleTimeString()}</span>
-          </div>
-          <div class="chat-row-content">Trial convened. Interrogating failure precedents and evaluating blast radius...</div>
-        </div>
-      `;
-
-      try {
-        const resp = await fetch('/api/debate', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-          },
-          body: JSON.stringify({ task, repo: 'acme/shop (PR #482)', judge: 'Priya' })
-        });
-
-        const data = await resp.json();
-        if (!resp.ok) throw new Error(data.error || 'Evaluation failed');
-
-        // Update Leverage Gauge
-        const pScore = data.prosecution_power || 50;
-        const dScore = data.defense_power || 50;
-        const total = Math.max(1, pScore + dScore);
-        const pPct = Math.round((pScore / total) * 100);
-        const dPct = 100 - pPct;
-
-        document.getElementById('track-fill-pros').style.width = pPct + '%';
-        document.getElementById('track-fill-def').style.width = dPct + '%';
-        document.getElementById('val-pros-score').innerText = `Prosecution: ${pScore} pts (${pPct}%)`;
-        document.getElementById('val-def-score').innerText = `Defense: ${dScore} pts (${dPct}%)`;
-        document.getElementById('status-verdict-tag').innerText = `VERDICT: ${data.verdict}`;
-
-        // Tip 3D scales & drop weights
-        targetScalesAngle = Math.max(-0.24, Math.min(0.24, (pScore - dScore) * 0.005));
-        spawnWeightSphere(true);
-        setTimeout(() => spawnWeightSphere(false), 200);
-
-        // Cinematic swoop to Judge Bench & Gavel Strike
-        setTimeout(() => {
-          setTribunalCam('bench');
-          triggerArenaGavelSlam();
-        }, 600);
-
-        // Render Signed Judicial Decree
-        renderJudicialDecree(data);
-
-        // Stream Dialectic Transcript
-        feed.innerHTML = '';
-        if (data.messages && data.messages.length) {
-          data.messages.forEach(m => {
-            const div = document.createElement('div');
-            let type = 'clk';
-            let sClass = 'clk';
-            if (m.sender.includes('prosecutor')) {
-              type = 'pros'; sClass = 'pros';
-              document.getElementById('pros-dialog-text').innerText = '"' + m.content.substring(0, 160) + '..."';
-            } else if (m.sender.includes('defender')) {
-              type = 'def'; sClass = 'def';
-              document.getElementById('def-dialog-text').innerText = '"' + m.content.substring(0, 160) + '..."';
-            } else if (m.sender.includes('judge')) {
-              type = 'jdg'; sClass = 'jdg';
-            }
-
-            div.className = 'chat-bubble-row ' + type;
-            div.innerHTML = `
-              <div class="chat-row-header">
-                <span class="speaker ${sClass}">@${m.sender}</span>
-                <span style="color:var(--text-dim); font-size:10px;">${new Date(m.timestamp * 1000).toLocaleTimeString()}</span>
-              </div>
-              <div class="chat-row-content">${escapeHtml(m.content)}</div>
-            `;
-            feed.appendChild(div);
-          });
-          feed.scrollTop = feed.scrollHeight;
-        }
-
-      } catch (err) {
-        feed.innerHTML += `
-          <div class="chat-bubble-row pros">
-            <div class="chat-row-header"><span class="speaker pros">Evaluation Error</span></div>
-            <div class="chat-row-content">${escapeHtml(err.message)}</div>
-          </div>
-        `;
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<span>⚡ Convene 3D Trial</span>';
-      }
-    }
-
-    function renderJudicialDecree(data) {
-      const slot = document.getElementById('decree-scroll-slot');
-      slot.style.display = 'block';
-
-      const v = (data.verdict || 'CONDITIONS').toUpperCase();
-      let title = 'BY DECREE OF CHIEF MAGISTRATE PRIYA: SHIP WITH CONDITIONS';
-      if (v === 'BLOCK') title = 'BY DECREE OF CHIEF MAGISTRATE PRIYA: RELEASE BLOCKED';
-      else if (v === 'APPROVE') title = 'BY DECREE OF CHIEF MAGISTRATE PRIYA: CANARY APPROVED';
-
-      const conds = data.conditions || [
-        "Cap canary replica at 5% traffic split for 30 minutes",
-        "Automated metric interlock: p99 latency < 200ms and 5xx < 0.01%",
-        "Rollback operator on standby with verified 1-click abort (1.8s SLA)"
-      ];
-
-      const tasks = data.tasks || [
-        "Deploy to canary replica capped at 5% (Owner: SRE-Team)",
-        "Arm real-time anomaly alarm and rollback killswitch (Owner: Platform-Ops)"
-      ];
-
-      slot.innerHTML = `
-        <div class="judicial-decree-card">
-          <div class="wax-seal-stamp">👑</div>
-          <div class="decree-title">${title}</div>
-          <div class="decree-conditions-list">
-            <strong>Binding Enforceable Conditions:</strong>
-            <ul>${conds.map(c => `<li>${escapeHtml(c)}</li>`).join('')}</ul>
-            <div style="margin-top:6px;">
-              <strong>Assigned Tasks:</strong>
-              <ul>${tasks.map(t => `<li>${escapeHtml(t)}</li>`).join('')}</ul>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    // =========================================================================
-    // 5. Modal 1: Agent Studio PreToolUse Hook Actions
-    // =========================================================================
-    function triggerStudioBreach() {
-      const card3 = document.getElementById('modal-card-agent-3');
-      const status3 = document.getElementById('modal-status-agent-3');
-      const alertBox = document.getElementById('modal-breach-alert');
-
-      card3.style.borderColor = 'var(--accent-coral)';
-      card3.style.background = 'rgba(255, 77, 85, 0.08)';
-      status3.innerText = 'QUARANTINED';
-      status3.style.color = 'var(--accent-coral)';
-      alertBox.style.display = 'block';
-    }
-
-    function resetStudioBreach() {
-      const card3 = document.getElementById('modal-card-agent-3');
-      const status3 = document.getElementById('modal-status-agent-3');
-      const alertBox = document.getElementById('modal-breach-alert');
-
-      card3.style.borderColor = 'var(--border-subtle)';
-      card3.style.background = '#0f1422';
-      status3.innerText = 'ACTIVE';
-      status3.style.color = 'var(--accent-emerald)';
-      alertBox.style.display = 'none';
-    }
-
-    // =========================================================================
-    // 6. Modal 2: Boardroom OS RFC Actions
-    // =========================================================================
-    function addFloorRequest(type, pitch) {
-      const tbody = document.getElementById('modal-floor-tbody');
-      const tr = document.createElement('tr');
-      tr.style.borderBottom = '1px solid var(--border-subtle)';
-      tr.innerHTML = `
-        <td style="padding:10px 14px;"><span style="color:var(--accent-gold); font-weight:700;">${type.toUpperCase()}</span></td>
-        <td style="padding:10px 14px; color:#ffffff;">"${escapeHtml(pitch)}"</td>
-        <td style="padding:10px 14px; color:var(--text-muted);">WAITING (90s TTL)</td>
-        <td style="padding:10px 14px;"><button class="btn-top-modal-trigger" style="padding:3px 8px; font-size:10px;" onclick="grantFloorMock(this)">Grant Floor (30s)</button></td>
-      `;
-      tbody.prepend(tr);
-    }
-
-    function grantFloorMock(btn) {
-      const td = btn.parentElement;
-      const statusTd = td.previousElementSibling;
-      statusTd.innerHTML = '<span style="color:var(--accent-emerald); font-weight:700;">SPEAKING (30s)</span>';
-      td.innerHTML = '<button class="btn-top-modal-trigger" style="padding:3px 8px; font-size:10px;" onclick="releaseFloorMock(this)">Yield</button>';
-    }
-
-    function releaseFloorMock(btn) {
-      const td = btn.parentElement;
-      const statusTd = td.previousElementSibling;
-      statusTd.innerHTML = '<span style="color:var(--text-dim);">YIELDED</span>';
-      td.innerHTML = '<span style="color:var(--text-dim); font-size:10px;">DONE</span>';
-    }
-
-    // =========================================================================
-    // 7. Modal 3: Release Vault Actions
-    // =========================================================================
-    let vaultPlanHash = null;
-    let vaultCaseId = null;
-
-    async function callVaultService(endpoint, body, method = 'POST') {
-      const token = document.getElementById('vault-token-input').value.trim();
-      const resp = await fetch(endpoint, {
-        method: body ? method : 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        },
-        body: body ? JSON.stringify(body) : undefined
+    function selectCasePreset(id) {
+      activeScenarioId = id;
+      document.querySelectorAll('.case-chip').forEach((c, idx) => {
+        c.classList.toggle('active', idx + 1 === id);
       });
-      const res = await resp.json();
-      const term = document.getElementById('vault-term-output');
-      term.textContent = JSON.stringify(res, null, 2);
-      if (!resp.ok) throw new Error(res.error || 'Execution failed');
-      return res;
+      const sc = SCENARIOS[id];
+      document.getElementById('stage-active-pr-name').innerText = sc.name;
+      resetTrialState();
     }
 
-    async function runVaultStep(step) {
-      try {
-        if (step === 1) {
-          const pr = document.getElementById('vault-pr-input').value.trim();
-          const res = await callVaultService('/api/cases', { pr_url: pr, services: ['checkout-service'] });
-          vaultCaseId = res.case_id;
-        } else if (step === 2) {
-          if (!vaultCaseId) { alert('Please open a docket first.'); return; }
-          await callVaultService('/api/cases/review', { case_id: vaultCaseId });
-        } else if (step === 3) {
-          await callVaultService('/api/verdicts', { case_id: vaultCaseId, command: 'CONDITIONS canary 5% for 30m; Priya owns rollback SLA 1.8s' });
-        } else if (step === 4) {
-          const res = await callVaultService('/api/github/plan', { case_id: vaultCaseId });
-          vaultPlanHash = res.plan_hash;
-          document.getElementById('vault-plan-hash-label').innerText = 'PLAN HASH: ' + vaultPlanHash.substring(0, 16) + '...';
-          document.getElementById('btn-vault-apply').disabled = false;
-        } else if (step === 5) {
-          await callVaultService('/api/github/execute', { case_id: vaultCaseId, plan_hash: vaultPlanHash });
-          document.getElementById('btn-vault-apply').disabled = true;
-        } else if (step === 6) {
-          await callVaultService('/api/audit/events', null, 'GET');
+    function resetTrialState() {
+      clearInterval(playbackTimer);
+      isPlaying = false;
+      playbackIndex = 0;
+      document.getElementById('play-icon').innerText = '▶';
+      document.getElementById('play-text').innerText = 'Auto-Play Trial';
+      document.getElementById('feed-status-badge').innerText = 'Ready';
+      document.getElementById('btn-next-step').disabled = false;
+
+      targetBeamAngle = 0;
+      updateHudScores(50, 50, "SCALES BALANCED");
+
+      const feed = document.getElementById('feed-scroll-box');
+      feed.innerHTML = `
+        <div style="text-align:center; padding:32px 16px; color:var(--text-dim); font-size:13px;">
+          <div style="font-size:24px; margin-bottom:8px;">⚖️</div>
+          <div>Case ready. Click <strong>Auto-Play Trial</strong> or <strong>Next Argument</strong> to begin adversarial cross-examination.</div>
+        </div>
+      `;
+    }
+
+    function startTrialPlayback() {
+      if (isPlaying) {
+        // Pause
+        clearInterval(playbackTimer);
+        isPlaying = false;
+        document.getElementById('play-icon').innerText = '▶';
+        document.getElementById('play-text').innerText = 'Resume';
+        document.getElementById('feed-status-badge').innerText = 'Paused';
+      } else {
+        // Start or Resume
+        isPlaying = true;
+        document.getElementById('play-icon').innerText = '⏸';
+        document.getElementById('play-text').innerText = 'Pause';
+        document.getElementById('feed-status-badge').innerText = 'Live Trial Active';
+
+        if (playbackIndex === 0) {
+          document.getElementById('feed-scroll-box').innerHTML = '';
         }
-      } catch (err) {
-        alert('Vault Notice: ' + err.message);
+
+        playbackTimer = setInterval(() => {
+          const finished = stepNextArgument();
+          if (finished) {
+            clearInterval(playbackTimer);
+            isPlaying = false;
+            document.getElementById('play-icon').innerText = '↺';
+            document.getElementById('play-text').innerText = 'Replay';
+            document.getElementById('feed-status-badge').innerText = 'Adjourned';
+          }
+        }, 1800);
       }
     }
 
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    function stepNextArgument() {
+      const sc = SCENARIOS[activeScenarioId];
+      if (playbackIndex === 0) {
+        document.getElementById('feed-scroll-box').innerHTML = '';
+      }
+
+      if (playbackIndex >= sc.script.length) {
+        return true; // Finished
+      }
+
+      const item = sc.script[playbackIndex];
+      renderMessageCard(item);
+      playbackIndex++;
+
+      // Update 3D scales & telemetry based on progress
+      const progressRatio = playbackIndex / sc.script.length;
+      if (item.sender === 'pros') {
+        setCameraView('scales');
+        targetBeamAngle = 0.18; // tilts down on prosecution side
+        updateHudScores(70, 30, "RISK UNMITIGATED");
+      } else if (item.sender === 'def') {
+        targetBeamAngle = -0.10; // tilts toward defense
+        updateHudScores(45, 55, "DEFENSE MITIGATING");
+      } else if (item.sender === 'judge') {
+        setCameraView('bench');
+        triggerGavelStrike();
+        targetBeamAngle = sc.verdict === 'BLOCK' ? 0.22 : -0.12;
+        updateHudScores(sc.prosScore, sc.defScore, "VERDICT: " + sc.verdict);
+        renderSignedDecreeCard(sc);
+      }
+
+      if (playbackIndex >= sc.script.length) {
+        document.getElementById('btn-next-step').disabled = true;
+        return true;
+      }
+      return false;
     }
 
+    function renderMessageCard(msg) {
+      const feed = document.getElementById('feed-scroll-box');
+      const card = document.createElement('div');
+      card.className = `msg-card ${msg.sender}`;
+
+      let badgeHtml = '';
+      if (msg.badge === 'BLOCKING') badgeHtml = '<span class="objection-badge badge-blocking">BLOCKING</span>';
+      else if (msg.badge === 'WARNING') badgeHtml = '<span class="objection-badge badge-warning">WARNING</span>';
+      else if (msg.badge === 'MITIGATED') badgeHtml = '<span class="objection-badge badge-mitigated">MITIGATED</span>';
+      else if (msg.badge) badgeHtml = `<span class="objection-badge badge-warning">${msg.badge}</span>`;
+
+      card.innerHTML = `
+        <div class="msg-header">
+          <span class="msg-sender ${msg.sender}">${msg.name}</span>
+          <span class="msg-time">${new Date().toLocaleTimeString()}</span>
+        </div>
+        <div class="msg-text">${badgeHtml}${msg.text}</div>
+      `;
+
+      feed.appendChild(card);
+      feed.scrollTop = feed.scrollHeight;
+    }
+
+    function renderSignedDecreeCard(sc) {
+      const feed = document.getElementById('feed-scroll-box');
+      const card = document.createElement('div');
+      card.className = 'signed-decree-card';
+      card.innerHTML = `
+        <div class="decree-stamp">SWITCH<br>SEALED</div>
+        <div class="decree-title">OFFICIAL JUDICIAL DECREE: ${sc.verdict}</div>
+        <div style="font-size:12px; color:var(--text-muted);">
+          Issued by <strong>Chief Magistrate Priya</strong> · Case ${sc.id} · Precedent Verified
+        </div>
+        <ul class="decree-conditions">
+          <li>✓ Rollback SLA guaranteed &lt; 1.8s (Rollback Engineer)</li>
+          <li>✓ 5% Canary stepped rollout constraint enforced</li>
+          <li>✓ Follow-up SRE task logged in Switch task registry</li>
+        </ul>
+      `;
+      feed.appendChild(card);
+      feed.scrollTop = feed.scrollHeight;
+    }
+
+    function updateHudScores(pros, def, hint) {
+      const prosFill = document.getElementById('hud-pros-fill');
+      const defFill = document.getElementById('hud-def-fill');
+      const prosLabel = document.getElementById('hud-pros-label');
+      const defLabel = document.getElementById('hud-def-label');
+      const hintEl = document.getElementById('scales-verdict-hint');
+
+      if (prosFill) prosFill.style.width = pros + '%';
+      if (defFill) defFill.style.width = def + '%';
+      if (prosLabel) prosLabel.innerText = `Pros: ${pros}% (Risk)`;
+      if (defLabel) defLabel.innerText = `Def: ${def}% (Mitigated)`;
+      if (hintEl) {
+        hintEl.innerText = hint;
+        hintEl.style.color = pros > def ? 'var(--rose-risk)' : 'var(--emerald-pass)';
+      }
+    }
+
+    function launchDemoTrial() {
+      resetTrialState();
+      setTimeout(() => startTrialPlayback(), 400);
+    }
+
+    // =========================================================================
+    // 4. ACT 3: 6-Stage Pipeline Interactive Explorer
+    // =========================================================================
+    const PIPELINE_DATA = {
+      1: {
+        title: "Stage 01: Case Intake & Courtroom Convening",
+        desc: "A developer opens a release PR. Ship Court convenes an isolated Switch room #ship-court, registers active docket SC-0482, assigns role identities, and queries incident history.",
+        state: "INTAKE",
+        code: `{\n  "event": "courtroom.convened",\n  "case_id": "SC-0482",\n  "pr_url": "https://github.com/acme/shop/pull/482",\n  "requested_by": "Priya",\n  "state": "OPEN",\n  "assigned_agents": ["clerk", "prosecutor", "historian", "defender", "rollback"]\n}`
+      },
+      2: {
+        title: "Stage 02: Adversarial Cross-Examination",
+        desc: "The Prosecutor files ≤3 evidence-backed objections categorized as BLOCKING, WARNING, or NOTE, backed by past outage citations from the Incident Historian.",
+        state: "CROSS_EXAMINATION",
+        code: `{\n  "event": "objections.filed",\n  "agent": "prosecutor",\n  "objections": [\n    {"id": 1, "type": "BLOCKING", "claim": "Cart divergence without Redis lock", "precedent": "INC-017"},\n    {"id": 2, "type": "BLOCKING", "claim": "Missing Datadog pricing-mismatch alert"}\n  ]\n}`
+      },
+      3: {
+        title: "Stage 03: Factual Defense & Concessions",
+        desc: "The Defender runs local repo tests on the developer's machine to answer each objection or formally mark them CONCEDED.",
+        state: "DEFENSE",
+        code: `{\n  "event": "defense.responded",\n  "agent": "defender",\n  "rebuttals": [\n    {"objection_id": 1, "status": "MITIGATED", "proof": "redis_idempotency_test.py passed"},\n    {"objection_id": 2, "status": "CONCEDED", "note": "Monitoring missing in PR"}\n  ]\n}`
+      },
+      4: {
+        title: "Stage 04: Guaranteed Reversibility (Rollback SLA)",
+        desc: "The Rollback Engineer certifies the rollback target version, verifies the rollback shell command, and tests that rollback executes in under 1.8 seconds.",
+        state: "ROLLBACK_VERIFIED",
+        code: `{\n  "event": "rollback.certified",\n  "rollback_target": "v2.13.2",\n  "command": "./scripts/rollback.sh checkout-service v2.13.2",\n  "sla_seconds": 1.8,\n  "status": "READY"\n}`
+      },
+      5: {
+        title: "Stage 05: Exclusive Human Gate (Release Judge)",
+        desc: "A verified human holding Switch's exclusive 'approver' role reviews the cross-examination record and delivers the binding verdict: APPROVE, BLOCK, or SHIP WITH CONDITIONS.",
+        state: "JUDGMENT",
+        code: `{\n  "event": "verdict.rendered",\n  "judge": "Priya",\n  "role": "approver",\n  "verdict": "SHIP WITH CONDITIONS",\n  "conditions": ["Canary 5% traffic cap", "Configure mismatch alert"]\n}`
+      },
+      6: {
+        title: "Stage 06: Verifiable Artifact (Signed Release Brief)",
+        desc: "Switch registers the decision, assigns follow-up SRE tasks to team owners, and outputs an auditable, cryptographically sealed Release Brief.",
+        state: "CLOSED",
+        code: `{\n  "event": "brief.published",\n  "brief_id": "RB-SC-0482",\n  "sha256": "8f9b2c7e41a...d9e1",\n  "tasks_assigned": ["Configure canary (Priya)", "Add alert (DevOps)"]\n}`
+      }
+    };
+
+    function showPipelineStep(step) {
+      document.querySelectorAll('.pipe-step-card').forEach((c, idx) => {
+        c.classList.toggle('active', idx + 1 === step);
+      });
+      const d = PIPELINE_DATA[step];
+      document.getElementById('pipe-detail-title').innerText = d.title;
+      document.getElementById('pipe-detail-desc').innerText = d.desc;
+      document.getElementById('pipe-detail-code').innerText = d.code;
+    }
+
+    // =========================================================================
+    // 5. ACT 4: Superpowers Tabs & Antigravity Simulation
+    // =========================================================================
+    function selectSuperpowerTab(tab) {
+      document.querySelectorAll('.sp-tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-sp-antigravity').style.display = 'none';
+      document.getElementById('tab-sp-voice').style.display = 'none';
+      document.getElementById('tab-sp-vault').style.display = 'none';
+
+      if (tab === 'antigravity') {
+        document.querySelectorAll('.sp-tab-btn')[0].classList.add('active');
+        document.getElementById('tab-sp-antigravity').style.display = 'block';
+      } else if (tab === 'voice') {
+        document.querySelectorAll('.sp-tab-btn')[1].classList.add('active');
+        document.getElementById('tab-sp-voice').style.display = 'block';
+      } else if (tab === 'vault') {
+        document.querySelectorAll('.sp-tab-btn')[2].classList.add('active');
+        document.getElementById('tab-sp-vault').style.display = 'block';
+      }
+    }
+
+    function simulateAntigravityBreach() {
+      const alertBox = document.getElementById('ag-breach-box');
+      const status = document.getElementById('ag-monitor-status');
+      status.innerText = 'BREACH INTERCEPTED (PRETOOLUSE)';
+      status.style.color = 'var(--rose-risk)';
+      alertBox.classList.add('active');
+    }
+
+    // =========================================================================
+    // 6. ACT 5: "Take the Bench" Judge Simulator
+    // =========================================================================
+    let currentJudgeChoice = 'CONDITIONS';
+
+    function selectJudgeVerdict(choice) {
+      currentJudgeChoice = choice;
+      document.getElementById('card-verdict-approve').classList.toggle('selected', choice === 'APPROVE');
+      document.getElementById('card-verdict-conditions').classList.toggle('selected', choice === 'CONDITIONS');
+      document.getElementById('card-verdict-block').classList.toggle('selected', choice === 'BLOCK');
+    }
+
+    function issueJudgeDecree() {
+      triggerGavelStrike();
+      const verdictText = document.getElementById('brief-verdict-text');
+      const status = document.getElementById('brief-status');
+
+      if (currentJudgeChoice === 'APPROVE') {
+        verdictText.innerText = 'APPROVED (UNCONDITIONAL)';
+        verdictText.style.color = 'var(--emerald-pass)';
+      } else if (currentJudgeChoice === 'CONDITIONS') {
+        verdictText.innerText = 'SHIP WITH CONDITIONS';
+        verdictText.style.color = 'var(--amber-gavel)';
+      } else {
+        verdictText.innerText = 'BLOCKED & REMANDED';
+        verdictText.style.color = 'var(--rose-risk)';
+      }
+
+      status.innerText = 'DECREE CRYPTOGRAPHICALLY SIGNED';
+      status.style.color = 'var(--emerald-pass)';
+    }
+
+    function copyBriefText() {
+      const text = `# Release Brief - SC-0482\nChange: Dynamic checkout pricing\nRepository: acme/shop\nJudge: Priya (Approver)\nVerdict: ${currentJudgeChoice}\nSHA-256: 7d8c4e...19b\nStatus: REGISTERED IN SWITCH ROOM #ship-court`;
+      navigator.clipboard.writeText(text);
+      alert('Signed Release Brief copied to clipboard!');
+    }
+
+    // =========================================================================
+    // 7. Initialization
+    // =========================================================================
     window.addEventListener('DOMContentLoaded', () => {
-      initThreeArena();
+      initThreeScene();
+      resetTrialState();
     });
   </script>
 </body>
