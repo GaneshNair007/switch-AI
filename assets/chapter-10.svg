@@ -9,8 +9,8 @@
 
 </defs>
 <rect width="1200" height="62" rx="22" fill="url(#bg)"/><rect x="1" y="1" width="1198" height="60" rx="21" fill="none" stroke="#fff" stroke-opacity=".09"/>
-<rect x="14" y="12" width="62" height="38" rx="11" fill="#22d3ee"/><text x="45" y="38" font-size="20" fill="#0a0e1f" font-weight="900" text-anchor="middle" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace" >10</text>
-<text x="94" y="38" font-size="19" fill="#e8eaff" font-weight="700" text-anchor="start" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace" textLength="277" letter-spacing="1">CHAPTER 10  //  TRY IT</text>
-<path id="p" d="M395 31H1176" stroke="#22d3ee" stroke-opacity=".55" stroke-width="2" stroke-dasharray="4 8"><animate attributeName="stroke-dashoffset" values="0;-24" dur="1.2s" repeatCount="indefinite"/></path>
-<circle r="5" fill="#22d3ee" filter="url(#glow)"><animateMotion dur="4s" repeatCount="indefinite" path="M395 31H1176"/></circle>
+<rect x="14" y="12" width="62" height="38" rx="11" fill="#fbbf24"/><text x="45" y="38" font-size="20" fill="#0a0e1f" font-weight="900" text-anchor="middle" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace" >10</text>
+<text x="94" y="38" font-size="19" fill="#e8eaff" font-weight="700" text-anchor="start" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace" textLength="365" letter-spacing="1">CHAPTER 10  //  THE LIFECYCLE</text>
+<path id="p" d="M483 31H1176" stroke="#fbbf24" stroke-opacity=".55" stroke-width="2" stroke-dasharray="4 8"><animate attributeName="stroke-dashoffset" values="0;-24" dur="1.2s" repeatCount="indefinite"/></path>
+<circle r="5" fill="#fbbf24" filter="url(#glow)"><animateMotion dur="4s" repeatCount="indefinite" path="M483 31H1176"/></circle>
 </svg>

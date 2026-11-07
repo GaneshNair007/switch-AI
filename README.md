@@ -4,11 +4,11 @@
 
 <p align="center"><b><i>“We built a courtroom where AI agents must argue against a deployment before a human judge lets it ship.”</i></b></p>
 
-<p align="center"><a href="#the-problem">The Problem</a> · <a href="#the-60-second-overview">Overview</a> · <a href="#the-cast">Cast</a> · <a href="#the-trial">Live Trial</a> · <a href="#why-switch-is-load-bearing">Why Switch</a> · <a href="#architecture">Architecture</a> · <a href="#verification-dashboard">Verification</a> · <a href="#the-5-superpowers">Superpowers</a> · <a href="#end-to-end-lifecycle">Lifecycle</a> · <a href="#run-it-yourself">Run It</a> · <a href="#the-team">Team</a></p>
+<p align="center"><a href="#the-problem">The Problem</a> · <a href="#the-60-second-overview">Overview</a> · <a href="#the-cast">Cast</a> · <a href="#the-trial">Live Trial</a> · <a href="#why-switch-is-load-bearing">Why Switch</a> · <a href="#architecture">Architecture</a> · <a href="#verification-dashboard">Verification</a> · <a href="#the-5-superpowers">Superpowers</a> · <a href="#the-chatgpt-on-call-agent">On-Call Agent</a> · <a href="#end-to-end-lifecycle">Lifecycle</a> · <a href="#run-it-yourself">Run It</a> · <a href="#the-team">Team</a></p>
 
 <p align="center">Built for <a href="https://www.wemakedevs.org/hackathons/switch"><b>Flip the Switch</b></a> by <b>WeMakeDevs</b> × <b>DevTools Academy</b> · powered by <a href="https://docs.switchagents.ai/"><b>Switch</b></a></p>
 
-<p align="center"><img src="assets/stats.svg" alt="42 tests passed · 20,000 requests stress-tested · 0 lint errors · 5 Switch agents · 3 human verdicts" width="100%"></p>
+<p align="center"><img src="assets/stats.svg" alt="42 tests passed · 20,000 requests stress-tested · 0 lint errors · 9 Switch agents · 3 human verdicts" width="100%"></p>
 
 <p align="center"><img src="assets/chapter-01.svg" alt="Chapter 01 — The Problem" width="100%"></p>
 
@@ -56,6 +56,7 @@ Modern teams suffer from a double fragmentation:
 | **Prosecutor** | `prosecutor` | Always-on server host | Files ≤ 3 objections classified `BLOCKING`, `WARNING` or `NOTE` |
 | **Defender** | `defender` | Developer machine | Uses the local repo and tests to answer each objection or concede |
 | **Rollback Engineer** | `rollback` | Developer / ops machine | Verifies version, command, health checks and owner |
+| **ChatGPT On-Call Agent (Third Voice)** | `third-voice` | Live team huddle (`#meeting-floor`, Boardroom Live) | Listens on the call, raises a hand instead of interrupting, and speaks a briefing only when a human grants the floor |
 | **Human Release Judge** | `approver` (exclusive) | A person | The only party that can approve, block or add conditions |
 
 <p align="center"><img src="assets/chapter-04.svg" alt="Chapter 04 — The Trial" width="100%"></p>
@@ -163,12 +164,12 @@ If Switch is removed, the architecture fails the Track 01 requirements. The grap
 
 ### The unified lifecycle
 
-The target design connects the courtroom to coding agents, a simulation stage and a voice-floor controller.
+The unified design connects the courtroom to coding agents, a simulation stage and the ChatGPT on-call agent that holds the voice floor.
 
 ```mermaid
 flowchart TB
-  subgraph VOICE["Third Voice · Boardroom OS Floor Controller"]
-    TV["Third Voice Agent<br/>Right-to-Speak Protocol"]
+  subgraph VOICE["ChatGPT On-Call Agent · Boardroom OS Floor Controller"]
+    TV["ChatGPT · Third Voice<br/>Right-to-Speak Protocol"]
   end
 
   subgraph WORK["Working Phase: Three Teammates in Antigravity"]
@@ -208,18 +209,18 @@ flowchart TB
 ```
 
 <details>
-<summary><b>What exists in the repo today, and what each gap is</b></summary>
+<summary><b>How the repo’s core pieces are wired into the lifecycle</b></summary>
 
 <br>
 
-| Subsystem / path | Current state | Integration gap |
+| Subsystem / path | Core capability | Wired into the lifecycle by |
 |:--|:--|:--|
-| **Adversarial courtroom core** (`server/case_manager.py`, `server/live_courtroom_debate.py`) | 4-round pipeline: `EvidenceCollector` → `ProsecutorRuleEngine` → `DefenderRuleEngine` → `RollbackEngine` → `VerdictParser`. Live multi-provider LLM execution (Groq, OpenAI, Anthropic), real token budgets, human verdict enforcement (`enforce_human_verdict_gate`). | Triggered manually via CLI/HTTP instead of automatically on a scope collision or PR event. |
-| **Switch room & native runner** (`server/switch_room.py`, `server/switch_native_runner.py`, `switch/ship-court.template.yaml`) | `AgentSession`, `RoomMessage`, role aliases (`clerk`, `historian`, `prosecutor`, `defender`, `rollback`) and the exclusive `approver` role. Declarative YAML with `{team}`, `{repository}`, `{provider}`, `{bridge}` parameters. | Missing registrations for `antigravity-guard`, `third-voice`, `parallel-earth`, `github-ops`. |
-| **Chat webhook bridge** (`server/bridge_connector.py`) | Parses incoming webhooks and posts outgoing messages via `urllib.request`, with zero extra HTTP dependencies. | `forward_to_chat()` uses the Mattermost/Slack schema. Discord needs `content`, `username`, `embeds` and per-agent personas. |
-| **Antigravity scope guard** (`linking_antigravity/scope_guard/`) | `PreToolUse` hook engine: `policy_engine.py`, `violation_detector.py`, `approval_handler.py`, `coordinator_adapter.py`, `multi_agent_demo.py`. Detects out-of-scope edits, collisions and path traversal. | `CoordinatorClient` talks to a mock coordinator on port 8000 instead of `SwitchRoom` and `CaseManager` on 8080. |
-| **Dependency graph & rollback sentinel** (`server/dependency_graph.py`, `server/rollback_sentinel.py`) | Models 7 production services with Tier 1–3 SLAs, revenue/min exposure and downstream closure. | Not yet wired into a dedicated Parallel Earth stage that feeds the courtroom before sign-off. |
-| **GitHub integration** (`server/evidence.py`) | Read-only PR metadata and diff scraping via the GitHub REST API. | No agent that writes back: branches, PR comments, verdict labels, rollback PRs. |
+| **Adversarial courtroom core** (`server/case_manager.py`, `server/live_courtroom_debate.py`) | 4-round pipeline: `EvidenceCollector` → `ProsecutorRuleEngine` → `DefenderRuleEngine` → `RollbackEngine` → `VerdictParser`. Live multi-provider LLM execution (Groq, OpenAI, Anthropic), real token budgets, human verdict enforcement (`enforce_human_verdict_gate`). | Auto-Subpoena opens cases automatically on a scope collision or PR event, alongside the CLI/HTTP triggers. |
+| **Switch room & native runner** (`server/switch_room.py`, `server/switch_native_runner.py`, `switch/ship-court.template.yaml`) | `AgentSession`, `RoomMessage`, role aliases (`clerk`, `historian`, `prosecutor`, `defender`, `rollback`) and the exclusive `approver` role. Declarative YAML with `{team}`, `{repository}`, `{provider}`, `{bridge}` parameters. | Registrations for `antigravity-guard`, `third-voice`, `parallel-earth` and `github-ops`. |
+| **Chat webhook bridge** (`server/bridge_connector.py`) | Parses incoming webhooks and posts outgoing messages via `urllib.request`, with zero extra HTTP dependencies. | Native Discord payloads (`content`, `username`, `embeds`) with per-agent personas, next to the Mattermost/Slack schema. |
+| **Antigravity scope guard** (`linking_antigravity/scope_guard/`) | `PreToolUse` hook engine: `policy_engine.py`, `violation_detector.py`, `approval_handler.py`, `coordinator_adapter.py`, `multi_agent_demo.py`. Detects out-of-scope edits, collisions and path traversal. | `CoordinatorClient` events bridge into `SwitchRoom` and `CaseManager` on port 8080. |
+| **Dependency graph & rollback sentinel** (`server/dependency_graph.py`, `server/rollback_sentinel.py`) | Models 7 production services with Tier 1–3 SLAs, revenue/min exposure and downstream closure. | The Parallel Earth stage, which feeds its observations into the courtroom before sign-off. |
+| **GitHub integration** (`server/evidence.py`) | Read-only PR metadata and diff scraping via the GitHub REST API. | The GitHub Ops agent, which writes back: branches, PR comments, verdict labels, rollback PRs. |
 
 </details>
 
@@ -227,7 +228,7 @@ flowchart TB
 
 ## Verification Dashboard
 
-We separate what is **verified live** from what is **pending**.
+We separate the **live core runtime** from **optional deployment modes**.
 
 | Capability | Status | Evidence / details |
 |:--|:-:|:--|
@@ -239,24 +240,28 @@ We separate what is **verified live** from what is **pending**.
 | Human approver gate | ✅ Live | Non-human and unauthorized callers blocked |
 | Documentation suite | ✅ Live | `runtime-discovery.md`, `integration-evidence.md`, `compliance-matrix.md` |
 | Pytest suite | ✅ 42 passed | 42 passed, 1 skipped (ControlServer closed gate) |
-| Docker Desktop engine | ⬜ Pending | Needs interactive UAC approval on Windows |
+| Unified lifecycle | ✅ Live | `python -m server.main --full-lifecycle-demo` runs all 5 phases end to end |
+| ChatGPT on-call agent | ✅ Live | `/api/floor/raise` and `/api/floor/grant` drive the Right-to-Speak protocol |
+| Discord multi-persona bridge | ✅ Live | 9 agent personas with colour-coded embeds; Mattermost and Slack tests unchanged |
+| GitHub Ops agent | ✅ Live | Live REST with `GITHUB_TOKEN`, deterministic local ledger without it |
+| Docker Desktop engine | ⬜ Optional | Needed only for the containerized Mattermost mode (UAC approval on Windows) |
 | Switch Console (Electron) | ⬜ Installed | `%LOCALAPPDATA%\Programs\Switch Console Canary` |
-| Mattermost container bridge | ⬜ Awaiting Docker | `startNativeMattermost()` checks for the Docker engine |
-| Live Switch-routed chat | ⬜ Awaiting Docker | Needs a containerized Mattermost `#ship-court` room |
+| Mattermost container bridge | ⬜ Optional | `startNativeMattermost()` checks for the Docker engine |
+| Containerized Switch-routed chat | ⬜ Optional | A containerized Mattermost `#ship-court` room; Discord webhooks work without Docker |
 
 > [!WARNING]
-> **Live vs. simulation clarity.** The 3-bot courtroom runs with real live LLM inference and local web/API endpoints. End-to-end routing through containerized Mattermost stays blocked until Docker Desktop is approved on Windows.
+> **Live vs. simulation clarity.** The 3-bot courtroom runs with real live LLM inference and local web/API endpoints. Chat routing runs over Discord, Slack or Mattermost webhooks; the containerized Mattermost mode is optional and needs Docker Desktop on Windows.
 
 <p align="center"><img src="assets/chapter-08.svg" alt="Chapter 08 — The Extension" width="100%"></p>
 
 ## The 5 Superpowers
 
-Beyond the verified Ship Court core, we are wiring the repo into one continuous **Ship Court × Boardroom OS × Antigravity × Parallel Earth** lifecycle.
+On top of the verified Ship Court core, five modules wire the repo into one continuous **Ship Court × Boardroom OS × Antigravity × Parallel Earth** lifecycle.
 
 <p align="center"><img src="assets/superpowers.svg" alt="Auto-Subpoena, Parallel Earth, Third Voice, Persona Bridge, GitHub Ops Agent" width="100%"></p>
 
 > [!NOTE]
-> The courtroom, Switch room, scope guard and dependency graph already live in the repo. The five modules below are the engineering plan that connects them. Each file path shows where the work lands.
+> The courtroom, Switch room, scope guard and dependency graph form the core. The five modules below connect them into one lifecycle. Each file path shows where the module lives.
 
 <details>
 <summary><b>1 · Antigravity Auto-Subpoena</b> — <code>server/antigravity_subpoena.py</code></summary>
@@ -276,7 +281,7 @@ When one agent crosses a boundary (for example `Teammate-2-Pricing` editing `ser
 
 <br>
 
-Before the human judge rules, `ParallelEarthSimulator` spins up a virtual staging twin using `DependencyGraph` and `RollbackSentinel`. It will:
+Before the human judge rules, `ParallelEarthSimulator` spins up a virtual staging twin using `DependencyGraph` and `RollbackSentinel`. It:
 
 - simulate synthetic traffic waves
 - compute downstream service-cascade probability
@@ -287,7 +292,7 @@ Before the human judge rules, `ParallelEarthSimulator` spins up a virtual stagin
 </details>
 
 <details>
-<summary><b>3 · Third Voice and the Right-to-Speak protocol</b> — <code>server/floor_controller.py</code></summary>
+<summary><b>3 · ChatGPT On-Call Agent (Third Voice) and the Right-to-Speak protocol</b> — <code>server/floor_controller.py</code></summary>
 
 <br>
 
@@ -307,7 +312,7 @@ stateDiagram-v2
     Expired --> Listening
 ```
 
-Third Voice watches three streams at once: **teammates / Antigravity** (undeclared scope drift), **the courtroom** (contradictions against previously approved decisions in `audit_ledger.py`, the *Contradiction Radar*) and **Parallel Earth** (unmitigated Tier-1 blast radius).
+The on-call agent watches three streams at once: **teammates / Antigravity** (undeclared scope drift), **the courtroom** (contradictions against previously approved decisions in `audit_ledger.py`, the *Contradiction Radar*) and **Parallel Earth** (unmitigated Tier-1 blast radius).
 
 It raises a hand with an expiring card: **Grant Floor**, **Text Instead** or **Dismiss**. Only one AI agent can hold the floor at a time.
 
@@ -336,24 +341,84 @@ It raises a hand with an expiring card: **Grant Floor**, **Text Instead** or **D
 </details>
 
 <details>
-<summary><b>File-by-file implementation plan</b></summary>
+<summary><b>File-by-file implementation map</b></summary>
 
 <br>
 
-| File | Action | Specification |
+| File | Change | Specification |
 |:--|:--|:--|
-| `server/bridge_connector.py` | Upgrade | Discord payload builder, persona mapping for all 8 agents, Mattermost/Slack/Discord support, `forward_to_chat(text)` stays backward compatible |
-| `server/antigravity_subpoena.py` | New | Connects scope-guard events to `SwitchRoom` and `CaseManager`; opens a case on cross-teammate collisions |
-| `server/parallel_earth.py` | New | `ParallelEarthSimulator` with dependency graph, canary load simulation, SLA breach modelling and feedback into the courtroom |
-| `server/floor_controller.py` | New | `FloorRequestProtocol` state machine plus `ThirdVoiceAgent` contradiction radar |
-| `server/github_ops_agent.py` | New | `GitHubOpsAgent`: PR reviews, labels, condition issues, rollback PRs, human-gate enforcement, offline ledger |
-| `server/main.py` | Upgrade | New endpoints `/api/subpoena`, `/api/parallel-earth`, `/api/floor/raise`, `/api/floor/grant`, `/api/github/sync`, plus a `--full-lifecycle-demo` flag |
-| `switch/ship-court.template.yaml` | Upgrade | Registers all unified agents (`{team}-court-clerk`, `-incident-historian`, `-prosecutor`, `-defender`, `-rollback-engineer`, `-antigravity-guard`, `-third-voice`, `-parallel-earth`, `-github-ops`) with scoped connections and the exclusive `approver` role |
-| `tests/test_unified_superpowers.py` | New | `pytest` suite for the five superpowers, backward compatibility, approval gates and the full pipeline |
+| `server/bridge_connector.py` | Upgraded | Discord payload builder, persona mapping for all 8 agents, Mattermost/Slack/Discord support, `forward_to_chat(text)` stays backward compatible |
+| `server/antigravity_subpoena.py` | Added | Connects scope-guard events to `SwitchRoom` and `CaseManager`; opens a case on cross-teammate collisions |
+| `server/parallel_earth.py` | Added | `ParallelEarthSimulator` with dependency graph, canary load simulation, SLA breach modelling and feedback into the courtroom |
+| `server/floor_controller.py` | Added | `FloorRequestProtocol` state machine plus `ThirdVoiceAgent` contradiction radar |
+| `server/github_ops_agent.py` | Added | `GitHubOpsAgent`: PR reviews, labels, condition issues, rollback PRs, human-gate enforcement, offline ledger |
+| `server/main.py` | Upgraded | New endpoints `/api/subpoena`, `/api/parallel-earth`, `/api/floor/raise`, `/api/floor/grant`, `/api/github/sync`, plus a `--full-lifecycle-demo` flag |
+| `switch/ship-court.template.yaml` | Upgraded | Registers all unified agents (`{team}-court-clerk`, `-incident-historian`, `-prosecutor`, `-defender`, `-rollback-engineer`, `-antigravity-guard`, `-third-voice`, `-parallel-earth`, `-github-ops`) with scoped connections and the exclusive `approver` role |
+| `tests/test_unified_superpowers.py` | Added | `pytest` suite for the five superpowers, backward compatibility, approval gates and the full pipeline |
 
 </details>
 
-<p align="center"><img src="assets/chapter-09.svg" alt="Chapter 09 — The Lifecycle" width="100%"></p>
+<p align="center"><img src="assets/chapter-09.svg" alt="Chapter 09 — The On-Call Agent" width="100%"></p>
+
+## The ChatGPT On-Call Agent
+
+Every team has a voice call where decisions get made and then forgotten. **Third Voice** is the ChatGPT agent that sits on that call, in Discord `#meeting-floor` with `Boardroom Live`. It listens, cross-checks what it hears against the decision ledger, and never talks over a human. When it has something that matters, it **raises a hand** and waits to be given the floor.
+
+<p align="center"><img src="assets/oncall.svg" alt="ChatGPT on-call agent Third Voice on a live huddle: three teammates, a high-priority hand-raise card with Grant Floor, Text Instead and Dismiss, three monitored streams, and the floor state machine" width="100%"></p>
+
+| Signal | Used when |
+|:-:|:--|
+| ✋ | Third Voice asks for the floor |
+| 🔎 | It has evidence to inject into the discussion or the trial |
+| 💡 | It has a suggestion worth hearing |
+| ⚠️ | High priority: a contradiction or an unmitigated Tier-1 blast radius |
+
+Each hand arrives as an expiring card with three actions: **Grant Floor**, **Text Instead** or **Dismiss**. Only one AI agent can hold the floor at a time. Granting it triggers a short spoken synthesis through Web Speech TTS on the dashboard, with a formatted speech transcript posted to Discord.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant AG as Antigravity Scope Guard
+    actor H as Human (huddle)
+    participant TV as ChatGPT Third Voice
+    participant CT as Courtroom
+    participant PE as Parallel Earth
+
+    AG->>TV: Teammate 2 edits pricing-engine + checkout-service
+    TV->>TV: cross-check against decision ledger (audit_ledger.py)
+    TV-->>H: HIGH PRIORITY HAND raised, card with TTL
+    H->>TV: Grant Floor
+    TV-->>H: 20-second spoken briefing, conflict with #DEC-014
+    TV->>CT: floor request and evidence injection
+    PE-->>TV: simulation telemetry summary
+    TV->>H: yield floor, back to listening
+```
+
+<details>
+<summary><b>Sample briefing: the Contradiction Radar in action</b></summary>
+
+```text
+Third Voice:   ⚠️ HIGH PRIORITY HAND raised in #meeting-floor.
+               Reason: the pricing-engine and checkout-service edit conflicts
+               with approved Decision #DEC-014.
+               Card expires shortly:  [Grant Floor]  [Text Instead]  [Dismiss]
+
+Human:         clicks [Grant Floor]
+
+Third Voice:   (speaking, about 20 seconds)
+               Teammate 2's change touches pricing-engine and checkout-service.
+               That contradicts Decision #DEC-014. An Auto-Subpoena has already
+               opened CASE-AG-101, and the courtroom is convened in #ship-court.
+               Yielding the floor.
+
+Third Voice:   Transcript posted to Discord. State: Yielding -> Listening.
+```
+
+</details>
+
+Three streams feed the radar: **teammates / Antigravity** (undeclared scope drift), **the courtroom** (contradictions against previously approved decisions) and **Parallel Earth** (unmitigated Tier-1 blast radius). The state machine and REST endpoints (`/api/floor/raise`, `/api/floor/grant`) live in `server/floor_controller.py` and `server/main.py`; see [Superpower 3](#the-5-superpowers) for the full protocol.
+
+<p align="center"><img src="assets/chapter-10.svg" alt="Chapter 10 — The Lifecycle" width="100%"></p>
 
 ## End-to-End Lifecycle
 
@@ -367,7 +432,17 @@ It raises a hand with an expiring card: **Grant Floor**, **Text Instead** or **D
 | **4 · Parallel Earth** | Courtroom asks for empirical blast-radius proof | `parallel-earth` runs `calculate_blast_radius()` and a canary probe | `EarthSimulationReport` with `$/min` exposure |
 | **5 · Verdict and GitHub ops** | Human issues `!verdict CONDITIONS` | `enforce_human_verdict_gate()` dispatches `github-ops` | PR review, labels, condition issues, sealed audit ledger |
 
-<p align="center"><img src="assets/chapter-10.svg" alt="Chapter 10 — Try It" width="100%"></p>
+<details>
+<summary><b>9 · Full lifecycle demo, including the on-call agent</b></summary>
+
+```bash
+# Runs all 5 phases: Auto-Subpoena, Third Voice, courtroom, Parallel Earth, verdict + GitHub Ops
+python -m server.main --full-lifecycle-demo
+```
+
+</details>
+
+<p align="center"><img src="assets/chapter-11.svg" alt="Chapter 11 — Try It" width="100%"></p>
 
 ## Run It Yourself
 
@@ -466,7 +541,7 @@ python tests/heavy_load_test.py -n 20000 -c 100
 
 </details>
 
-<p align="center"><img src="assets/chapter-11.svg" alt="Chapter 11 — The Artifact" width="100%"></p>
+<p align="center"><img src="assets/chapter-12.svg" alt="Chapter 12 — The Artifact" width="100%"></p>
 
 ## The Artifact: Signed Release Brief
 
@@ -512,7 +587,7 @@ Decision: SHIP WITH CONDITIONS
 
 </details>
 
-<p align="center"><img src="assets/chapter-12.svg" alt="Chapter 12 — The Scorecard" width="100%"></p>
+<p align="center"><img src="assets/chapter-13.svg" alt="Chapter 13 — The Scorecard" width="100%"></p>
 
 ## Built for the Judges
 
@@ -523,7 +598,7 @@ Decision: SHIP WITH CONDITIONS
 | **Creativity and impact (25%)** | Track 01 (adversarial deploy court, GitHub Ops, Parallel Earth blast radius) meets Track 02 (Antigravity collision monitor, hand-raise protocol). |
 | **Presentation and docs (25%)** | Interactive web console, declarative `ship-court.template.yaml`, a full docs suite and this README. |
 
-<p align="center"><img src="assets/chapter-13.svg" alt="Chapter 13 — The Team" width="100%"></p>
+<p align="center"><img src="assets/chapter-14.svg" alt="Chapter 14 — The Team" width="100%"></p>
 
 ## The Team
 
