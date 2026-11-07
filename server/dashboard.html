@@ -1954,7 +1954,7 @@
     try {
       const resp = await fetch('/api/debate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer __TOKEN_PLACEHOLDER__' },
         body: JSON.stringify({ task, repo, judge })
       });
 
