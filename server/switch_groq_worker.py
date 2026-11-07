@@ -10,6 +10,25 @@ class SwitchGroqWorker:
         self.workflow, self.client, self.role = workflow, client, role
         self.participants, self.peers, self.runtime = participants, peers, runtime
         self.lock = threading.RLock()
+        self.working = False
+
+    def begin(self,item):
+        """Clerk receives a durable mission or authenticated scope escalation."""
+        with self.lock:
+            key='notification:'+item.get('notification_id',item['case_id'])
+            job=self.workflow.store.get('native_intake',key)
+            if not job:
+                mission=self.workflow.store.get('mission',item.get('mission_id',''))
+                job={'job_id':'NATIVE-'+uuid.uuid4().hex,'room_id':self.client.room_id,
+                     'task':mission['objective'] if mission else item['content'],'results':{},'status':'IN_PROGRESS',
+                     'mission_id':item.get('mission_id'),'case_id':mission.get('case_id') if mission else item['case_id'],
+                     'mission_type':mission['mission_type'] if mission else 'engineering_review','source':'durable_notification'}
+                self.workflow.store.put('native_job',job['job_id'],job)
+                self.workflow.store.put('native_intake',key,job)
+                if job.get('case_id') in self.workflow.cases and self.workflow.cases[job['case_id']].affected_services:
+                    case=self.workflow.cases[job['case_id']]
+                    self.workflow.store.put('simulation',case.case_id,self.workflow.parallel_earth.run_simulation(case))
+            self.send_step(job,'historian')
 
     def handle(self, event):
         try:
@@ -59,11 +78,16 @@ class SwitchGroqWorker:
             return
         text = self.peers[role]['mention'] + ' !shipcourt-agent ' + json.dumps({'job_id':job['job_id']})
         receipt = self.client.post_message(text)
+        if not receipt.get('event_id'):raise RuntimeError('Switch handoff returned no event receipt')
         self.workflow.store.put('native_sent', marker, {'receipt':receipt})
         self.workflow.store.event('switch.agent_handoff', job['job_id'], self.client.agent_id,
             {'to_role':role,'receipt':receipt}, source_platform='switch', actor_type='agent', room_id=self.client.room_id)
+        key=marker+':discord'
+        self.workflow.store.put('discord_outbox',key,{'id':key,'channel':'agent-handoffs','correlation_id':job.get('mission_id') or job['job_id'],
+            'content':f"[{job['job_id']}] {self.role} → {role}. Switch event: {receipt['event_id']}",'status':'PENDING','attempts':0})
 
     def step(self, job_id, sender):
+        if self.role not in CHAIN: return
         job = self.workflow.store.get('native_job', job_id)
         if not job or job['room_id'] != self.client.room_id:
             return
@@ -75,9 +99,21 @@ class SwitchGroqWorker:
             return
         if self.role not in job['results']:
             evidence = self.evidence(job)
-            context_key = self.client.agent_id + ':' + self.client.room_id
+            context_key = self.client.agent_id + ':' + self.client.room_id + ':' + (job.get('mission_id') or job_id)
             history = self.workflow.store.get('groq_context', context_key) or []
-            result = self.runtime.respond(self.role, evidence, history)
+            self.working = True
+            try:result = self.runtime.respond(self.role, evidence, history)
+            except Exception as exc:
+                job.update(status='BLOCKED',failed_role=self.role,error_type=type(exc).__name__)
+                self.workflow.store.put('native_job',job_id,job)
+                if job.get('mission_id'):
+                    with self.workflow.workspace.lock:
+                        mission=self.workflow.store.get('mission',job['mission_id'])
+                        if mission and mission['status'] not in ('COMPLETED','CANCELLED'):
+                            mission.update(status='BLOCKED',next_action='Inspect provider error, then resume the project')
+                            self.workflow.store.put('mission',mission['mission_id'],mission)
+                raise RuntimeError('Agent inference failed; job blocked') from exc
+            finally:self.working = False
             job['results'][self.role] = result
             self.workflow.store.put('groq_context', context_key, (history + [{'job_id':job_id,'answer':result}])[-8:])
             self.workflow.store.put('native_job', job_id, job)
@@ -97,14 +133,28 @@ class SwitchGroqWorker:
             self.workflow.store.event('switch.human_decision_requested', job_id, self.client.agent_id,
                 {'binding_authorization':False,'roles_completed':list(CHAIN)},
                 source_platform='switch', actor_type='agent', room_id=self.client.room_id)
+        if job['status']=='AWAITING_HUMAN' and hasattr(self.workflow,'workspace'):
+            self.workflow.workspace.complete_native(job)
 
     def evidence(self, job):
         store = self.workflow.store
         evidence = {'human_proposal_unverified':job['task'],
                     'previous_specialists':{k:v[:900] for k,v in job['results'].items()}}
-        if self.role == 'historian':
+        evidence['mission_type']=job.get('mission_type','engineering_review')
+        if job.get('case_id'):
+            evidence['github_evidence']=store.get('evidence',job['case_id'])
+            evidence['modeled_risk']=store.get('simulation',job['case_id'])
+            evidence['authenticated_scope_events']=[e for e in store.list('scope_evidence') if e['case_id']==job['case_id']][-3:]
+        if job.get('mission_id'):
+            mission=store.get('mission',job['mission_id']) or {}
+            evidence['project_decisions']=mission.get('decisions',[])[-3:]
+            evidence['approved_meeting_decisions']=(store.get('meeting',mission.get('meeting_id','')) or {}).get('decisions',[])[-3:]
+        if self.role == 'historian' and job.get('mission_type')!='idea_studio':
+            allowed={job.get('case_id')}
+            if job.get('mission_id'):
+                allowed.add((store.get('mission',job['mission_id']) or {}).get('meeting_id'))
             evidence['prior_human_decisions'] = [e for e in store.events() if e['event_type'] in
-                ('court.human_verdict','meeting.decision')][-3:]
+                ('court.human_verdict','meeting.decision') and e['correlation_id'] in allowed][-3:]
         if self.role == 'prosecutor':
             evidence['risk_model_provenance'] = 'No measured test or deployment logs supplied; request evidence before release.'
         if self.role == 'defender':

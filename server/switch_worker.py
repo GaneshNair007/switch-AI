@@ -124,7 +124,10 @@ def start_workers(workflow, configurations, participants):
             worker = SwitchWorkflowWorker(workflow, client, config['role'], participants, config.get('reviewer_mention'))
         thread = threading.Thread(target=client.run, args=(worker.handle,), daemon=True)
         thread.start()
-        if config['role'] == 'clerk' and isinstance(worker, SwitchWorkflowWorker):
-            threading.Thread(target=worker.notification_loop, args=(thread,), daemon=True).start()
         workers.append((worker, thread))
+    workflow.switch_workers = workers
+    from .notifications import Notifications
+    from .discord_setup import DiscordREST
+    workflow.notifications = Notifications(workflow, DiscordREST() if __import__('os').getenv('DISCORD_BOT_TOKEN') else None)
+    threading.Thread(target=workflow.notifications.run, daemon=True).start()
     return workers

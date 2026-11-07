@@ -52,8 +52,42 @@ def register():
     print('All five custom Groq agents registered. Keys saved locally; no paid harness used.')
 
 
+def configure(room_id, sender_map):
+    """Build local client configuration from registrations and observed identities."""
+    from .main import env_file
+    from .switch_protocol import SwitchProtocolClient
+    from .store import Store
+    registry=json.loads((ROOT/'.runtime'/'switch-agents.json').read_text(encoding='utf-8'))
+    senders=json.loads(Path(sender_map).read_text(encoding='utf-8-sig'))
+    agents=senders.get('agents',{});humans=senders.get('humans',[])
+    if not room_id.strip() or set(registry)!=set(ROLES) or set(agents)!=set(ROLES):
+        raise ValueError('A real room ID, five registrations and five observed agent sender IDs are required')
+    if not isinstance(humans,list) or not humans or any(not isinstance(s,str) or not s.strip() for s in [*agents.values(),*humans]):
+        raise ValueError('Supply actual agent sender IDs and at least one human sender ID')
+    if len(set(agents.values()))!=len(ROLES) or set(humans)&set(agents.values()):
+        raise ValueError('Agent and human transport identities must be distinct')
+    base=os.environ['SWITCH_URL'].rstrip('/')
+    SwitchProtocolClient(base,'validation-only','validation-only',room_id,Store())
+    clients=[];updates={}
+    for role in ROLES:
+        agent=registry[role];key='SWITCH_'+role.upper()+'_KEY'
+        updates[key]=agent['api_key']
+        clients.append({'url':base,'agent_id':agent['agent_id'],'key_env':key,'room_id':room_id,
+            'role':role,'runtime':'groq_custom','mention':'@'+agent['name'],'sender_id':agents[role]})
+    updates['SWITCH_CLIENTS']=json.dumps(clients,separators=(',',':'))
+    updates['SWITCH_PARTICIPANTS']=json.dumps({s:{'actor_type':'human','roles':['operator'],'scopes':[]} for s in humans},separators=(',',':'))
+    write_env(updates)
+    print('Configured five existing custom clients and verified-by-operator transport mappings. Keys were not printed. Restart the backend to connect.')
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--register',action='store_true',required=True)
-    parser.parse_args()
-    register()
+    operation=parser.add_mutually_exclusive_group(required=True)
+    operation.add_argument('--register',action='store_true')
+    operation.add_argument('--configure',action='store_true')
+    parser.add_argument('--room-id');parser.add_argument('--sender-map',type=Path)
+    args=parser.parse_args()
+    if args.register:register()
+    else:
+        if not args.room_id or not args.sender_map:parser.error('--configure needs --room-id and --sender-map')
+        configure(args.room_id,args.sender_map)

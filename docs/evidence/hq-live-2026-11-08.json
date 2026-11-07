@@ -1,0 +1,299 @@
+{
+  "date": "2026-11-08",
+  "branch": "codex/ship-court-hq",
+  "main_base": "c004d3f",
+  "checks": {
+    "python_local_tests_passed": 124,
+    "node_tests_passed": 10,
+    "js_syntax_checks": "passed",
+    "git_diff_check": "passed",
+    "changed_files_credential_scan": "no configured credential matches"
+  },
+  "discord_setup": {
+    "categories": 7,
+    "channels": 17,
+    "existing_channels_reused": 2,
+    "validation": "passed live",
+    "panel": {
+      "channel_id": "1568737544307216414",
+      "message_id": "1568740012340682853"
+    }
+  },
+  "switch_agents": [
+    {
+      "role": "clerk",
+      "status": "IDLE",
+      "connected": true,
+      "receiver_running": true,
+      "room_id": "06b603c8-1b06-4194-8b81-3fdc58659fb7"
+    },
+    {
+      "role": "historian",
+      "status": "IDLE",
+      "connected": true,
+      "receiver_running": true,
+      "room_id": "06b603c8-1b06-4194-8b81-3fdc58659fb7"
+    },
+    {
+      "role": "prosecutor",
+      "status": "IDLE",
+      "connected": true,
+      "receiver_running": true,
+      "room_id": "06b603c8-1b06-4194-8b81-3fdc58659fb7"
+    },
+    {
+      "role": "defender",
+      "status": "IDLE",
+      "connected": true,
+      "receiver_running": true,
+      "room_id": "06b603c8-1b06-4194-8b81-3fdc58659fb7"
+    },
+    {
+      "role": "third_voice",
+      "status": "IDLE",
+      "connected": true,
+      "receiver_running": true,
+      "room_id": "06b603c8-1b06-4194-8b81-3fdc58659fb7"
+    }
+  ],
+  "missions": [
+    {
+      "mission_id": "MISSION-02770b9ff16c425b82c5078468ed764a",
+      "type": "engineering_review",
+      "case_id": "SC-05b9e1b01b5d4e5d8b7230a6030701cf",
+      "status": "AWAITING_HUMAN",
+      "thread_id": "1568742899137388731",
+      "binding_decisions": 0
+    },
+    {
+      "mission_id": "MISSION-226ef7f0fecb405f92413088b66afe87",
+      "type": "idea_studio",
+      "case_id": null,
+      "status": "AWAITING_HUMAN",
+      "thread_id": "1568742906427084871",
+      "binding_decisions": 0
+    }
+  ],
+  "native_jobs": [
+    {
+      "job_id": "NATIVE-e6f7398497ac464dba4093d13dbccba4",
+      "mission_id": "MISSION-02770b9ff16c425b82c5078468ed764a",
+      "status": "AWAITING_HUMAN",
+      "roles": [
+        "historian",
+        "prosecutor",
+        "defender",
+        "clerk"
+      ],
+      "handoffs": [
+        {
+          "to_role": "historian",
+          "receipt": {
+            "ok": true,
+            "event_id": "sw_aebe91aaf92546e4a46aed4162a2419d"
+          }
+        },
+        {
+          "to_role": "prosecutor",
+          "receipt": {
+            "ok": true,
+            "event_id": "sw_a0645c0805b44c73894c5bc35b6a8f54"
+          }
+        },
+        {
+          "to_role": "defender",
+          "receipt": {
+            "ok": true,
+            "event_id": "sw_95bd0e4833664cf5983a0f750480b035"
+          }
+        },
+        {
+          "to_role": "clerk",
+          "receipt": {
+            "ok": true,
+            "event_id": "sw_5eb8e5691e9b42fea9cef546c67d7499"
+          }
+        }
+      ]
+    },
+    {
+      "job_id": "NATIVE-ceb1ceaed2b34c468311e59a470627c6",
+      "mission_id": "MISSION-226ef7f0fecb405f92413088b66afe87",
+      "status": "AWAITING_HUMAN",
+      "roles": [
+        "historian",
+        "prosecutor",
+        "defender",
+        "clerk"
+      ],
+      "handoffs": [
+        {
+          "to_role": "historian",
+          "receipt": {
+            "ok": true,
+            "event_id": "sw_86a7074275db4703992ce3ce918d2a16"
+          }
+        },
+        {
+          "to_role": "prosecutor",
+          "receipt": {
+            "ok": true,
+            "event_id": "sw_74162705a9484b3490a25dd1fd570a54"
+          }
+        },
+        {
+          "to_role": "defender",
+          "receipt": {
+            "ok": true,
+            "event_id": "sw_2e4225b3770a4052b51e946e0a6c4e9c"
+          }
+        },
+        {
+          "to_role": "clerk",
+          "receipt": {
+            "ok": true,
+            "event_id": "sw_8c31b3f0077148dfab200ad2e9cf6633"
+          }
+        }
+      ]
+    }
+  ],
+  "discord_deliveries": [
+    {
+      "channel": "mission-control",
+      "status": "DELIVERED",
+      "receipt": {
+        "message_id": "1568742899137388731",
+        "channel_id": "1568737544307216414"
+      }
+    },
+    {
+      "channel": "case-docket",
+      "status": "DELIVERED",
+      "receipt": {
+        "message_id": "1568742904036331551",
+        "channel_id": "1568737566058877042"
+      }
+    },
+    {
+      "channel": "mission-control",
+      "status": "DELIVERED",
+      "receipt": {
+        "message_id": "1568742906427084871",
+        "channel_id": "1568737544307216414"
+      }
+    },
+    {
+      "channel": "my-projects",
+      "status": "DELIVERED",
+      "receipt": {
+        "message_id": "1568742911896723578",
+        "channel_id": "1568737585231040512"
+      }
+    },
+    {
+      "channel": "agent-handoffs",
+      "status": "DELIVERED",
+      "receipt": {
+        "message_id": "1568742914429820982",
+        "channel_id": "1568737553400594576"
+      }
+    },
+    {
+      "channel": "agent-handoffs",
+      "status": "DELIVERED",
+      "receipt": {
+        "message_id": "1568742917462433794",
+        "channel_id": "1568737553400594576"
+      }
+    },
+    {
+      "channel": "agent-handoffs",
+      "status": "DELIVERED",
+      "receipt": {
+        "message_id": "1568743100971483178",
+        "channel_id": "1568737553400594576"
+      }
+    },
+    {
+      "channel": "agent-handoffs",
+      "status": "DELIVERED",
+      "receipt": {
+        "message_id": "1568743355800625355",
+        "channel_id": "1568737553400594576"
+      }
+    },
+    {
+      "channel": "agent-handoffs",
+      "status": "DELIVERED",
+      "receipt": {
+        "message_id": "1568743575682814015",
+        "channel_id": "1568737553400594576"
+      }
+    },
+    {
+      "channel": "agent-handoffs",
+      "status": "DELIVERED",
+      "receipt": {
+        "message_id": "1568743603981914196",
+        "channel_id": "1568737553400594576"
+      }
+    },
+    {
+      "channel": "agent-handoffs",
+      "status": "DELIVERED",
+      "receipt": {
+        "message_id": "1568743833858998433",
+        "channel_id": "1568737553400594576"
+      }
+    },
+    {
+      "channel": "agent-handoffs",
+      "status": "DELIVERED",
+      "receipt": {
+        "message_id": "1568744075966816269",
+        "channel_id": "1568737553400594576"
+      }
+    },
+    {
+      "channel": "case-docket",
+      "status": "DELIVERED",
+      "receipt": {
+        "message_id": "1568744320150937765",
+        "channel_id": "1568737566058877042"
+      }
+    },
+    {
+      "channel": "case-docket",
+      "status": "DELIVERED",
+      "receipt": {
+        "message_id": "1568744322197622986",
+        "channel_id": "1568742899137388731"
+      }
+    },
+    {
+      "channel": "my-projects",
+      "status": "DELIVERED",
+      "receipt": {
+        "message_id": "1568744576913637518",
+        "channel_id": "1568737585231040512"
+      }
+    },
+    {
+      "channel": "my-projects",
+      "status": "DELIVERED",
+      "receipt": {
+        "message_id": "1568744579405189332",
+        "channel_id": "1568742906427084871"
+      }
+    }
+  ],
+  "intake": "Authenticated local operator HTTP integration checks; not a fabricated Discord human event",
+  "restart": "Both completed native jobs persisted and five SSE clients reconnected",
+  "remaining_live_gates": [
+    "Human Discord modal/Idea Lab input and binding decision demonstration",
+    "Actual Antigravity IDE hook invocation",
+    "Full microphone/transcription/hand/grant/speech/interruption/recap call"
+  ],
+  "github": "No manual live GitHub write tests; exact-plan operation services verified with controlled transport fixtures"
+}

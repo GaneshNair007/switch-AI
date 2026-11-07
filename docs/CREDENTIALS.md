@@ -45,7 +45,7 @@ DISCORD_MEMBERS={"YOUR_USER_ID":{"roles":["operator","approver"],"scopes":["*"]}
 
 The wildcard is convenient for your private test administrator; production members should get explicit scopes such as `meeting:MEETING_ID:floor`, `meeting:MEETING_ID:decision`, `case:CASE_ID:verdict`, and `case:CASE_ID:github`. Display names grant no permissions.
 
-Invite the bot using the portal's installation/OAuth2 URL with the `bot` scope. Grant **View Channels, Send Messages, Read Message History, Attach Files**. Create a text channel for court commands. Voice also needs **Connect** and **Speak** in a voice channel.
+Invite the bot using the portal's installation/OAuth2 URL with the `bot` scope. Grant **View Channels, Send Messages, Embed Links, Read Message History, Attach Files**. Switch's persona bridge additionally needs **Manage Webhooks** and Server Members Intent; mission threads need Create Public Threads. Channel reconciliation temporarily needs Manage Channels and Manage Roles; remove those two setup permissions afterward. Create a text channel for court commands. Voice also needs **Connect** and **Speak** in a voice channel.
 
 A separate voice bot application is recommended. Put its token in `DISCORD_VOICE_BOT_TOKEN`, invite it to the same server with the same text and voice permissions, and enable Message Content Intent. Generate its separate backend credential:
 
@@ -62,18 +62,21 @@ The normal text gateway does **not** require a public web server, interaction en
 
 Install/start the official [Switch runtime](https://github.com/sandbox-quantum/switch) following its [documentation](https://docs.switchagents.ai/). The adapter was checked against source revision `7bf37f8f82b45865b0f0bb207857fd9c25796172` (0.31.0). Official source is available locally under `.runtime/switch-source`; this is not a running Switch instance.
 
-Using the installed runtime's registration interface/API, register two external agent clients: clerk and reviewer. Obtain each **registered agent ID and agent API key**, a **room ID**, and the runtime's **agent HTTP/SSE base URL**. Give both agents membership in the same room. A registration/admin credential is different from an agent key; use agent keys here.
+The active path registers **five custom Groq clients**, not the older clerk/reviewer fixture pair. Set the real `SWITCH_URL` and `SWITCH_REGISTRATION_TOKEN` locally, then:
 
-```dotenv
-SWITCH_CLERK_KEY=YOUR_CLERK_AGENT_KEY
-SWITCH_REVIEWER_KEY=YOUR_REVIEWER_AGENT_KEY
-SWITCH_CLIENTS=[{"url":"http://127.0.0.1:PORT","agent_id":"CLERK_ID","key_env":"SWITCH_CLERK_KEY","room_id":"ROOM_ID","role":"clerk","reviewer_mention":"@REVIEWER_HANDLE"},{"url":"http://127.0.0.1:PORT","agent_id":"REVIEWER_ID","key_env":"SWITCH_REVIEWER_KEY","room_id":"ROOM_ID","role":"reviewer"}]
-SWITCH_PARTICIPANTS={"EXACT_HUMAN_SENDER_ID":{"actor_type":"human","roles":["operator","approver"],"scopes":["*"]},"EXACT_CLERK_SENDER_ID":{"actor_type":"agent","roles":["operator"],"scopes":["*"]}}
+```bash
+python -m server.setup_switch --register
 ```
 
-Replace all placeholders from the running runtime. IDs must match the incoming event's sender identity; mention handles must address the registered agent. Nonhuman entries cannot receive the approver role. Remote Switch URLs require HTTPS. Run only one process for each configured client identity.
+Create the actual Switch room, add all five agents and the verified human, and connect its official Discord bridge to `#ship-court`. Record the real room ID and opaque transport sender IDs. Copy `config/switch-senders.example.json` to `.runtime/senders.json`, fill all values from observed runtime events, and run:
 
-The service starts these clients automatically. The clerk receives human intake and sends the reviewer a native handoff. Disconnecting Switch prevents that handoff; local fixture tests do not substitute for this proof.
+```bash
+python -m server.setup_switch --configure --room-id YOUR_ROOM_ID --sender-map .runtime/senders.json
+```
+
+The command builds `SWITCH_CLIENTS`, restores existing registration keys into their local key variables, and records verified human intake mappings. An API agent UUID, transport sender ID, Switch ExternalUser ID and Discord user ID are distinct. Do not derive one from another. Addressing policies must allow your verified human and owner agents in the intended room. Only the backend's scoped human transports can authorize binding actions.
+
+See [the complete Switch + Groq guide](SWITCH_GROQ.md) for registration-key fallback and identity troubleshooting. Use HTTPS for remote Switch URLs. Run one backend process per client configuration. An absent transport stops native handoffs; local fixture tests do not substitute for this proof.
 
 ## 6. Antigravity hook — no additional paid API
 
@@ -81,7 +84,7 @@ The service starts these clients automatically. The clerk receives human intake 
 .runtime\venv\Scripts\python.exe -m server.configure --hook frontend-agent
 ```
 
-This adds a scoped `SHIPCOURT_HOOK_TOKEN`. Configure the hook process with that token, `SHIPCOURT_AGENT_ID=frontend-agent`, `SHIPCOURT_COORDINATOR_URL=http://127.0.0.1:8080`, and `SHIPCOURT_WORKSPACE_ROOT` set to the actual project directory. The editor process must receive these environment variables; it does not automatically inherit Python server `.env` loading. See the [hook installation guide](../linking_antigravity/README.md). Provision the assignment through `/api/scope/assignments` before attempting edits. Missing assignments are denied.
+This adds a scoped `SHIPCOURT_HOOK_TOKEN`. Configure the hook process with that token, `SHIPCOURT_AGENT_ID=frontend-agent`, `SHIPCOURT_COORDINATOR_URL=http://127.0.0.1:8080`, and `SHIPCOURT_WORKSPACE_ROOT` set to the actual project directory. The editor process must receive these variables, or invoke `python -m server.antigravity_hook`, which reads only hook-related settings from local `.env`. See the [hook installation guide](../linking_antigravity/README.md). Provision the assignment through `/api/scope/assignments` before attempting edits. Missing assignments are denied.
 
 ## 7. Optional staging and research
 

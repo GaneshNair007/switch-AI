@@ -147,3 +147,4 @@ jobs:
       - run: npm ci --prefix voice --ignore-scripts
       - run: node --test voice/audio.test.mjs voice/transcription.test.mjs
       - run: node --check voice/gateway.mjs
+      - run: node --check assets/hq.js

@@ -1397,8 +1397,8 @@
     <div class="switch-workspace">
       <span class="switch-label">Target Context</span>
       <div class="switch-workspace-name">
-        <span>acme/shop</span>
-        <span class="switch-workspace-badge">PR #482</span>
+        <span>Shared workspace</span>
+        <span class="switch-workspace-badge">Select a mission</span>
       </div>
     </div>
 
@@ -1489,12 +1489,12 @@
     <div class="switch-side-foot">
       <div class="switch-online">
         <span class="switch-pulse"></span>
-        <span>Swarm Online (5 Nodes)</span>
+        <span id="hq-transport-status">Sign in for connection status</span>
       </div>
       <div class="switch-user">
         <div class="switch-avatar">P</div>
         <div class="switch-user-info">
-          <div class="switch-user-name">@Priya</div>
+          <div class="switch-user-name">Human approver</div>
           <div class="switch-user-role">Human Gatekeeper</div>
         </div>
       </div>
@@ -1835,7 +1835,7 @@
                   <td><code style="font-family: var(--font-mono); color: var(--lime); font-weight: 700;">SC-0482</code></td>
                   <td>acme/shop (PR #482)</td>
                   <td>Dynamic checkout pricing rollout</td>
-                  <td>@Priya</td>
+                  <td>Human approver</td>
                   <td><span class="sw-tag orange">CONDITIONS BINDING</span></td>
                   <td><button class="switch-btn-ghost" onclick="showView('courtroom')">Adversarial Arena &rarr;</button></td>
                 </tr>
@@ -1851,7 +1851,7 @@
                   <td><code style="font-family: var(--font-mono); color: var(--lime); font-weight: 700;">SC-0479</code></td>
                   <td>acme/core (PR #904)</td>
                   <td>Direct table drop user_sessions peak hours</td>
-                  <td>@Priya</td>
+                  <td>Human approver</td>
                   <td><span class="sw-tag orange">BLOCKED</span></td>
                   <td><button class="switch-btn-ghost" onclick="showView('courtroom')">Inspect Indictment &rarr;</button></td>
                 </tr>
@@ -2091,7 +2091,7 @@
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
               <span class="switch-label" style="margin: 0;">Presiding Gatekeeper:</span>
-              <input type="text" class="sw-input" id="judge_name" value="Priya" style="width: 110px; padding: 4px 8px;">
+              <input type="text" class="sw-input" id="judge_name" value="" style="width: 110px; padding: 4px 8px;">
             </div>
           </div>
 
@@ -2214,7 +2214,7 @@
           <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 22px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--sl); padding: 12px 14px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 11px;">
             <div><span class="switch-label">Target Repo</span><strong style="color: #F2F4EF;">acme/shop</strong></div>
             <div><span class="switch-label">Pull Request</span><strong style="color: var(--lime);">#482 (pricing)</strong></div>
-            <div><span class="switch-label">Presiding Judge</span><strong style="color: #F2F4EF;">@Priya</strong></div>
+            <div><span class="switch-label">Presiding Judge</span><strong style="color: #F2F4EF;">Human approver</strong></div>
             <div><span class="switch-label">Session ID</span><strong style="color: #78A8FF;">DOCKET-SC-0482</strong></div>
           </div>
 
@@ -2261,7 +2261,7 @@
           </div>
 
           <div style="background: rgba(255, 105, 71, 0.08); border: 1px dashed var(--orange); border-radius: var(--radius-md); padding: 14px 16px; font-size: 12px; color: #FFA590;">
-            <strong>Exclusive Authority Lock:</strong> AI agents cannot self-ship or bypass governance gates. Only human gatekeeper <strong>@Priya</strong> possesses authority to sign off on production canary expansion.
+            <strong>Exclusive Authority Lock:</strong> AI agents cannot self-ship or bypass governance gates. Only human gatekeeper <strong>Human approver</strong> possesses authority to sign off on production canary expansion.
           </div>
         </div>
       </section>
@@ -2660,7 +2660,7 @@
               <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase; margin-bottom: 8px;">
                 Magistrate Sign-Off Token
               </div>
-              <input type="password" id="wb-token-input" placeholder="Enter SHIPCOURT_TOKEN operator bearer..." value="__TOKEN_PLACEHOLDER__" style="width: 100%; padding: 10px 12px; background: #080B10; border: 1px solid var(--sl); border-radius: var(--radius-sm); color: #F2F4EF; font-family: var(--font-mono); font-size: 12px; margin-bottom: 12px;">
+              <input type="password" id="wb-token-input" placeholder="Enter SHIPCOURT_TOKEN operator bearer..." value="" style="width: 100%; padding: 10px 12px; background: #080B10; border: 1px solid var(--sl); border-radius: var(--radius-sm); color: #F2F4EF; font-family: var(--font-mono); font-size: 12px; margin-bottom: 12px;">
               <div style="display: flex; gap: 10px;">
                 <button class="switch-btn-lime" onclick="handleWriteBackAction('label')" style="flex: 1;">
                   Publish Governed Label &rarr;
@@ -3109,7 +3109,7 @@
           "universe_b": { status: "recommended", canary_pass_rate: 99.8, exposure_usd: 8200, rollback_seconds: 11.4 }
         },
         governance_recommendation: "MANDATORY_CANARY_SOAK_15M",
-        verified_by: "Priya (Magistrate)"
+        verified_by: "Human approver"
       };
       const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -3122,17 +3122,8 @@
     }
 
     function handleWriteBackAction(action) {
-      const agree = document.getElementById('wb-agree-check').checked;
-      const token = document.getElementById('wb-token-input').value.trim();
-      if (!agree) {
-        showToast('Please check agreement to Ship Court conditions before proceeding');
-        return;
-      }
-      if (!token || token === '__TOKEN_PLACEHOLDER__') {
-        showToast('Valid SHIPCOURT_TOKEN required for governed write-back sign-off');
-        return;
-      }
-      showToast('Preview Mode Active: Write-back action verified locally (Simulated Guard)');
+      document.getElementById('hq-live').scrollIntoView({behavior:'smooth'});
+      showToast('Select a real case and review its exact GitHub plan in Workspace Control.');
     }
 
     // Dynamic API Keys Loader (Never displays actual keys or partial fragments)
@@ -3229,7 +3220,7 @@
 
       const task = (taskInput.value || '').trim();
       const repo = (repoInput.value || '').trim();
-      const judge = (judgeInput.value || '').trim() || 'Priya';
+      const judge = (judgeInput.value || '').trim() || 'Human approver';
 
       if (!task) {
         showError('Please enter a valid Petition / Task Description before convening Ship Court.');
@@ -3248,7 +3239,7 @@
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer __TOKEN_PLACEHOLDER__'
+            'Authorization': 'Bearer '
           },
           body: JSON.stringify({ task, repo, judge })
         });
@@ -3300,7 +3291,7 @@
           `;
         }
 
-        const effectiveJudge = data.judge || judge || 'Priya';
+        const effectiveJudge = data.judge || judge || 'Human approver';
         const vNorm = (data.verdict || '').toUpperCase();
 
         if (vNorm.includes('COND')) {
@@ -3540,7 +3531,7 @@
         {
           index: 3,
           event_type: 'CONDITIONAL_VERDICT_ISSUED',
-          actor: '@judge-priya',
+          actor: '@human-approver',
           timestamp: Math.floor(Date.now() / 1000) - 10,
           prev_hash: '3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b',
           hash: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'

@@ -99,11 +99,20 @@ class Meetings:
         self.auth.require(principal, scope=f'meeting:{meeting_id}:floor')
         with self.lock:
             meeting = self.get(meeting_id)
+            if meeting.get('recap'):return meeting['recap']
             meeting['status'] = 'ENDED'
             for req in list(self.floor.requests.values()):
                 if req.meeting_id == meeting_id:
                     self.floor.dismiss(req.request_id, principal, interrupt=True)
-            self.store.put('meeting', meeting_id, meeting)
-            return {'meeting_id': meeting_id, 'title': meeting['title'], 'decisions': meeting['decisions'],
+            recap={'meeting_id': meeting_id, 'mission_id':meeting.get('mission_id'), 'title': meeting['title'], 'decisions': meeting['decisions'],
                     'tasks': meeting['tasks'], 'transcript_entries': len(meeting['transcripts']),
+                    'discussion_points':[{'text':t['text'],'source':t['event_id']} for t in meeting['transcripts'][-12:]],
+                    'verified_findings':[], 'proposed_ideas':[], 'open_questions':[],
                     'summary_provenance': 'structured records; no unverified generated claims'}
+            meeting['recap']=recap;self.store.put('meeting', meeting_id, meeting)
+            import json
+            key=meeting_id+':recap'
+            self.store.put('discord_outbox',key,{'id':key,'channel':'meeting-recaps','correlation_id':meeting.get('mission_id') or meeting_id,
+                'content':json.dumps(recap,ensure_ascii=False),'status':'PENDING','attempts':0,'attachment_name':meeting_id+'-recap.json'})
+            self.store.event('meeting.ended',meeting_id,principal.subject,{'recap_id':key},actor_type='human')
+            return recap

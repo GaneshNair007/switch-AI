@@ -38,6 +38,8 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("Referrer-Policy", "same-origin")
         self.end_headers()
 
     def do_HEAD(self):
@@ -48,10 +50,22 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
         self._set_headers(status)
         self.wfile.write(json.dumps(payload, default=encode).encode('utf-8'))
 
+    def _principal(self):
+        from .hq_http import principal
+        return principal(self)
+
     def do_GET(self):
+        from .hq_http import get
+        if get(self): return
+        if self.path in ('/api/keys', '/status', '/tasks', '/decisions'):
+            try:
+                (self.workflow or self.mgr).authorization.require(self._principal(),role='operator')
+            except PermissionError:
+                self._json_response(403,{'error':'Authenticated operator required'})
+                return
         if self.path.startswith('/api/v1/agents/') or self.path.startswith('/api/v1/approvals/'):
             try:
-                principal = self.workflow.authorization.authenticate(self.headers.get('Authorization'))
+                principal = self._principal()
                 if self.path.startswith('/api/v1/agents/') and self.path.endswith('/assignment'):
                     result = self.workflow.scope.assignment(self.path.split('/')[-2], principal)
                 elif self.path.startswith('/api/v1/approvals/'):
@@ -68,14 +82,14 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
             try:
                 if not self.workflow:
                     raise RuntimeError('Workflow not initialized')
-                principal = self.workflow.authorization.authenticate(self.headers.get('Authorization'))
+                principal = self._principal()
                 self.workflow.authorization.require(principal, role='operator')
                 if self.path == '/api/cases':
-                    result = list(self.workflow.cases.values())
+                    result = self.workflow.workspace.snapshot(principal)['cases']
                 elif self.path == '/api/audit/events':
-                    result = self.workflow.store.events()
+                    result = self.workflow.workspace.snapshot(principal)['audit']
                 elif self.path == '/api/floor/requests':
-                    result = list(self.workflow.floor_controller.requests.values())
+                    result = self.workflow.workspace.snapshot(principal)['floor']
                 else:
                     result = {'github_configured': bool(os.getenv('GITHUB_TOKEN')), 'groq_configured': bool(os.getenv('GROQ_API_KEY')),
                               'switch_configured': bool(json.loads(os.getenv('SWITCH_CLIENTS', '[]'))), 'discord_configured': bool(os.getenv('DISCORD_BOT_TOKEN') or os.getenv('DISCORD_PUBLIC_KEY')),
@@ -95,7 +109,8 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
             asset_name = os.path.basename(self.path.split("?")[0])
             asset_path = Path(__file__).resolve().parent.parent / "assets" / asset_name
             if asset_path.exists() and asset_path.is_file():
-                content_type = "image/svg+xml" if asset_name.endswith(".svg") else "application/octet-stream"
+                import mimetypes
+                content_type = mimetypes.guess_type(asset_name)[0] or 'application/octet-stream'
                 self._set_headers(200, content_type)
                 with open(asset_path, "rb") as f:
                     self.wfile.write(f.read())
@@ -110,7 +125,7 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({
                 "status": "healthy",
                 "service": "ship-court-backend",
-                "agents_online": len(self.room.sessions) if self.room else 5,
+                "agents_online": sum(1 for w,t in getattr(self.workflow,"switch_workers",[]) if w.client.connected and t.is_alive()),
                 "version": "1.0.0",
                 "api_keys": llm_manager.get_keys_status()
             }).encode("utf-8"))
@@ -131,7 +146,7 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
             cases_count = len(self.mgr.active_cases) if self.mgr else 0
             verdicts_approved = sum(1 for c in self.mgr.active_cases.values() if c.state.value == "APPROVED") if self.mgr else 0
             verdicts_rejected = sum(1 for c in self.mgr.active_cases.values() if c.state.value == "REJECTED") if self.mgr else 0
-            sessions_count = len(self.room.sessions) if self.room else 5
+            sessions_count = sum(w.client.connected and t.is_alive() for w,t in getattr(self.workflow,'switch_workers',[]))
             metrics_payload = (
                 "# HELP shipcourt_agents_online Total registered AI courtroom agents\n"
                 "# TYPE shipcourt_agents_online gauge\n"
@@ -165,6 +180,8 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
         except (ValueError, UnicodeDecodeError):
             self._json_response(400, {'error': 'Invalid JSON request'})
             return
+        from .hq_http import post
+        if post(self, body): return
         if self.path == '/discord/interactions':
             if not self.discord:
                 self._json_response(503, {'error': 'Discord application is not configured'})
@@ -184,7 +201,7 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
             try:
                 if not self.workflow:
                     raise RuntimeError('Workflow not initialized')
-                principal = self.workflow.authorization.authenticate(self.headers.get('Authorization'))
+                principal = self._principal()
                 service = self.workflow
                 if self.path == '/api/cases':
                     result = service.open_case(body['pr_url'], body['services'], principal)
@@ -268,7 +285,7 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
             return
         # All legacy mutation/cost-incurring routes require a provisioned operator.
         try:
-            principal = self.mgr.authorization.authenticate(self.headers.get('Authorization'))
+            principal = self._principal()
             self.mgr.authorization.require(principal, role='operator')
         except PermissionError:
             self._json_response(403, {'error': 'Authenticated operator required'})
@@ -310,7 +327,7 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
             judge = body.get("judge", "Priya")
             is_human = body.get("is_human", True)
             try:
-                principal = self.mgr.authorization.authenticate(self.headers.get("Authorization"))
+                principal = self._principal()
                 brief = self.mgr.record_verdict(case_id, command, principal=principal)
                 self._set_headers(200)
                 self.wfile.write(json.dumps({"case_id": case_id, "release_brief": brief}).encode("utf-8"))
@@ -357,10 +374,9 @@ def start_server(host="127.0.0.1", port=8080):
         from .discord_gateway import start_discord_gateway
         workflow.discord_gateway = start_discord_gateway(workflow, os.environ['DISCORD_BOT_TOKEN'],
             os.environ['DISCORD_GUILD_ID'], json.loads(os.getenv('DISCORD_MEMBERS', '{}')))
-    if os.getenv('SWITCH_CLIENTS'):
-        from .switch_worker import start_workers
-        workflow.switch_workers = start_workers(workflow, json.loads(os.environ['SWITCH_CLIENTS']),
-                                                json.loads(os.getenv('SWITCH_PARTICIPANTS', '{}')))
+    from .switch_worker import start_workers
+    workflow.switch_workers = start_workers(workflow, json.loads(os.getenv('SWITCH_CLIENTS','[]')),
+                                            json.loads(os.getenv('SWITCH_PARTICIPANTS', '{}')))
     ShipCourtHTTPHandler.workflow = workflow
     ShipCourtHTTPHandler.room = room
     ShipCourtHTTPHandler.mgr = mgr

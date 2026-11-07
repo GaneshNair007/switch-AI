@@ -1,0 +1,41 @@
+<section class="view-section active-section" id="section-hq">
+  <style>
+    #section-hq [hidden]{display:none!important}
+    .hq-panel{border:1px solid var(--border,#333);border-radius:12px;padding:22px;margin-bottom:18px;background:var(--panel,#141820)}
+    .hq-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0}.hq-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+    #section-hq input,#section-hq select,#section-hq textarea{background:#11151c;color:#eee;border:1px solid #455063;padding:10px;border-radius:6px;max-width:100%;font:inherit}
+    #section-hq textarea{width:100%;min-height:80px}#section-hq button{cursor:pointer;background:#252f42;color:#eef;border:1px solid #586b8c;padding:10px 14px;border-radius:6px}
+    #section-hq button:hover{background:#394a67}#section-hq button:disabled{opacity:.4;cursor:wait}.hq-muted{color:#a5b0c5;font-size:13px}
+    #hq-error{color:#ffbe9f;white-space:pre-wrap}#hq-records pre,#hq-output{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.6 monospace;max-height:450px;overflow:auto}
+    .hq-badge{padding:6px 10px;border:1px solid #46526b;border-radius:6px}.hq-preview{padding:16px;background:#4b3213;color:#ffe5a5}
+    @media(max-width:760px){body{grid-template-columns:minmax(0,1fr)}.switch-sidebar{display:none}.switch-main{overflow-x:hidden}.switch-mobile-bar{flex-shrink:0}.switch-mobile-pill{flex-shrink:0}.switch-content{padding:18px 14px}.switch-topbar{min-height:64px;flex-shrink:0}.switch-search{display:none}.hq-grid{grid-template-columns:minmax(0,1fr)}.hq-panel{min-width:0;padding:18px}.hq-row>*{max-width:100%}}
+  </style>
+  <div class="hq-panel" id="hq-live">
+    <div class="hq-row"><span class="sw-tag lime">SHIP COURT HQ</span><span id="hq-identity">Sign in to your workspace</span><button id="hq-refresh">Refresh</button><button id="hq-logout">Sign out</button></div>
+    <h1>Human decisions. Shared evidence.</h1><p class="hq-muted">One persistent workspace for Discord, official Switch agents, engineering reviews and personal projects.</p>
+    <form id="hq-login" class="hq-row"><input id="hq-credential" type="password" autocomplete="off" placeholder="Provisioned workspace credential" required><button>Sign in for 5 minutes</button></form>
+    <div id="hq-error" role="status" aria-live="polite"></div>
+    <nav class="hq-row" id="hq-tabs"></nav><div class="hq-row" id="hq-counts"></div>
+  </div>
+  <div class="hq-panel" id="hq-controls" hidden>
+    <h2 id="hq-heading">Command Center</h2>
+    <form id="hq-create">
+      <div class="hq-row"><select id="hq-kind"><option value="engineering_review">Engineering review</option><option value="idea_studio">Idea Studio</option></select><input id="hq-title" placeholder="Mission title" required maxlength="200"></div>
+      <textarea id="hq-objective" placeholder="What should the team investigate or help you build?" required maxlength="4000"></textarea>
+      <div class="hq-row"><input id="hq-pr" placeholder="Optional real GitHub PR URL"><input id="hq-services" placeholder="Affected services, comma separated"><button>Create mission</button></div>
+    </form>
+    <div class="hq-row"><label for="hq-mission">Selected mission</label><select id="hq-mission"></select><button data-hq="start">Start native agents</button><button data-hq="resume">Resume project</button><button data-hq="meeting">Link a meeting</button></div>
+    <div class="hq-row"><input id="hq-decision" placeholder="Explicit human decision"><button data-hq="decision">Record decision</button><select id="hq-state"><option>AWAITING_HUMAN</option><option>BLOCKED</option><option>COMPLETED</option><option>CANCELLED</option><option>PLANNING</option></select><button data-hq="transition">Set state</button></div>
+    <div class="hq-row"><input id="hq-task" placeholder="Follow-up task"><input id="hq-owner" placeholder="Owner identity"><button data-hq="task">Assign task</button></div>
+    <details><summary>Case, research and delivery controls</summary>
+      <div class="hq-row"><button data-hq="court">Attach the PR above</button><button data-hq="review">Run courtroom review</button><input id="hq-verdict" placeholder="CONDITIONS evidence needed"><button data-hq="verdict">Record binding verdict</button></div>
+      <div class="hq-row"><input id="hq-claim" placeholder="Claim to verify"><input id="hq-urls" placeholder="Supporting HTTPS source URLs, comma separated"><button data-hq="research">Verify sources</button></div>
+      <p class="hq-muted">Parallel Earth runs the Python model. Outputs are modeled estimates, not measured production telemetry.</p>
+      <div class="hq-row"><label>Downtime minutes <input id="hq-downtime" type="number" min="0" value="15"></label><label>Synthetic requests <input id="hq-requests" type="number" min="1" value="1000"></label><label>Failure probability <input id="hq-probability" type="number" min="0" max="1" step=".01" value=".01"></label><button data-hq="simulate">Run case model</button></div>
+      <div class="hq-row"><button data-hq="github-plan">Review exact GitHub plan</button><button id="hq-execute" disabled>Execute reviewed plan</button><button id="hq-export">Export selected mission</button></div>
+      <p class="hq-muted">GitHub execution needs a human verdict and the current exact plan hash. No write is performed by previewing a plan.</p>
+    </details>
+    <pre id="hq-output" aria-live="polite"></pre>
+  </div>
+  <div id="hq-records" class="hq-grid"></div>
+</section>

@@ -35,10 +35,10 @@ def test_health_endpoint():
         data = json.loads(resp.read().decode())
         assert data["status"] == "healthy"
         assert data["service"] == "ship-court-backend"
-        assert data["agents_online"] == 5
+        assert data["agents_online"] == 0  # A configured roster is not a live Switch connection.
 
 def test_status_endpoint():
-    req = urllib.request.Request(f"{BASE_URL}/status")
+    req = urllib.request.Request(f"{BASE_URL}/status",headers={"Authorization":"Bearer "+TOKEN})
     with urllib.request.urlopen(req) as resp:
         assert resp.status == 200
         body = resp.read().decode()

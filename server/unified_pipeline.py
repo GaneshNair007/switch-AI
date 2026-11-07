@@ -63,6 +63,8 @@ class UnifiedBoardroomCourtPipeline:
         self.research = ResearchService(self.authorization, self.store, self.debate_engine,
             allowed_hosts=os.getenv("SHIPCOURT_RESEARCH_HOSTS", "").split(","))
         self.lock = threading.RLock()
+        from .workspace import Workspace
+        self.workspace = Workspace(self)
 
     def open_case(self, pr_url, services, principal):
         self.authorization.require(principal, role='operator')
@@ -107,6 +109,7 @@ class UnifiedBoardroomCourtPipeline:
             incidents = self.manager.evidence_collector.search_incidents(case.affected_services[0])
             simulation = self.parallel_earth.run_simulation(case)
             context = json.dumps({'proposal': case.change_summary, 'evidence': evidence,
+                                  'scope_evidence':[e for e in self.store.list('scope_evidence') if e['case_id']==case_id],
                                   'incident_fixtures_unverified': incidents, 'risk_model': asdict(simulation)})
             result = self.debate_engine.run_live_trial(context, repo=case.repository,
                                                       pr_number=str(evidence['pr_number']), judge_name='AI advisory reviewer')
@@ -156,21 +159,33 @@ class UnifiedBoardroomCourtPipeline:
     def ingest_violation(self, event, principal):
         self.authorization.require(principal, role='hook', scope='hook:' + event['agent_id'])
         key = principal.subject + ':' + event['event_id']
-        with self.lock:
+        with self.workspace.lock, self.lock:
             existing = self.store.get('violation', key)
             if existing:
                 return existing
             if event.get('decision_taken') not in ('BLOCK', 'ASK', 'WARN'):
                 raise ValueError('Expected a scope guard violation decision')
-            case_id = 'AG-' + uuid.uuid4().hex
-            case = Case(case_id, '', '', [], 'Not verified', change_summary=event['explanation'])
+            assignment=self.store.get('assignment',event['agent_id']) or {}
+            mission=self.store.get('mission',assignment.get('mission_id',''))
+            linked=self.cases.get(mission.get('case_id')) if mission else None
+            # Only a server-provisioned assignment can attach a hook to a mission.
+            case_id = linked.case_id if linked and linked.state==CaseState.CASE_OPENED else 'AG-' + uuid.uuid4().hex
+            case = linked if linked and linked.case_id==case_id else Case(case_id, '', '', [], 'Not verified', change_summary=event['explanation'])
             self.cases[case_id] = case
             self.store.put('case', case_id, case)
             result = {'case_id': case_id, 'event_id': event['event_id'], 'status': 'ESCALATED',
                       'hook_enforcement': 'reported by authenticated hook; not independently observed'}
             self.store.put('violation', key, result)
+            self.store.put('scope_evidence',key,{'case_id':case_id,'mission_id':mission['mission_id'] if mission else None,'event':event})
+            if mission:
+                with self.workspace.lock:
+                    mission=self.store.get('mission',mission['mission_id'])
+                    mission['evidence_refs'].append({'type':'antigravity_scope_event','event_id':event['event_id'],'case_id':case_id})
+                    if not mission.get('case_id'):mission['case_id']=case_id
+                    self.store.put('mission',mission['mission_id'],mission)
             self.store.event('developer.scope_violation_detected', case_id, principal.subject, event, source_platform='antigravity', actor_type='agent')
-            self.store.put('switch_notification', case_id, {'case_id': case_id, 'status': 'PENDING',
+            notification_id=case_id+':'+event['event_id']
+            self.store.put('switch_notification', notification_id, {'case_id': case_id, 'notification_id':notification_id,'status': 'PENDING',
                 'content': json.dumps({'event': 'scope_violation', 'case_id': case_id,
                                        'agent_id': event['agent_id'], 'explanation': event['explanation']})})
             return result

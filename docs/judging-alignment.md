@@ -1,33 +1,18 @@
-# Hackathon Alignment & Judging Criteria
+# Hackathon judging alignment
 
-## 1. Hackathon Overview
-- **Event:** WeMakeDevs × DevTools Academy × Switch AI Flip the Switch Hackathon (Nov 4–7, 2026)
-- **Track:** Track 01 — Best Business Workflow
-- **Submission Deadline:** November 7, 2026 at 11:59 PM IST
+The current [official DevTools Academy criteria](https://www.devtoolsacademy.com/hackathons/flip-the-switch#judging) list four weighted pillars:
 
-## 2. Judging Pillars Scoring Breakdown
+| Criterion | Weight | Repository evidence |
+| --- | --- | --- |
+| Use of Switch | 30% | Five real custom agents, native HTTP/SSE handoffs, actual room membership, Discord bridge and external event receipts |
+| Technical execution | 25% | Reproducible fresh-clone setup, local and CI tests, explicit state machines, scoped human authorization, persistence and exact GitHub plan approval |
+| Creativity and impact | 25% | Engineering court and personal Idea Studio using one team, scope events, modeled risk and a permission-controlled meeting colleague |
+| Presentation and documentation | 20% | Actual screenshots, architecture, two workflow scripts, setup instructions and a capability matrix that separates live from locally tested behavior |
 
-### 1. Use of Switch (25%)
-- **Load-bearing centrality:** Switch is not just a chat relay; it stores case states, maintains agent sessions, enforces exclusive human-approver roles, registers structured decisions, and tracks conditional follow-up tasks.
-- If Switch is removed, distributed multi-machine agent coordination and auditable release governance collapse.
+The primary target is Track 01 (Business Workflow), with the Idea Studio demonstrating Track 02 (Personal or Creative Workflow). This repository is a project submission; it does not claim an assigned upstream core contribution.
 
-### 2. Technical Execution (25%)
-- Fully reproducible clean-room setup via `switch/ship-court.template.yaml`.
-- Parameterized configuration (no hardcoded machine paths).
-- Complete test suite verifying state transitions, severity classification, defense matching, and rollback validation.
-- Pluggable external scrapers (Firecrawl API, GitHub API, local JSON incident store).
+Switch carries native agent coordination. Ship Court's backend separately owns application records and enforces human decisions. Removing Switch stops native collaboration; it does not erase the local database or prevent offline tests.
 
-### 3. Creativity & Impact (25%)
-- Moves beyond passive single-agent review ("Does this PR look good?") to structured adversarial cross-examination.
-- Solves a multi-billion dollar enterprise problem: catastrophic production outages caused by unvetted deployments and missing rollback plans.
+The official submission guidance asks for a public project repository, a short real workflow video and a README explaining connected agents, channel setup and reproduction. A blog is optional. A README update does not submit an entry or prove the demo video was recorded.
 
-### 4. Presentation (25%)
-- Intuitive courtroom metaphor: Clerk, Prosecutor, Historian, Defender, Rollback Engineer, and Human Release Judge.
-- Clear 4-round bounded state machine resulting in an auditable Release Brief artifact.
-
-## 3. Compliance Guardrails
-- **No auto-approval:** `auto_approve: false` hard-enforced.
-- **No destructive autonomy:** Rollbacks require human authorization.
-- **Scoped credentials:** Zero production secrets committed.
-- **Anti-hallucination:** Agents must cite real evidence or concede.
-
+Current implementation evidence and remaining live gates are maintained in [HQ_IMPLEMENTATION.md](HQ_IMPLEMENTATION.md). Reproduce the professional and personal flows using [HQ_SETUP.md](HQ_SETUP.md).

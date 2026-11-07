@@ -1,226 +1,168 @@
-<p align="center"><img src="assets/banner.svg" alt="SHIP COURT — No deploy survives cross-examination" width="100%"></p>
+<p align="center"><img src="assets/banner.svg" alt="SHIP COURT HQ — Human decisions. Shared evidence." width="100%"></p>
 
-<p align="center"><img src="assets/badges.svg" alt="Track 01 Business · Track 02 Creative · pytest 42 passed · Switch lint 0 errors · MIT · v0.9.0" width="100%"></p>
+<p align="center"><img src="assets/badges.svg" alt="Business and creative workflows · 128 local Python tests · official Switch protocol · Groq · MIT" width="100%"></p>
 
-<p align="center"><b><i>“We built a courtroom where AI agents must argue against a deployment before a human judge lets it ship.”</i></b></p>
+<p align="center"><b><i>“Your AI team investigates together. You make the decision.”</i></b></p>
 
-<p align="center"><a href="#the-problem">The Problem</a> · <a href="#the-60-second-overview">Overview</a> · <a href="#the-cast">Cast</a> · <a href="#the-trial">Live Trial</a> · <a href="#why-switch-is-load-bearing">Why Switch</a> · <a href="#architecture">Architecture</a> · <a href="#verification-dashboard">Verification</a> · <a href="#the-5-superpowers">Superpowers</a> · <a href="#the-chatgpt-on-call-agent">On-Call Agent</a> · <a href="#end-to-end-lifecycle">Lifecycle</a> · <a href="#run-it-yourself">Run It</a> · <a href="#the-team">Team</a></p>
+<p align="center">Engineering headquarters. Personal Idea Studio. A meeting colleague who raises a hand.</p>
+
+<p align="center"><a href="#the-problem">Problem</a> · <a href="#the-60-second-overview">See It</a> · <a href="#the-cast">Agents</a> · <a href="#why-switch-is-load-bearing">Why Switch</a> · <a href="#architecture">Architecture</a> · <a href="#verification-dashboard">Proof</a> · <a href="#the-5-superpowers">Superpowers</a> · <a href="#the-on-call-agent">Boardroom</a> · <a href="#end-to-end-lifecycle">Workflows</a> · <a href="#run-it-yourself">Setup</a> · <a href="#built-for-the-judges">Judges</a></p>
 
 <p align="center">Built for <a href="https://www.wemakedevs.org/hackathons/switch"><b>Flip the Switch</b></a> by <b>WeMakeDevs</b> × <b>DevTools Academy</b> · powered by <a href="https://docs.switchagents.ai/"><b>Switch</b></a></p>
 
-<p align="center"><img src="assets/stats.svg" alt="42 tests passed · 20,000 requests stress-tested · 0 lint errors · 9 Switch agents · 3 human verdicts" width="100%"></p>
+<p align="center"><img src="assets/stats.svg" alt="128 local Python tests · 10 Node tests · 5 custom agents · 7 Discord categories · 17 channels" width="100%"></p>
+
+> [!IMPORTANT]
+> **Free-first agent runtime. Human-controlled actions.** Five custom Python agents use your configured Groq API key and the official Switch HTTP/SSE protocol. No Claude Code or Codex subscription is required. Provider quotas still apply. Agents cannot approve themselves, execute a release, or silently turn a recommendation into a GitHub write.
 
 <p align="center"><img src="assets/chapter-01.svg" alt="Chapter 01 — The Problem" width="100%"></p>
 
 ## The Problem
 
-Traditional AI code review is passive and shallow (“Looks good to me!”). Catastrophic production outages happen because nobody rigorously argued **against** shipping, and nobody verified the rollback.
+Your coding agent knows its task. Your teammate's agent knows another. The meeting ends, the decisions disappear, and the pull request arrives with no shared account of what was agreed or what remains unproven.
 
-Modern teams suffer from a double fragmentation:
+**Ship Court HQ brings that work into one human–AI collaboration workspace.** People start missions in Discord or the web dashboard. A Clerk delegates through Switch to independent specialists. Evidence, objections, decisions and follow-up tasks remain attached to the project.
 
-1. **The working-phase blind spot.** Teammates using autonomous coding agents (Antigravity, Claude Code, Codex, Cursor) edit overlapping service contracts, schemas and shared libraries with no cross-machine awareness.
-2. **The meeting-to-deployment disconnect.** Architecture decisions made in team huddles vanish into voice history, while risky pull requests get merged on rubber-stamp approvals instead of adversarial verification.
+The same infrastructure supports two workflows:
 
-<p align="center"><img src="assets/problem.svg" alt="Before: deploy and pray. After: deploy on trial." width="100%"></p>
-
-> [!IMPORTANT]
-> **No deploy or rollback ever executes autonomously.** Only a verified human holding Switch’s exclusive `approver` role can issue a binding verdict. Agents that try to self-approve are rejected.
+| Workflow | Start with | Finish with |
+|:--|:--|:--|
+| **Engineering Headquarters** · `engineering_review` | A risky change, technical question or real GitHub PR | An advisory review, a human verdict, owned tasks and separately approved GitHub artifacts |
+| **Personal Idea Studio** · `idea_studio` | A product idea, research question or personal project | Competing proposals, evidence-backed critique, a human-selected direction and a project you can resume |
 
 <p align="center"><img src="assets/chapter-02.svg" alt="Chapter 02 — The Idea" width="100%"></p>
 
 ## The 60-Second Overview
 
-**Ship Court** turns AI agents from polite assistants into accountable courtroom participants. Every release goes on trial inside a shared Switch room, `#ship-court`.
+1. **A human creates a mission.** Use Discord **New Mission**, post an idea in `#idea-lab`, or use HQ.
+2. **Switch carries the collaboration.** Clerk → Historian → Prosecutor → Defender → Clerk. Each handoff is a real room message with a returned event ID.
+3. **The specialists share evidence.** They review supplied PR evidence, prior project decisions and earlier contributions. Missing proof stays missing; proposals are not completed tests.
+4. **The human decides.** The native review stops at `AWAITING_HUMAN`. Record a direction, assign tasks or give a scoped case verdict.
+5. **Results stay connected.** Discord threads and the dashboard show the same backend records. GitHub writes need a separately reviewed exact plan.
 
-<p align="center"><img src="assets/pipeline.svg" alt="Six stages: intake, cross-examination, defense, rollback proof, human verdict, release brief" width="100%"></p>
+### Discord is the front door
 
-| # | Stage | What happens |
-|:-:|:--|:--|
-| 1 | **Case Intake** | A developer proposes a release. The system convenes a courtroom in the shared Switch room `#ship-court`. |
-| 2 | **Adversarial Cross-Examination** | The **Prosecutor** must formulate at most **3 evidence-backed objections**, using past failure precedent from the **Incident Historian**. |
-| 3 | **Factual Defense** | The **Defender** must address every objection in order, or explicitly concede (`CONCEDED`). |
-| 4 | **Guaranteed Reversibility** | The **Rollback Engineer** validates the target version, runbook command, health checks and owner. |
-| 5 | **Exclusive Human Gate** | A human **Release Judge** holding the exclusive `approver` role issues a binding verdict: **APPROVE**, **BLOCK** or **SHIP WITH CONDITIONS**. |
-| 6 | **Verifiable Artifact** | Switch registers the decision, assigns follow-up tasks to owners and publishes a signed **Release Brief**. |
+<p align="center"><img src="assets/screenshots/discord-mission-control.png" alt="Real Discord Mission Control with two missions, five connected Switch agents, two awaiting human decisions, and working mission controls" width="100%"></p>
+<p align="center"><sub>Actual workspace screenshot supplied by the team. Seven categories organize the work; Mission Control updates one panel rather than spamming the channel. Zero confirmed GitHub results means no write is being claimed.</sub></p>
+
+### HQ is the shared control room
+
+<p align="center"><img src="assets/screenshots/dashboard-command-center.png" alt="Authenticated Ship Court HQ dashboard showing two persisted missions and five actual connected Switch transports" width="100%"></p>
+<p align="center"><sub>Captured from the running application on November 8, 2026. The counts come from the backend. The password field clears after sign-in; no API key is embedded in this image.</sub></p>
+
+**Eight connected views:** Command Center · Team Workspace · Boardroom OS · Ship Court · Parallel Earth · GitHub Control · Idea Studio · Audit Trail.
 
 <p align="center"><img src="assets/chapter-03.svg" alt="Chapter 03 — The Cast" width="100%"></p>
 
 ## The Cast
 
-<p align="center"><img src="assets/cast.svg" alt="Court Clerk, Incident Historian, Prosecutor, Defender, Rollback Engineer, Human Release Judge" width="100%"></p>
+Five actual custom agents can share one Groq credential/model while keeping distinct instructions, registered identities and conversation context.
 
-| Agent | Role alias | Where it runs | Responsibility |
-|:--|:--|:--|:--|
-| **Court Clerk** | `clerk` | Always-on server host | Orchestrates the case, tracks state, calls for the verdict |
-| **Incident Historian** | `historian` | Always-on server host | Searches incident memory and surfaces precedent (`INC-017`) |
-| **Prosecutor** | `prosecutor` | Always-on server host | Files ≤ 3 objections classified `BLOCKING`, `WARNING` or `NOTE` |
-| **Defender** | `defender` | Developer machine | Uses the local repo and tests to answer each objection or concede |
-| **Rollback Engineer** | `rollback` | Developer / ops machine | Verifies version, command, health checks and owner |
-| **ChatGPT On-Call Agent (Third Voice)** | `third-voice` | Live team huddle (`#meeting-floor`, Boardroom Live) | Listens on the call, raises a hand instead of interrupting, and speaks a briefing only when a human grants the floor |
-| **Human Release Judge** | `approver` (exclusive) | A person | The only party that can approve, block or add conditions |
+| Agent | Runtime role | What it contributes |
+|:--|:--|:--|
+| **Court Clerk** | `clerk` | Accepts work, delegates, synthesizes findings and asks for the human decision |
+| **Incident Historian** | `historian` | Retrieves relevant supplied history and approved project decisions; distinguishes observed records from illustrative fixtures |
+| **Prosecutor** | `prosecutor` | Challenges risks and unsupported assumptions; identifies missing evidence |
+| **Defender** | `defender` | Tests the objections against supplied evidence; proposes mitigations and concedes real gaps |
+| **Third Voice** | `third_voice` | A **meeting-only** colleague: evaluates consented discussion, requests the floor and speaks after a human grant |
+
+**The human is the approver.** Discord author IDs and backend roles/scopes determine authority; a webhook name, agent persona or claim in chat cannot grant it.
+
+Antigravity Guard, Parallel Earth, GitHub Operations and rollback-plan checks are backend services. They are not extra paid agents, and their presence in a roster does not make them live external integrations. Third Voice stays out of routine text review chains.
 
 <p align="center"><img src="assets/chapter-04.svg" alt="Chapter 04 — The Trial" width="100%"></p>
 
 ## The Trial
 
-A full case from intake to signed verdict. The replay below loops.
-
-<p align="center"><img src="assets/terminal.svg" alt="Animated replay of a Ship Court trial for case SC-0482" width="100%"></p>
+A technical question can open a case without pretending a repository was inspected. A PR review requires real PR metadata/diff evidence and affected services from the configured graph.
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Dev as Developer
-    participant CL as Clerk
+    actor Human
+    participant HQ as Discord / HQ
+    participant CL as Court Clerk
+    participant SW as Official Switch room
     participant HI as Historian
     participant PR as Prosecutor
     participant DE as Defender
-    participant RB as Rollback
-    actor J as Human Judge (Priya)
-
-    Dev->>CL: open case acme/shop PR #482
-    CL->>HI: search incident memory
-    HI-->>PR: INC-017 pricing mismatch precedent
-    PR->>DE: OBJ-1 BLOCKING, OBJ-2 WARNING, OBJ-3 NOTE
-    DE->>RB: mitigated, conceded, 5% canary proposed
-    RB->>CL: rollback plan verified, auto-execution disabled
-    CL->>J: ready for verdict
-    J->>CL: verdict CONDITIONS
-    CL-->>Dev: Switch tasks created and signed Release Brief
+    Human->>HQ: Create engineering_review mission
+    HQ->>CL: Durable investigation request
+    CL->>SW: Address Historian with job ID
+    SW->>HI: Actual addressed SSE event
+    HI->>SW: Evidence and handoff to Prosecutor
+    SW->>PR: Addressed event
+    PR->>SW: Risks and handoff to Defender
+    SW->>DE: Addressed event
+    DE->>SW: Mitigations and handoff to Clerk
+    SW->>CL: Specialist results
+    CL-->>Human: Advisory; AWAITING_HUMAN
+    Human->>HQ: Scoped decision / case verdict
+    HQ-->>Human: Persisted decision and owned follow-ups
+    Note over Human,HQ: GitHub execution requires a separate exact-plan approval
 ```
 
-<details>
-<summary><b>Read the full transcript</b></summary>
-
-```text
-Developer:              @court-clerk open case https://github.com/acme/shop/pull/482
-
-Court Clerk:            Case SC-0482 opened. Change: dynamic checkout pricing.
-                        Affected: checkout-service, cart-service, pricing-worker. CI: 42 passed.
-                        @historian: Please search incident memory for relevant precedent.
-
-Incident Historian:     Relevant precedent found: INC-017.
-                        A pricing-related change on 2026-08-19 caused cart total mismatch
-                        (41 failed checkouts).
-                        Lesson: Require server-side pricing assertion and mismatch alert.
-                        @prosecutor: Formulate objections based on precedent.
-
-Prosecutor:             Prosecution Objections:
-                        • OBJ-1 [BLOCKING]: Dynamic pricing may create cart-total mismatch. Evidence: INC-017.
-                        • OBJ-2 [WARNING]:  No monitoring exists for pricing inconsistency. Evidence: Missing alert.
-                        • OBJ-3 [NOTE]:     Rollout percentage is not specified.
-                        @defender: Please address each objection in order or concede.
-
-Defender:               Defense Responses:
-                        • For OBJ-1: Pricing is calculated only server-side; validated by
-                                     pricing_consistency_test.py.
-                        • For OBJ-2: CONCEDED. No mismatch alert currently exists.
-                        • For OBJ-3: Proposed 5% canary rollout with progressive stepping.
-                        @rollback: Please produce validated rollback plan.
-
-Rollback Engineer:      Rollback plan verified: target version: v2.13.2.
-                        Command: ./scripts/rollback.sh checkout-service v2.13.2
-                        Health checks: checkout error rate < 1%, cart latency < 400ms,
-                                       pricing consistency job passes.
-                        Rollback owner: Priya (Status: READY). Auto-execution is disabled.
-                        @clerk: Ready for Release Judge.
-
-Court Clerk:            Case ready for verdict. Unresolved blocking condition: pricing mismatch alert.
-                        Awaiting binding verdict from Human Release Judge (@Priya).
-
-Priya (Human Judge):    @court-clerk verdict CONDITIONS canary 5%; add checkout mismatch alert;
-                        Priya owns rollback
-
-Court Clerk:            Verdict recorded: CONDITIONS.
-                        Switch Tasks Created:
-                          1. Configure canary 5% rollout            — owner: Priya
-                          2. add checkout mismatch alert            — owner: DevOps
-                          3. Confirm rollback owner and rehearse    — owner: Priya
-                        Signed Release Brief published to #ship-court.
-```
-
-</details>
+Every native investigation has one `NATIVE-…` job ID, linked to its `MISSION-…` and optional case. Important handoffs are projected to `#agent-handoffs` **after Switch returns a receipt**. Discord narration does not replace the native handoff.
 
 <p align="center"><img src="assets/chapter-05.svg" alt="Chapter 05 — The Proof" width="100%"></p>
 
 ## Why Switch Is Load-Bearing
 
-If Switch is removed, the architecture fails the Track 01 requirements. The graphic flips Switch off every few seconds so you can watch what breaks.
+Switch is the coordination transport for native agents, not a badge attached to a local Python conversation.
 
-<p align="center"><img src="assets/switch-test.svg" alt="Remove-Switch test: durable room state, multi-agent routing, exclusive approver role and task storage all break when Switch is removed" width="100%"></p>
-
-| Switch capability | What it gives Ship Court | Without it |
+| Responsibility | Actual implementation | Remove Switch and… |
 |:--|:--|:--|
-| **Durable room state** | `#ship-court` hosts the case timeline, agent identities and evidence logs | No shared memory, so no trial |
-| **Multi-agent session routing** | Coordinates 5 agents across server, developer laptop and ops host | Agents cannot hand off across machines |
-| **Exclusive `approver` role** | Only a verified human can issue verdicts; self-approval is rejected | Anyone, including an agent, could approve a deploy |
-| **Task & decision storage** | Conditional verdicts become assigned, trackable Switch tasks | Conditions become forgotten chat messages |
+| Agent identities and room membership | Five registered custom agents in a real Switch room | Those room participants cannot collaborate |
+| Addressed messages | Official HTTP posts and SSE event delivery | Clerk-to-specialist handoffs stop; there is no local-room fallback |
+| Shared collaboration timeline | Native messages, addressed peers, event IDs and saved cursors | The shared native discussion and receipt trail stop |
+| Discord room presentation | Official Switch bridge linked to `#ship-court` | Native agent messages no longer reach that linked room |
+
+**The boundaries are deliberate:** Switch handles native room coordination. Ship Court's SQLite store holds application missions, cases, meeting state and audit events. Backend authorization enforces human decisions, CSRF/session checks and GitHub plan approval. Local tools and offline tests can run without Switch; **the native multi-agent workflow cannot**.
+
+The adapter implements [Switch's agent protocol](https://docs.switchagents.ai/), checked against core revision `7bf37f8f82b45865b0f0bb207857fd9c25796172`. The shipped YAML template is also validated in CI. The active free-first path is the custom Groq adapter; the template is not evidence that optional paid harnesses are running.
 
 <p align="center"><img src="assets/chapter-06.svg" alt="Chapter 06 — The Blueprint" width="100%"></p>
 
 ## Architecture
 
-<p align="center"><img src="assets/architecture.svg" alt="Architecture: team chat, Switch core, server host, developer/ops machine, evidence chain" width="100%"></p>
-
-### The unified lifecycle
-
-The unified design connects the courtroom to coding agents, a simulation stage and the ChatGPT on-call agent that holds the voice floor.
-
 ```mermaid
 flowchart TB
-  subgraph VOICE["ChatGPT On-Call Agent · Boardroom OS Floor Controller"]
-    TV["ChatGPT · Third Voice<br/>Right-to-Speak Protocol"]
-  end
-
-  subgraph WORK["Working Phase: Three Teammates in Antigravity"]
-    T1["Teammate 1<br/>Frontend Scope"]
-    T2["Teammate 2<br/>Checkout / Pricing Scope"]
-    T3["Teammate 3<br/>Infra / Auth Scope"]
-    AG["Antigravity Scope Guard<br/>PreToolUse Hook + Collision Detector"]
-    T1 & T2 & T3 --> AG
-  end
-
-  subgraph COURT["COURTROOM · 3-AI Adversarial Trial (Switch Room)"]
-    CLK["Court Clerk + Incident Historian"]
-    PRO["Prosecutor<br/>Risk & Incident Matching"]
-    DEF["Defender<br/>Mitigations & Safeguards"]
-    JDG["Human Judge Gate<br/>auto_approve: false"]
-    CLK --> PRO --> DEF --> JDG
-  end
-
-  subgraph DEC["Decisions & Autonomous GitHub Ops"]
-    DLED["Immutable Decision & Audit Ledger"]
-    GHOPS["GitHub Ops Agent<br/>PRs · Reviews · Labels · Rollback Branches"]
-    JDG --> DLED --> GHOPS
-  end
-
-  subgraph EARTH["PARALLEL EARTH · Blast-Radius Simulation"]
-    PE["Parallel Earth Engine<br/>Dependency Graph + Canary Stress"]
-    ESIM["Earth Simulation<br/>Downstream Closure · SLA · Revenue Exposure"]
-    OBS["Results & Observations<br/>Rollback Sentinel Verification"]
-    GHOPS --> PE --> ESIM --> OBS
-  end
-
-  AG -->|"Scope collision / Auto-Subpoena"| COURT
-  TV <-->|"Huddle whisper & contradiction alerts"| WORK
-  TV <-->|"Floor request & evidence injection"| COURT
-  TV <-->|"Simulation telemetry summary"| EARTH
-  OBS -->|"Verified telemetry & conditions"| COURT
+    Human[Human teammates] --> Discord[Discord Mission Control / Idea Lab]
+    Human --> Dashboard[Authenticated HQ dashboard]
+    Discord --> Service[Shared workflow and authorization]
+    Dashboard --> Service
+    Service <--> DB[(SQLite missions, cases, meetings, tasks, audit)]
+    Service --> Outbox[Durable notification dispatcher]
+    Outbox --> Switch[Official Switch HTTP / SSE room]
+    Switch <--> Agents[Clerk / Historian / Prosecutor / Defender]
+    Agents <--> Groq[Bounded Groq model runtime]
+    Switch <--> Bridge[Official Discord bridge: ship-court]
+    Outbox --> Projections[Discord threads, handoffs and results]
+    IDE[Actual Antigravity PreToolUse event] --> Guard[Scoped hook and ownership policy]
+    Guard --> Service
+    Service --> Earth[Parallel Earth risk model]
+    Service --> Plan[GitHub operation plan]
+    Plan --> Approval[Human approves exact plan hash]
+    Approval --> GitHub[GitHub REST: comment, labels, issues]
+    Voice[Consented Discord audio] --> Meeting[Transcription / Third Voice / floor controller]
+    Meeting <--> Service
+    Meeting --> Grant[Human floor grant]
+    Grant --> Speech[Actual Discord audio playback]
 ```
 
 <details>
-<summary><b>How the repo’s core pieces are wired into the lifecycle</b></summary>
+<summary><b>Where to look in the repository</b></summary>
 
-<br>
-
-| Subsystem / path | Core capability | Wired into the lifecycle by |
-|:--|:--|:--|
-| **Adversarial courtroom core** (`server/case_manager.py`, `server/live_courtroom_debate.py`) | 4-round pipeline: `EvidenceCollector` → `ProsecutorRuleEngine` → `DefenderRuleEngine` → `RollbackEngine` → `VerdictParser`. Live multi-provider LLM execution (Groq, OpenAI, Anthropic), real token budgets, human verdict enforcement (`enforce_human_verdict_gate`). | Auto-Subpoena opens cases automatically on a scope collision or PR event, alongside the CLI/HTTP triggers. |
-| **Switch room & native runner** (`server/switch_room.py`, `server/switch_native_runner.py`, `switch/ship-court.template.yaml`) | `AgentSession`, `RoomMessage`, role aliases (`clerk`, `historian`, `prosecutor`, `defender`, `rollback`) and the exclusive `approver` role. Declarative YAML with `{team}`, `{repository}`, `{provider}`, `{bridge}` parameters. | Registrations for `antigravity-guard`, `third-voice`, `parallel-earth` and `github-ops`. |
-| **Chat webhook bridge** (`server/bridge_connector.py`) | Parses incoming webhooks and posts outgoing messages via `urllib.request`, with zero extra HTTP dependencies. | Native Discord payloads (`content`, `username`, `embeds`) with per-agent personas, next to the Mattermost/Slack schema. |
-| **Antigravity scope guard** (`linking_antigravity/scope_guard/`) | `PreToolUse` hook engine: `policy_engine.py`, `violation_detector.py`, `approval_handler.py`, `coordinator_adapter.py`, `multi_agent_demo.py`. Detects out-of-scope edits, collisions and path traversal. | `CoordinatorClient` events bridge into `SwitchRoom` and `CaseManager` on port 8080. |
-| **Dependency graph & rollback sentinel** (`server/dependency_graph.py`, `server/rollback_sentinel.py`) | Models 7 production services with Tier 1–3 SLAs, revenue/min exposure and downstream closure. | The Parallel Earth stage, which feeds its observations into the courtroom before sign-off. |
-| **GitHub integration** (`server/evidence.py`) | Read-only PR metadata and diff scraping via the GitHub REST API. | The GitHub Ops agent, which writes back: branches, PR comments, verdict labels, rollback PRs. |
+| Area | Entry points |
+|:--|:--|
+| Shared mission workflow | [`server/workspace.py`](server/workspace.py), [`server/unified_pipeline.py`](server/unified_pipeline.py) |
+| Real custom agent transport | [`server/switch_protocol.py`](server/switch_protocol.py), [`server/switch_groq_worker.py`](server/switch_groq_worker.py), [`server/groq_agents.py`](server/groq_agents.py) |
+| Discord organization and interaction | [`server/discord_setup.py`](server/discord_setup.py), [`server/discord_gateway.py`](server/discord_gateway.py), [`server/notifications.py`](server/notifications.py) |
+| Dashboard and sessions | [`server/dashboard.html`](server/dashboard.html), [`server/hq_panel.html`](server/hq_panel.html), [`assets/hq.js`](assets/hq.js), [`server/dashboard_auth.py`](server/dashboard_auth.py) |
+| Boardroom voice | [`voice/gateway.mjs`](voice/gateway.mjs), [`server/voice_bridge.py`](server/voice_bridge.py), [`server/floor_controller.py`](server/floor_controller.py), [`server/meetings.py`](server/meetings.py) |
+| Antigravity and ownership | [`server/antigravity_hook.py`](server/antigravity_hook.py), [`server/scope_coordinator.py`](server/scope_coordinator.py), [`linking_antigravity/scope_guard/`](linking_antigravity/scope_guard/) |
+| Models and deliverables | [`server/parallel_earth.py`](server/parallel_earth.py), [`server/github_client.py`](server/github_client.py) |
+| Authorization and persistence | [`server/authorization.py`](server/authorization.py), [`server/store.py`](server/store.py) |
 
 </details>
 
@@ -228,375 +170,325 @@ flowchart TB
 
 ## Verification Dashboard
 
-We separate the **live core runtime** from **optional deployment modes**.
+**Live verification recorded November 8, 2026.** A local fixture passing is not a claim that an external integration was exercised.
 
-| Capability | Status | Evidence / details |
-|:--|:-:|:--|
-| Groq provider credential | ✅ Live | HTTP 200 via `api.groq.com`, latency ~46 ms |
-| Real 3-bot LLM courtroom | ✅ Live | Prosecutor, Defender and Judge produce unscripted LLM tokens |
-| Local web console UI | ✅ Live | `http://127.0.0.1:8080/` with interactive debate and power meter |
-| Switch template lint | ✅ Live | 0 errors, 0 warnings via `switch_core.template_lint` |
-| Switch template planning | ✅ Live | 5 agents, aliases and approver role via `plan_template` |
-| Human approver gate | ✅ Live | Non-human and unauthorized callers blocked |
-| Documentation suite | ✅ Live | `runtime-discovery.md`, `integration-evidence.md`, `compliance-matrix.md` |
-| Pytest suite | ✅ 42 passed | 42 passed, 1 skipped (ControlServer closed gate) |
-| Unified lifecycle | ✅ Live | `python -m server.main --full-lifecycle-demo` runs all 5 phases end to end |
-| ChatGPT on-call agent | ✅ Live | `/api/floor/raise` and `/api/floor/grant` drive the Right-to-Speak protocol |
-| Discord multi-persona bridge | ✅ Live | 9 agent personas with colour-coded embeds; Mattermost and Slack tests unchanged |
-| GitHub Ops agent | ✅ Live | Live REST with `GITHUB_TOKEN`, deterministic local ledger without it |
-| Docker Desktop engine | ⬜ Optional | Needed only for the containerized Mattermost mode (UAC approval on Windows) |
-| Switch Console (Electron) | ⬜ Installed | `%LOCALAPPDATA%\Programs\Switch Console Canary` |
-| Mattermost container bridge | ⬜ Optional | `startNativeMattermost()` checks for the Docker engine |
-| Containerized Switch-routed chat | ⬜ Optional | A containerized Mattermost `#ship-court` room; Discord webhooks work without Docker |
+| Capability | Verified state | Evidence / limit |
+|:--|:--|:--|
+| Official Switch + Groq | **Live** | Five connected SSE clients; two native four-role investigations completed |
+| Engineering + Idea Studio | **Live agent collaboration** | Both operator-initiated checks reached `AWAITING_HUMAN`; no human approval was invented |
+| Discord HQ | **Live** | Seven categories, 17 channels, working panel, two mission threads and 16 related receipt-backed deliveries |
+| Restart/persistence | **Live + locally tested** | Both native results survived restart; all five clients reconnected |
+| Dashboard | **Live UI + tested API** | Actual counts, authenticated screenshot, five-minute HttpOnly sessions and protected mutations |
+| Local Python suite | **128 passed** | Workflow, scope, identity, persistence, transport, exact-plan and HTTP tests; live-provider modules are run separately |
+| Voice/audio suite | **10 passed** | PCM/Opus, speech filtering, interruption and floor input checks |
+| Antigravity event pipeline | **Contract tested** | Authenticated hook → evidence/case → real-worker dispatcher; an actual IDE-originated tool event remains to be captured |
+| Full voice meeting | **Live verification pending** | Gateway running; an earlier audio check was heard. Full microphone → transcript → hand → grant → speech → interruption → recap still needs a human call |
+| GitHub writes | **Controlled transport tested** | Exact plan, human verdict, head-SHA check and confirmed URLs; no manual live write test was performed |
+| Parallel Earth | **Modeled** | Reproducible dependency/exposure/request model; no real traffic, outage or rollback is implied |
 
-> [!WARNING]
-> **Live vs. simulation clarity.** The 3-bot courtroom runs with real live LLM inference and local web/API endpoints. Chat routing runs over Discord, Slack or Mattermost webhooks; the containerized Mattermost mode is optional and needs Docker Desktop on Windows.
+The live checks used **authenticated local operator HTTP intake**, not fabricated Discord human messages. The new Discord modal/Idea Lab intake and actual human decision remain explicit demonstration steps.
+
+**Inspect the proof:** [redacted live receipts](docs/evidence/hq-live-2026-11-08.json) · [implementation and limitations](docs/HQ_IMPLEMENTATION.md) · [CI workflow](.github/workflows/ci.yml).
 
 <p align="center"><img src="assets/chapter-08.svg" alt="Chapter 08 — The Extension" width="100%"></p>
 
 ## The 5 Superpowers
 
-On top of the verified Ship Court core, five modules wire the repo into one continuous **Ship Court × Boardroom OS × Antigravity × Parallel Earth** lifecycle.
+<details open>
+<summary><b>1 · Antigravity Auto-Subpoena</b> — a scope conflict becomes shared work</summary>
 
-<p align="center"><img src="assets/superpowers.svg" alt="Auto-Subpoena, Parallel Earth, Third Voice, Persona Bridge, GitHub Ops Agent" width="100%"></p>
+A frontend, pricing or checkout agent has a human-provisioned assignment and path ownership policy. An authenticated real tool violation is stored, attached to its server-assigned mission/case, queued to Switch, and projected to `#dev-watch` and `#case-docket`. The same Groq team investigates it. Human scope exceptions are explicit and limited to exact files.
 
-> [!NOTE]
-> The courtroom, Switch room, scope guard and dependency graph form the core. The five modules below connect them into one lifecycle. Each file path shows where the module lives.
-
-<details>
-<summary><b>1 · Antigravity Auto-Subpoena</b> — <code>server/antigravity_subpoena.py</code></summary>
-
-<br>
-
-Three teammates (`Teammate-1-Frontend`, `Teammate-2-Pricing`, `Teammate-3-Infra`) work in Antigravity with workspace boundaries enforced by `linking_antigravity/scope_guard`.
-
-When one agent crosses a boundary (for example `Teammate-2-Pricing` editing `services/checkout-service/payment_contract.py`, owned by `Teammate-3-Infra`), `AntigravitySubpoenaBridge` intercepts the `ViolationEvent` / `ApprovalRequest`. Instead of failing silently in a local terminal, it posts a **Subpoena Notice** into the Switch-connected chat and calls `CaseManager.open_case()` to summon the courtroom.
-
-**Why it matters:** it links coding agents on three separate machines into one shared governance loop, which is exactly what Switch is for.
+**Use it:** provision a scoped hook identity, set `hq:assignment`, enable the real `PreToolUse` command, then observe an actual editor event. The hook consumes stdin; it does not manufacture the live event. Arbitrary nested scripts and outside processes are not fully contained by static path checks. [Installation and three-teammate setup](docs/HQ_SETUP.md#antigravity--actual-editor-event-required).
 
 </details>
 
 <details>
-<summary><b>2 · Parallel Earth blast-radius engine</b> — <code>server/parallel_earth.py</code></summary>
+<summary><b>2 · Parallel Earth</b> — model the cost before choosing a rollout</summary>
 
-<br>
+Select a real case with known affected services. Set downtime, request count and failure probability, then run the Python model from HQ. It calculates downstream dependencies, estimated exposure and a synthetic pass rate with explicit assumptions. The result is stored with the case and projected to `#parallel-earth`.
 
-Before the human judge rules, `ParallelEarthSimulator` spins up a virtual staging twin using `DependencyGraph` and `RollbackSentinel`. It:
-
-- simulate synthetic traffic waves
-- compute downstream service-cascade probability
-- calculate financial exposure in **$/min** across Tier-1 services
-- verify the rollback command restores health inside the SLA window
-- post a structured `EarthSimulationReport` to the courtroom and chat
+**Use it:** HQ → **Case, research and delivery controls** → **Run case model**, or `!court hq:simulate {"mission_id":"MISSION-ID","downtime_minutes":15,"requests":1000,"failure_probability":0.01}`. It does not spin up a production twin, verify a real rollback or measure an actual SLA.
 
 </details>
 
 <details>
-<summary><b>3 · ChatGPT On-Call Agent (Third Voice) and the Right-to-Speak protocol</b> — <code>server/floor_controller.py</code></summary>
+<summary><b>3 · Third Voice + Boardroom OS</b> — an AI colleague with a right-to-speak protocol</summary>
 
-<br>
+Participants opt in individually to transcription. Third Voice evaluates the supplied discussion and approved decisions, cites actual meeting references and raises an expiring hand when it has something relevant. Human permission controls speech. One AI owns the floor per meeting; human voice activity interrupts playback.
 
-A deterministic `FloorRequestProtocol` state machine stops the AI from talking over humans:
-
-```mermaid
-stateDiagram-v2
-    [*] --> Listening
-    Listening --> Evaluating
-    Evaluating --> HandRaised
-    HandRaised --> Waiting
-    Waiting --> Granted: human grants floor
-    Waiting --> Expired: TTL elapsed
-    Granted --> Speaking
-    Speaking --> Yielding
-    Yielding --> Listening
-    Expired --> Listening
-```
-
-The on-call agent watches three streams at once: **teammates / Antigravity** (undeclared scope drift), **the courtroom** (contradictions against previously approved decisions in `audit_ledger.py`, the *Contradiction Radar*) and **Parallel Earth** (unmitigated Tier-1 blast radius).
-
-It raises a hand with an expiring card: **Grant Floor**, **Text Instead** or **Dismiss**. Only one AI agent can hold the floor at a time.
+**Use it:** link a meeting, join the Discord voice channel, run `!voice start MISSION-ID`, then `!voice consent`. Six controls handle **Grant Floor**, **Text Instead**, **Dismiss**, **Interrupt**, **Mute Agent** and **End Meeting**. [Full voice checklist](#the-on-call-agent).
 
 </details>
 
 <details>
-<summary><b>4 · Multi-persona Discord and Mattermost bridge</b> — <code>server/bridge_connector.py</code></summary>
+<summary><b>4 · One workspace across Discord, HQ and Idea Studio</b> — context survives the conversation</summary>
 
-<br>
+Mission Control creates real missions and meetings, shows actual connected agents, and exposes tasks/results through backend-checked controls. Idea Lab captures personal projects and uses the same Switch team. Tasks from linked cases and meetings are projected from their original records, so the dashboard and Discord do not maintain rival copies.
 
-`ChatBridgeConnector` gains auto-detection of Discord webhooks alongside Mattermost and Slack. Every agent role (`clerk`, `prosecutor`, `defender`, `judge`, `rollback`, `antigravity-guard`, `third-voice`, `parallel-earth`, `github-ops`) gets its own `username`, `avatar_url`, colour-coded `embeds` and action metadata, while staying backward compatible with `tests/test_bridge_connector.py`.
-
-</details>
-
-<details>
-<summary><b>5 · Autonomous GitHub Operations agent</b> — <code>server/github_ops_agent.py</code></summary>
-
-<br>
-
-1. **PR review and evidence comments:** posts the courtroom transcript, Parallel Earth blast-radius tree and rollback plan onto the pull request.
-2. **Governance labels:** `ship-court:approved`, `ship-court:conditional`, `ship-court:blocked`, `parallel-earth:verified`, `antigravity:scope-checked`.
-3. **Condition issues:** a `CONDITIONAL` verdict opens a tracked issue per rollout condition.
-4. **Emergency rollback PRs:** on post-merge degradation it opens a `rollback/<case_id>` branch and revert PR, still gated by `auto_approve: false`.
-5. **Offline-safe mode:** uses the live GitHub REST API when `GITHUB_TOKEN` is set, otherwise a deterministic local ledger (`data/github_ops_ledger.json`) so judges can reproduce everything.
+**Use it:** create a mission, record a direction, assign work, finish tasks and resume the project later. SQLite retains decisions and context. The channel setup command is idempotent, reuses existing channels and protects approvals/backstage channels. [Command reference](docs/HQ_SETUP.md).
 
 </details>
 
 <details>
-<summary><b>File-by-file implementation map</b></summary>
+<summary><b>5 · Human-approved GitHub Operations</b> — turn a verdict into traceable artifacts</summary>
 
-<br>
+A reviewed PR case can produce a comment, governance labels and follow-up issues for conditions. Planning has no write side effect. Execution requires an authorized human, the exact current plan hash, and an unchanged open PR head. Confirmed API URLs are posted to `#github-results`; unknown/failing operations are not relabeled successful.
 
-| File | Change | Specification |
-|:--|:--|:--|
-| `server/bridge_connector.py` | Upgraded | Discord payload builder, persona mapping for all 8 agents, Mattermost/Slack/Discord support, `forward_to_chat(text)` stays backward compatible |
-| `server/antigravity_subpoena.py` | Added | Connects scope-guard events to `SwitchRoom` and `CaseManager`; opens a case on cross-teammate collisions |
-| `server/parallel_earth.py` | Added | `ParallelEarthSimulator` with dependency graph, canary load simulation, SLA breach modelling and feedback into the courtroom |
-| `server/floor_controller.py` | Added | `FloorRequestProtocol` state machine plus `ThirdVoiceAgent` contradiction radar |
-| `server/github_ops_agent.py` | Added | `GitHubOpsAgent`: PR reviews, labels, condition issues, rollback PRs, human-gate enforcement, offline ledger |
-| `server/main.py` | Upgraded | New endpoints `/api/subpoena`, `/api/parallel-earth`, `/api/floor/raise`, `/api/floor/grant`, `/api/github/sync`, plus a `--full-lifecycle-demo` flag |
-| `switch/ship-court.template.yaml` | Upgraded | Registers all unified agents (`{team}-court-clerk`, `-incident-historian`, `-prosecutor`, `-defender`, `-rollback-engineer`, `-antigravity-guard`, `-third-voice`, `-parallel-earth`, `-github-ops`) with scoped connections and the exclusive `approver` role |
-| `tests/test_unified_superpowers.py` | Added | `pytest` suite for the five superpowers, backward compatibility, approval gates and the full pipeline |
+**Use it:** record the case verdict → **Review exact GitHub plan** → inspect the operations → explicitly **Execute reviewed plan**. Restrict the token to the intended repository and create the required labels first. There is no automatic deployment, rollback branch, merge or production rollback in this workflow. [Credentials and labels](docs/CREDENTIALS.md#3-github--evidence-and-approved-deliverables).
 
 </details>
 
 <p align="center"><img src="assets/chapter-09.svg" alt="Chapter 09 — The On-Call Agent" width="100%"></p>
 
-## The ChatGPT On-Call Agent
+## The On-Call Agent
 
-Every team has a voice call where decisions get made and then forgotten. **Third Voice** is the ChatGPT agent that sits on that call, in Discord `#meeting-floor` with `Boardroom Live`. It listens, cross-checks what it hears against the decision ledger, and never talks over a human. When it has something that matters, it **raises a hand** and waits to be given the floor.
-
-<p align="center"><img src="assets/oncall.svg" alt="ChatGPT on-call agent Third Voice on a live huddle: three teammates, a high-priority hand-raise card with Grant Floor, Text Instead and Dismiss, three monitored streams, and the floor state machine" width="100%"></p>
-
-| Signal | Used when |
-|:-:|:--|
-| ✋ | Third Voice asks for the floor |
-| 🔎 | It has evidence to inject into the discussion or the trial |
-| 💡 | It has a suggestion worth hearing |
-| ⚠️ | High priority: a contradiction or an unmitigated Tier-1 blast radius |
-
-Each hand arrives as an expiring card with three actions: **Grant Floor**, **Text Instead** or **Dismiss**. Only one AI agent can hold the floor at a time. Granting it triggers a short spoken synthesis through Web Speech TTS on the dashboard, with a formatted speech transcript posted to Discord.
+**Third Voice is a Groq-powered meeting colleague**, similar to having a conversational assistant on the call. It is not a required ChatGPT subscription or another routine text reviewer.
 
 ```mermaid
-sequenceDiagram
-    autonumber
-    participant AG as Antigravity Scope Guard
-    actor H as Human (huddle)
-    participant TV as ChatGPT Third Voice
-    participant CT as Courtroom
-    participant PE as Parallel Earth
-
-    AG->>TV: Teammate 2 edits pricing-engine + checkout-service
-    TV->>TV: cross-check against decision ledger (audit_ledger.py)
-    TV-->>H: HIGH PRIORITY HAND raised, card with TTL
-    H->>TV: Grant Floor
-    TV-->>H: 20-second spoken briefing, conflict with #DEC-014
-    TV->>CT: floor request and evidence injection
-    PE-->>TV: simulation telemetry summary
-    TV->>H: yield floor, back to listening
+stateDiagram-v2
+    [*] --> Listening
+    Listening --> Evaluating: Consented transcript
+    Evaluating --> Waiting: Referenced contribution / hand raised
+    Waiting --> Granted: Authorized human grants
+    Waiting --> Expired: TTL elapsed
+    Waiting --> Dismissed: Human dismisses
+    Granted --> Speaking: Current floor ownership checked
+    Speaking --> Interrupted: Human voice / interrupt / mute
+    Speaking --> Yielding: Contribution ends
+    Yielding --> Listening
+    Interrupted --> Listening
 ```
 
-<details>
-<summary><b>Sample briefing: the Contradiction Radar in action</b></summary>
+| Step | What you do | What should happen |
+|:--|:--|:--|
+| Start | **Start Meeting** in Mission Control; join boardroom; `!voice start MISSION-ID` | Bot joins and discloses transcription; meeting links to the mission |
+| Consent | Each participant sends `!voice consent` | Only their opted-in speech is sent to Groq; `!voice revoke` stops capture |
+| Discuss | Speak a specific question or contradiction | Transcript enters the meeting; a relevant contribution may raise a hand in `#meeting-floor` |
+| Control | Grant, request text or dismiss | The backend checks exact human identity, meeting scope, expiry and floor ownership |
+| Interrupt | Speak while the AI plays, or choose **Interrupt** / **Mute Agent** | Playback stops; floor state updates |
+| End | `!voice stop` or **End Meeting** | One source-linked recap is persisted and sent to `#meeting-recaps` |
 
-```text
-Third Voice:   ⚠️ HIGH PRIORITY HAND raised in #meeting-floor.
-               Reason: the pricing-engine and checkout-service edit conflicts
-               with approved Decision #DEC-014.
-               Card expires shortly:  [Grant Floor]  [Text Instead]  [Dismiss]
-
-Human:         clicks [Grant Floor]
-
-Third Voice:   (speaking, about 20 seconds)
-               Teammate 2's change touches pricing-engine and checkout-service.
-               That contradicts Decision #DEC-014. An Auto-Subpoena has already
-               opened CASE-AG-101, and the courtroom is convened in #ship-court.
-               Yielding the floor.
-
-Third Voice:   Transcript posted to Discord. State: Yielding -> Listening.
-```
-
-</details>
-
-Three streams feed the radar: **teammates / Antigravity** (undeclared scope drift), **the courtroom** (contradictions against previously approved decisions) and **Parallel Earth** (unmitigated Tier-1 blast radius). The state machine and REST endpoints (`/api/floor/raise`, `/api/floor/grant`) live in `server/floor_controller.py` and `server/main.py`; see [Superpower 3](#the-5-superpowers) for the full protocol.
+Recaps preserve discussion references, explicitly approved decisions, assigned tasks and related mission IDs. Casual conversation is never treated as GitHub or release authorization. `!voice test` is an audio check, not proof of intelligent meeting participation.
 
 <p align="center"><img src="assets/chapter-10.svg" alt="Chapter 10 — The Lifecycle" width="100%"></p>
 
 ## End-to-End Lifecycle
 
-<p align="center"><img src="assets/lifecycle.svg" alt="Five phases: Antigravity monitoring, contradiction radar, courtroom trial, Parallel Earth, verdict and GitHub ops" width="100%"></p>
+### Demo A · Engineering Headquarters
 
-| Phase | Trigger and actor | Switch handoff | Artifact |
-|:--|:--|:--|:--|
-| **1 · Antigravity monitoring** | Teammate 2 touches `pricing-engine` and `checkout-service` | `antigravity-guard` catches the cross-scope edit via `PreToolUse` and posts an **Auto-Subpoena** | `ViolationEvent` and Case `CASE-AG-101` |
-| **2 · Contradiction radar** | `third-voice` cross-checks the edit against the decision ledger | Raises a high-priority hand; a human clicks **Grant Floor** | Signed `FloorRequest` and a 20-second briefing on conflict with `#DEC-014` |
-| **3 · Courtroom trial** | `clerk` opens the 4-round trial | historian → prosecutor → defender | Objections and defenses ledger |
-| **4 · Parallel Earth** | Courtroom asks for empirical blast-radius proof | `parallel-earth` runs `calculate_blast_radius()` and a canary probe | `EarthSimulationReport` with `$/min` exposure |
-| **5 · Verdict and GitHub ops** | Human issues `!verdict CONDITIONS` | `enforce_human_verdict_gate()` dispatches `github-ops` | PR review, labels, condition issues, sealed audit ledger |
+In `#mission-control`, choose **New Mission**, select `engineering_review`, and enter a question such as:
 
-<details>
-<summary><b>9 · Full lifecycle demo, including the on-call agent</b></summary>
+> Review checkout payment retries. Identify the timeout, retry-budget and idempotency requirements, then summarize the missing evidence for my decision.
 
-```bash
-# Runs all 5 phases: Auto-Subpoena, Third Voice, courtroom, Parallel Earth, verdict + GitHub Ops
-python -m server.main --full-lifecycle-demo
+Leave PR/services empty for a question-only case. For a repository review, supply your real PR and affected services. Send the exact `hq:start` command the bot returns. Follow the native specialists in `#ship-court`, inspect the case, and make a real human decision.
+
+```text
+!court hq:decision {"mission_id":"MISSION-ID","text":"Use bounded retries; require idempotency and load evidence"}
+!court hq:task {"mission_id":"MISSION-ID","description":"Collect checkout load evidence","owner_id":"discord:YOUR-USER-ID"}
 ```
 
-</details>
+For a reviewed PR case, a binding verdict is separate from that general direction:
+
+```text
+!court hq:verdict {"mission_id":"MISSION-ID","command":"CONDITIONS collect load evidence"}
+!court hq:github-plan {"mission_id":"MISSION-ID"}
+```
+
+Review the returned operations and hash before any explicit `github-execute`. A question-only case needs actual PR evidence attached before repository operations.
+
+### Demo B · Personal AI Idea Studio
+
+Post in `#idea-lab`:
+
+> I want to build a workspace where students and AI coding agents collaborate. Compare two MVP directions, challenge the assumptions and propose an experiment to validate demand.
+
+The mapped human's message creates an `idea_studio` project. Specialists collaborate through Switch, label unsupported claims unverified, and return a question for the human. Approve a direction, assign a task and continue later:
+
+```text
+!court hq:decision {"mission_id":"MISSION-ID","text":"Prototype the shared task board; validate through five interviews"}
+!court hq:task {"mission_id":"MISSION-ID","description":"Prepare interview questions","owner_id":"discord:YOUR-USER-ID"}
+!court hq:task-update {"mission_id":"MISSION-ID","task_id":"TASK-ID","status":"DONE"}
+!court hq:transition {"mission_id":"MISSION-ID","status":"COMPLETED"}
+!court hq:resume {"mission_id":"MISSION-ID"}
+```
+
+Completion requires an explicit human decision for the current work cycle and resolved tasks. Resuming retains the history and starts a new native job; old approval does not automatically complete the new work.
 
 <p align="center"><img src="assets/chapter-11.svg" alt="Chapter 11 — Try It" width="100%"></p>
 
 ## Run It Yourself
 
-```text
-switch-AI/
-├── .claude/skills/ship-court/   Claude skill for the courtroom workflow
-├── .github/                     CI workflows
-├── agents/                      Agent definitions
-├── data/                        Incident memory and ledgers
-├── demo/                        Demo assets
-├── docs/                        runtime-discovery, integration-evidence, compliance-matrix
-├── linking_antigravity/         Antigravity scope_guard (PreToolUse hook engine)
-├── rooms/                       Switch room definitions
-├── server/                      Courtroom, Switch room, bridge, dependency graph, rollback sentinel
-├── switch/                      ship-court.template.yaml and validate_template.py
-├── tests/                       pytest suite, stress and load tests
-├── .env.example
-├── requirements.txt
-├── CLAUDE.md
-└── LICENSE                      MIT
-```
+**Choose your path:** local tests need Python only; live multi-agent collaboration adds Switch + Groq; Discord and voice add their own credentials. The offline simulation is explicitly labeled and does not substitute for the live path.
 
-<details open>
-<summary><b>1 · Clone and install</b></summary>
+### 1 · Clone and install
+
+Use **Python 3.12**, Git, and **Node 24.18+** for optional voice. Start from a fresh clone; `.env`, `.venv` and `.runtime` are gitignored.
 
 ```bash
-git clone https://github.com/GaneshNair007/switch-AI.git
+git clone --branch main https://github.com/GaneshNair007/switch-AI.git
 cd switch-AI
-pip install -r requirements.txt
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt -r requirements-discord.txt
+cp .env.example .env
+python -m server.configure
 ```
+
+<details>
+<summary><b>Windows PowerShell equivalent</b></summary>
+
+```powershell
+git clone --branch main https://github.com/GaneshNair007/switch-AI.git
+Set-Location switch-AI
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt -r requirements-discord.txt
+Copy-Item .env.example .env
+.\.venv\Scripts\python.exe -m server.configure
+```
+
+Use `.\.venv\Scripts\python.exe` in place of `python` below if you have not activated the environment. Copy `.env.example` only on a fresh clone: do not overwrite existing local credentials.
 
 </details>
 
-<details>
-<summary><b>2 · Validate the Switch template</b></summary>
+`server.configure` generates the local workspace credential and its hashed identity without printing secrets. Save every service key in the **root `.env`**, never in README, Discord, a URL or a committed configuration file.
+
+### 2 · Check the code without external providers
 
 ```bash
-python switch/validate_template.py
-```
-
-</details>
-
-<details>
-<summary><b>3 · Run the test suite</b></summary>
-
-```bash
-python -m pytest -v tests/
-```
-
-</details>
-
-<details>
-<summary><b>4 · 10-cycle continuous stress verifier</b></summary>
-
-```bash
-python tests/stress_and_health_check.py
-```
-
-</details>
-
-<details>
-<summary><b>5 · Switch-native courtroom runner</b></summary>
-
-```bash
-# Runs natively when Switch Console is installed, or with offline protocol fallback
-python -m server.switch_native_runner
-```
-
-</details>
-
-<details>
-<summary><b>6 · Google Opal workflow bridge</b></summary>
-
-```bash
-python -c "from server.opal_workflow import GoogleOpalWorkflowBridge; print(GoogleOpalWorkflowBridge().execute_workflow())"
-```
-
-</details>
-
-<details>
-<summary><b>7 · Local multi-agent simulation</b></summary>
-
-```bash
+python scripts/run.py pytest -q tests/ linking_antigravity/tests/ --ignore=tests/test_provider_integration.py --ignore=tests/test_live_switch_gate.py
 python -m server.local_courtroom_simulation
 ```
 
-</details>
+The simulation stops for human authorization. The local suite uses controlled external transports; it does not post GitHub comments or impersonate a real IDE event. CI additionally validates the official Switch template.
 
-<details>
-<summary><b>8 · High-concurrency stress test (20,000 requests)</b></summary>
+### 3 · Configure Groq and the real Switch room
+
+1. Create a key in [Groq Console](https://console.groq.com/keys). Set `GROQ_API_KEY` and an available `DEFAULT_GROQ_MODEL` in `.env`. The recorded live checks used `openai/gpt-oss-120b`; availability/quotas depend on your account. No optional paid harness is required.
+2. Install and start the official [Switch runtime](https://docs.switchagents.ai/). Use its actual API URL, not the Ship Court `8080` URL. Set `SWITCH_URL` and your server's agent-registration credential as `SWITCH_REGISTRATION_TOKEN`.
+3. Register the five custom agents:
 
 ```bash
-# 20,000 requests across 100 worker threads
-python tests/heavy_load_test.py -n 20000 -c 100
+python -m server.setup_switch --register
 ```
+
+4. In Switch, create a room, add the five registered `shipcourt-*` agents and your human user, and connect its Discord bridge to `#ship-court` if using Discord. Allow the verified human and owner agents to address the team. Do not make every external account an approver. The room ID, agent API IDs, transport sender IDs and Discord user ID are different identifiers.
+5. Copy [the sender-map example](config/switch-senders.example.json) to `.runtime/senders.json`. Replace every placeholder with the **actual opaque sender ID observed in Switch room events**. Keep agent IDs under `agents` and verified human sender IDs under `humans`; do not derive them from display names or UUIDs.
+6. Generate the local connection configuration:
+
+```bash
+python -m server.setup_switch --configure --room-id YOUR_SWITCH_ROOM_ID --sender-map .runtime/senders.json
+```
+
+This writes all five `SWITCH_CLIENTS` entries, restores existing returned agent keys and saves human intake mappings in `.env`. It does not create a second set of agents or grant human approval rights to an agent.
+
+**Detailed runtime setup:** [Switch + Groq guide](docs/SWITCH_GROQ.md), including the local Console registration-key fallback and identity-policy troubleshooting. The shared free-tier budget defaults to one inference at a time, six calls/minute and 6,000 reserved tokens/minute. A review can take several minutes.
+
+### 4 · Set up Discord HQ
+
+Create a text application/bot at the [Discord Developer Portal](https://discord.com/developers/applications). Save `DISCORD_BOT_TOKEN`, `DISCORD_APPLICATION_ID` and `DISCORD_GUILD_ID`. Enable **Message Content** and **Server Members** intents for the Switch text bridge. Invite it to a server you administer.
+
+Add your actual Discord user ID to `DISCORD_MEMBERS` in `.env`:
+
+```dotenv
+DISCORD_MEMBERS={"YOUR_DISCORD_USER_ID":{"roles":["operator","approver"],"scopes":["*"]}}
+```
+
+That is an owner setup example; provision narrower roles/scopes for teammates and viewer access for judges. A bot or webhook persona cannot approve. Runtime needs View Channels, Send Messages, Embed Links, Attach Files, Read Message History, and Manage Webhooks for Switch's named agents. Mission threads need Create Public Threads. Setup additionally needs temporary Manage Channels/Manage Roles.
+
+```bash
+python -m server.discord_setup --plan
+# Inspect the exact target server, reuse/create operations and private permissions first.
+python -m server.discord_setup --apply --approve-guild YOUR_DISCORD_GUILD_ID
+python -m server.discord_setup --validate
+```
+
+The plan creates seven categories and 17 channels, reuses existing matches, and never deletes channels. `approvals`, `agent-traces` and `system-alerts` are restricted. IDs are saved to `.runtime/discord_channels.json`. Remove the two temporary setup permissions afterward. Creating a Discord channel does not create a Switch room: link the real room separately. [Full layout and manual fallback](docs/HQ_SETUP.md#discord-organization).
+
+### 5 · Start HQ and send the first real task
+
+```bash
+python -m server.main --serve --port 8080
+```
+
+Open **http://127.0.0.1:8080**. Sign in with the generated **`SHIPCOURT_TOKEN`** value from your local `.env`, not a Groq or Discord key. The browser receives a five-minute HttpOnly session; changes need CSRF protection. Use HTTPS for remote access.
+
+In `#mission-control`, use **New Mission** and the returned `!court hq:start` command. For a direct native room check, send from your own verified Discord account:
+
+```text
+@shipcourt-clerk !shipcourt discuss Assess checkout timeout and idempotency risks. Ask the specialists, identify missing evidence, and summarize for my decision.
+```
+
+Watch actual agent messages in `#ship-court`, and use HQ's agent view or authenticated `/api/readiness` to inspect connection state. Missing/disconnected services remain visibly unavailable. Keep only one backend process per client configuration.
+
+### 6 · Enable optional voice, GitHub and Antigravity
+
+| Capability | Configure | Run / next step |
+|:--|:--|:--|
+| **Discord voice** | Separate voice bot token as `DISCORD_VOICE_BOT_TOKEN`; same guild; Connect/Speak and gateway intents | `python -m server.configure --voice-gateway`, `npm ci --prefix voice --ignore-scripts`, then `node --env-file=.env voice/gateway.mjs` |
+| **GitHub** | `GITHUB_TOKEN` scoped to the chosen repository; PR/issues permissions; existing `ship-court:approved`, `ship-court:conditional`, `ship-court:blocked` labels | Supply a real PR, record the verdict, inspect the exact plan, then explicitly approve execution |
+| **Antigravity** | `python -m server.configure --hook frontend-agent`; set hook agent ID; provision assignment and real workspace hook | Follow [the actual editor setup](docs/HQ_SETUP.md#antigravity--actual-editor-event-required); restart backend after adding the scoped identity |
+| **Research** | Explicit HTTPS source URLs and `SHIPCOURT_RESEARCH_HOSTS` allowlist | Use HQ **Verify sources**; unsupported factual claims stay unverified |
+
+Restart the affected backend/gateway after configuration changes. The optional harness names `antigravity`, `claude_code`, `codex` and `opencode` are compatibility/configuration points, not claims that those sessions are implemented and online. The operational agent runtime here is `groq_custom`.
+
+<details>
+<summary><b>CLI, voice tests and common setup failures</b></summary>
+
+```bash
+# Same backend as Discord and HQ; local credential loaded without being printed
+python -m server.hq_cli snapshot
+python -m server.hq_cli create --args-file .runtime/mission.json
+# Voice tests need installed Node dependencies, not a live call
+node --test voice/audio.test.mjs voice/transcription.test.mjs
+```
+
+| Symptom | Check |
+|:--|:--|
+| No connected agents | Actual Switch URL, room membership, saved agent keys, `SWITCH_CLIENTS`, and receiver status |
+| Agent rejects a human's address | Switch addressing policy and the real ExternalUser/transport identity; a matching display name is insufficient |
+| Handoff never reaches the peer | Exact observed sender IDs, registered mention names and owner-agent addressing permissions |
+| Discord command denied | Correct guild, real human user ID in `DISCORD_MEMBERS`, required backend role/scope; bots are intentionally rejected |
+| No Mission Control panel | Saved channel map, bot View/Send/Embed permissions, enabled intents, one running gateway |
+| Voice hears no speech | Voice permissions, individual consent, actual mic input, provider access and `GROQ_STT_LANGUAGE` |
+| GitHub execution rejected | A real open PR, recorded human verdict, current head SHA, correct scopes and exact reviewed plan hash |
+
+More: [credentials](docs/CREDENTIALS.md) · [HQ setup and demos](docs/HQ_SETUP.md) · [Switch agent guide](docs/SWITCH_GROQ.md).
 
 </details>
 
 <p align="center"><img src="assets/chapter-12.svg" alt="Chapter 12 — The Artifact" width="100%"></p>
 
-## The Artifact: Signed Release Brief
+## The Artifact: An Auditable Release Brief
 
-Every case ends in an auditable Release Brief stored with the case record.
+A human verdict produces a case-linked Release Brief: decision, actor, PR/head evidence, advisory findings, conditions, owners and provenance. It is an auditable application record; this path does not claim a cryptographic signature or an executed deployment.
 
-<details>
-<summary><b>See a sample brief (SC-0482)</b></summary>
+| Artifact | How to verify it |
+|:--|:--|
+| Native investigation | Job ID plus actual Switch handoff receipts |
+| Human decision | Authenticated actor and scoped audit event; recommendation alone is not permission |
+| Follow-up work | Owned tasks stored on their originating mission/case/meeting |
+| GitHub delivery | Returned external URLs and `CONFIRMED` operation status |
+| Meeting recap | Source-linked discussion, approved decisions, tasks and related mission |
 
-```markdown
-# Release Brief - SC-0482
-Change: Dynamic checkout pricing
-Repository: acme/shop
-PR: #482
-Requested by: Priya
-Decision: SHIP WITH CONDITIONS
-
-## Risk assessment
-| # | Objection | Classification | Status | Evidence |
-|---|---|---|---|---|
-| 1 | Dynamic pricing may create cart-total mismatch between client and server. | BLOCKING | Mitigated | INC-017: client-side and server-side pricing divergence |
-| 2 | No monitoring exists for pricing inconsistency. | BLOCKING | Open | No alert named pricing-mismatch in monitoring configuration. |
-| 3 | Rollout percentage is not specified. | NOTE | Resolved | Deployment target specified canary without explicit traffic percentage. |
-
-## Rollback plan
-- Current version: v2.14.0
-- Rollback target: v2.13.2
-- Command: ./scripts/rollback.sh checkout-service v2.13.2
-- Health checks: checkout error rate < 1%, cart-service p95 latency < 400ms, pricing consistency job passes
-- Rollback owner: Priya
-- Execution status: READY -- requires explicit human approval
-
-## Conditions before full rollout
-- [ ] Configure canary 5% rollout -- Priya
-- [ ] add checkout mismatch alert -- DevOps
-- [ ] Confirm rollback owner and rehearse rollback (rollback) -- Priya
-
-## Decision record
-- Judge: Priya
-- Verdict: SHIP WITH CONDITIONS
-- Switch room: #ship-court
-- Case ID: SC-0482
-```
-
-</details>
+The captured engineering mission `MISSION-02770b9ff16c425b82c5078468ed764a` and personal mission `MISSION-226ef7f0fecb405f92413088b66afe87` both await their real human decision. These are evidence IDs from our development workspace, not hardcoded IDs to copy into your deployment.
 
 <p align="center"><img src="assets/chapter-13.svg" alt="Chapter 13 — The Scorecard" width="100%"></p>
 
 ## Built for the Judges
 
-| Hackathon pillar | How Ship Court answers it |
-|:--|:--|
-| **Use of Switch (25%)** | Passes the Remove-Switch test: multiple agents across machines coordinate through one Switch room with role aliases and an exclusive `approver` gate. |
-| **Technical execution (25%)** | Deterministic state machines (`CaseState`, `FloorState`), a 42-test pytest suite, a 20,000-request load test and offline-safe reproduction. |
-| **Creativity and impact (25%)** | Track 01 (adversarial deploy court, GitHub Ops, Parallel Earth blast radius) meets Track 02 (Antigravity collision monitor, hand-raise protocol). |
-| **Presentation and docs (25%)** | Interactive web console, declarative `ship-court.template.yaml`, a full docs suite and this README. |
+The [official judging criteria](https://www.devtoolsacademy.com/hackathons/flip-the-switch#judging) emphasize four things:
+
+| Criterion | Weight | Where to inspect this project |
+|:--|:--:|:--|
+| **Use of Switch** | **30%** | Five actual registered custom clients, addressed SSE/HTTP handoffs, room membership, Discord bridge and receipt evidence; disconnecting Switch stops native collaboration |
+| **Technical execution** | **25%** | Reproducible setup, CI, deterministic floor/authorization logic, persistent missions, exact GitHub plan approval and regression tests |
+| **Creativity and impact** | **25%** | Adversarial engineering review plus personal Idea Studio, scoped development events, modeled risk and a meeting colleague who asks to speak |
+| **Presentation and documentation** | **20%** | Actual Discord/HQ screenshots, architecture, two demo scripts, clear setup and an honest capability matrix |
+
+**Submission checklist:** public repository · short video of the real workflow running · README explaining the connected agents, channel setup and reproduction. A blog is optional. This README does not stand in for a recorded demo or a submitted entry. [Official submission guidance](https://www.devtoolsacademy.com/hackathons/flip-the-switch#what-you-submit).
+
+**For the demo video:** show a real human creating a mission, the actual native handoffs, shared evidence, the human decision and its persisted result. Demonstrate professional and personal use separately. Include the full voice/IDE sequences only after verifying them live; otherwise identify those gates explicitly.
 
 <p align="center"><img src="assets/chapter-14.svg" alt="Chapter 14 — The Team" width="100%"></p>
 
@@ -605,11 +497,11 @@ Decision: SHIP WITH CONDITIONS
 <p align="center"><img src="assets/team.svg" alt="Arjit Ujjawal, Ganesh Nair, Jayvee Shah" width="100%"></p>
 
 - **Arjit Ujjawal**
-- **[Ganesh Nair](https://github.com/GaneshNair007)** (repository owner)
+- **[Ganesh Nair](https://github.com/GaneshNair007)** — repository owner
 - **Jayvee Shah**
 
-**Event:** [WeMakeDevs × DevTools Academy × Switch AI, Flip the Switch](https://www.wemakedevs.org/hackathons/switch) · **Primary track:** Track 01, Best Business Workflow · **Also targeting:** Track 02, Best Personal/Creative Workflow
+**Primary track:** Track 01 — Best Business Workflow · **Also targeting:** Track 02 — Best Personal or Creative Workflow.
 
-**Links:** [Repository](https://github.com/GaneshNair007/switch-AI) · [Hackathon](https://www.wemakedevs.org/hackathons/switch) · [DevTools Academy](https://www.devtoolsacademy.com/hackathons/flip-the-switch) · [Switch runtime](https://github.com/sandbox-quantum/switch) · [Switch docs](https://docs.switchagents.ai/) · [MIT License](LICENSE)
+**Links:** [Repository](https://github.com/GaneshNair007/switch-AI) · [Hackathon](https://www.wemakedevs.org/hackathons/switch) · [Switch runtime](https://github.com/sandbox-quantum/switch) · [Switch docs](https://docs.switchagents.ai/) · [MIT License](LICENSE).
 
 <p align="center"><img src="assets/footer.svg" alt="Court is adjourned. Nothing ships until a human says so." width="100%"></p>
