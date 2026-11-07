@@ -48,32 +48,19 @@ def validate_template(template_path: Path) -> bool:
     assert approver_role.get("exclusive") is True, "The approver role must be exclusive"
 
     # 6. Kickoff check
-    assert "kickoff" in room, "Room must define kickoff message"
+    assert "kickoff" in data, "Room must define kickoff message"
 
-    # 7. Official Switch Core Lint (if Switch runtime is installed on machine)
-    switch_paths = [
-        Path(os.environ.get("LOCALAPPDATA", "")) / "Programs" / "Switch Console Canary" / "resources" / "local-server",
-        Path("C:/Users/Ganesh Nair/AppData/Local/Programs/Switch Console Canary/resources/local-server")
-    ]
-    official_checked = False
-    for sp in switch_paths:
-        core_dir = sp / "switch" / "src" / "core"
-        site_dir = sp / "switch" / "site-packages"
-        if core_dir.exists() and site_dir.exists():
-            sys.path.extend([str(core_dir), str(site_dir)])
-            try:
-                from switch_core.template_lint import lint_template
-                lint_res = lint_template(content)
-                assert len(lint_res.errors) == 0, f"Switch Core lint errors: {lint_res.errors}"
-                assert len(lint_res.warnings) == 0, f"Switch Core lint warnings: {lint_res.warnings}"
-                official_checked = True
-                print("Switch Core Official Validator: 0 errors, 0 warnings. Template is 100% clean.")
-                break
-            except Exception as e:
-                print(f"Notice: Official lint execution skipped: {e}")
-
-    if not official_checked:
-        print("Template structural pre-checks passed: schema, parameters, roles, and agents valid.")
+    # Prefer installed official tooling; missing runtime is explicitly reported.
+    import importlib.util
+    official_available = importlib.util.find_spec('switch_core') is not None
+    if official_available:
+        from switch_core.template_lint import lint_template
+        result = lint_template(content)
+        if result.errors or result.warnings:
+            raise ValueError(f"Official template lint failed: {result}")
+        print('Official Switch lint passed: 0 errors, 0 warnings.')
+    else:
+        print('Structural checks passed. Official Switch lint NOT RUN: switch_core is not installed.')
 
     return True
 

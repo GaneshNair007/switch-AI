@@ -66,7 +66,7 @@ class CourtClerkAgent:
                 return
 
             # Security gate: exclusive approver check
-            if not self.room.enforce_human_verdict_gate(msg.sender):
+            if not self.room.enforce_human_verdict_gate(msg.principal, scope=f"case:{self.current_case.case_id}:verdict"):
                 approver = self.room.exclusive_roles.get("approver", "Priya")
                 self.room.post_message(
                     self.name,
@@ -78,10 +78,10 @@ class CourtClerkAgent:
             self.room.post_message(self.name, f"⚖️ Verdict received from {msg.sender}. Recording decision in Switch...")
 
             try:
-                judge_name = msg.sender.lstrip("@").strip()
+                judge_name = msg.principal.subject
                 verdict = VerdictParser.parse_command(content, judge_name=judge_name)
                 VerdictParser.apply_verdict(self.current_case, verdict)
-                self.room.record_decision(self.current_case.case_id, verdict)
+                self.room.record_decision(self.current_case.case_id, verdict, principal=msg.principal)
                 self.room.tasks.extend(self.current_case.tasks)
                 self.current_case.state = CaseState.CASE_CLOSED
 

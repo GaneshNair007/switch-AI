@@ -1,111 +1,179 @@
-from __future__ import annotations
-from typing import Any, Dict, Optional
-from .antigravity_subpoena import AntigravitySubpoenaBridge, AntigravityToolAttempt
-from .bridge_connector import ChatBridgeConnector
-from .dependency_graph import DependencyGraph
-from .floor_controller import FloorRequestController
-from .github_ops_agent import GitHubOpsAgent
-from .models import (
-    Case,
-    CaseState,
-    Defense,
-    Objection,
-    ObjectionSeverity,
-    ObjectionStatus,
-    Verdict,
-    VerdictType,
-)
-from .parallel_earth import ParallelEarthSimulator
+"""Shared workflow service used by HTTP, CLI and platform adapters.
+
+Live review uses retrieved GitHub evidence and the existing LLM engine. It ends
+at AWAITING_VERDICT. No pipeline invocation can manufacture human approval.
+"""
+from dataclasses import asdict
+import json
+import threading
+import uuid
+from .authorization import default_authorization
+from .case_manager import CaseManager
+from .models import Case, CaseState, Verdict, VerdictType, Condition, Task, RollbackPlan, RollbackStatus, Objection, ObjectionSeverity, ObjectionStatus, Defense
 from .switch_room import SwitchRoom
+from .bridge_connector import ChatBridgeConnector
+from .floor_controller import FloorRequestController
+from .parallel_earth import ParallelEarthSimulator
+from .live_courtroom_debate import LiveCourtroomDebateEngine
+from .github_client import GitHubClient, GitHubOperations, parse_pr
+from .store import Store
+
+
+def restore_case(data):
+    data = dict(data)
+    data['state'] = CaseState(data['state'])
+    data['objections'] = [Objection(**{**o, 'classification': ObjectionSeverity(o['classification']), 'status': ObjectionStatus(o['status'])}) for o in data['objections']]
+    data['defenses'] = [Defense(**d) for d in data['defenses']]
+    data['tasks'] = [Task(**t) for t in data['tasks']]
+    if data['verdict']:
+        v = data['verdict']
+        data['verdict'] = Verdict(**{**v, 'type': VerdictType(v['type']), 'conditions': [Condition(**c) for c in v['conditions']]})
+    if data['rollback_plan']:
+        r = data['rollback_plan']
+        data['rollback_plan'] = RollbackPlan(**{**r, 'execution_status': RollbackStatus(r['execution_status'])})
+    return Case(**data)
 
 
 class UnifiedBoardroomCourtPipeline:
-    """Orchestrates the 5-ring flowchart: Antigravity -> Third Voice -> 3-AI Courtroom -> Parallel Earth -> GitHub Ops."""
+    def __init__(self, room_name='ship-court', webhook_url=None, authorization=None, db_path=':memory:', github_client=None, debate_engine=None):
+        self.authorization = authorization or default_authorization()
+        self.store = Store(db_path)
+        from .scope_coordinator import ScopeCoordinator
+        self.scope = ScopeCoordinator(self.authorization, self.store)
+        self.room = SwitchRoom(room_name, 'discord', authorization=self.authorization)
+        self.manager = CaseManager(authorization=self.authorization)
+        self.cases = self.manager.active_cases
+        for data in self.store.list('case'):
+            case = restore_case(data)
+            if case.state == CaseState.EVIDENCE_COLLECTION:
+                case.state = CaseState.CASE_OPENED
+                self.store.put('case', case.case_id, case)
+                self.store.event('court.review_interrupted', case.case_id, 'startup', {'retry_allowed': True})
+            self.cases[case.case_id] = case
+        self.bridge = ChatBridgeConnector(self.room, webhook_url=webhook_url, platform='discord')
+        self.floor_controller = FloorRequestController(self.room, self.bridge, db_path=db_path)
+        from .meetings import Meetings
+        self.meetings = Meetings(self.authorization, self.store, self.floor_controller)
+        self.parallel_earth = ParallelEarthSimulator(self.room, bridge=self.bridge)
+        self.github_client = github_client or GitHubClient()
+        self.github_ops = GitHubOperations(self.authorization, self.store, self.github_client)
+        self.debate_engine = debate_engine or LiveCourtroomDebateEngine()
+        import os
+        from .research import ResearchService
+        self.research = ResearchService(self.authorization, self.store, self.debate_engine,
+            allowed_hosts=os.getenv("SHIPCOURT_RESEARCH_HOSTS", "").split(","))
+        self.lock = threading.RLock()
 
-    def __init__(self, room_name: str = "ship-court", webhook_url: Optional[str] = None):
-        self.room = SwitchRoom(room_name=room_name, bridge="discord")
-        self.bridge = ChatBridgeConnector(self.room, webhook_url=webhook_url, platform="discord")
-        self.graph = DependencyGraph()
-        self.cases: Dict[str, Case] = {}
+    def open_case(self, pr_url, services, principal):
+        self.authorization.require(principal, role='operator')
+        repo, number = parse_pr(pr_url)
+        if not services or any(s not in self.parallel_earth.graph.nodes for s in services):
+            raise ValueError('Specify services present in the configured dependency graph')
+        evidence = self.github_client.evidence(pr_url)
+        case = Case('SC-' + uuid.uuid4().hex, pr_url, repo, list(services), 'Not verified', change_summary=evidence['title'])
+        with self.lock:
+            self.cases[case.case_id] = case
+            self.store.put('case', case.case_id, case)
+            self.store.put('evidence', case.case_id, evidence)
+            self.store.event('case.opened', case.case_id, principal.subject, {'pr_url': pr_url, 'head_sha': evidence['head_sha']}, actor_type='human')
+        return case
 
-        self.room.register_session("shipcourt-clerk", "clerk", "server-node", "claude")
-        self.room.register_session("shipcourt-historian", "historian", "server-node", "claude")
-        self.room.register_session("shipcourt-prosecutor", "prosecutor", "server-node", "claude")
-        self.room.register_session("shipcourt-defender", "defender", "local-workstation", "codex")
-        self.room.register_session("shipcourt-rollback", "rollback", "server-node", "opencode")
+    def attach_pull_request(self, case_id, pr_url, services, principal):
+        self.authorization.require(principal, role='operator')
+        repo, _ = parse_pr(pr_url)
+        if not services or any(s not in self.parallel_earth.graph.nodes for s in services):
+            raise ValueError('Known affected services required')
+        evidence = self.github_client.evidence(pr_url)
+        with self.lock:
+            case = self.cases[case_id]
+            if case.state != CaseState.CASE_OPENED:
+                raise ValueError('Cannot change evidence after review has started')
+            case.pr_url, case.repository, case.affected_services = pr_url, repo, services
+            self.store.put('evidence', case_id, evidence)
+            self.store.put('case', case_id, case)
+            self.store.event('case.evidence_attached', case_id, principal.subject, {'pr_url': pr_url, 'head_sha': evidence['head_sha']})
+            return case
 
-        self.subpoena_bridge = AntigravitySubpoenaBridge(self.room, bridge=self.bridge)
-        self.parallel_earth = ParallelEarthSimulator(self.room, graph=self.graph, bridge=self.bridge)
-        self.floor_controller = FloorRequestController(self.room, bridge=self.bridge)
-        self.github_ops = GitHubOpsAgent(self.room, bridge=self.bridge)
+    def review(self, case_id, principal):
+        self.authorization.require(principal, role='operator')
+        with self.lock:
+            case = self.cases[case_id]
+            if case.state != CaseState.CASE_OPENED:
+                raise ValueError('Review is already running or complete')
+            case.state = CaseState.EVIDENCE_COLLECTION
+            self.store.put('case', case_id, case)
+        try:
+            evidence = self.store.get('evidence', case_id)
+            incidents = self.manager.evidence_collector.search_incidents(case.affected_services[0])
+            simulation = self.parallel_earth.run_simulation(case)
+            context = json.dumps({'proposal': case.change_summary, 'evidence': evidence,
+                                  'incident_fixtures_unverified': incidents, 'risk_model': asdict(simulation)})
+            result = self.debate_engine.run_live_trial(context, repo=case.repository,
+                                                      pr_number=str(evidence['pr_number']), judge_name='AI advisory reviewer')
+            result['case_id'] = case_id
+            result['binding_authorization'] = False
+            self.store.put('advisory', case_id, result)
+            self.store.put('simulation', case_id, simulation)
+            case.state = CaseState.AWAITING_VERDICT
+            self.store.event('court.advisory_completed', case_id, 'courtroom', {'advisory': result, 'authorization_required': True})
+            return result
+        except Exception as exc:
+            case.state = CaseState.CASE_OPENED
+            self.store.event('court.review_failed', case_id, 'courtroom', {'error_type': type(exc).__name__})
+            raise
+        finally:
+            self.store.put('case', case_id, case)
 
-    def execute_full_flowchart_run(self, human_approver: str = "Priya") -> Dict[str, Any]:
-        attempt = AntigravityToolAttempt(
-            teammate_id="teammate-2-pricing",
-            tool_name="EditFile",
-            target_path="services/checkout/dynamic_surge_multiplier.py",
-            diff_summary="Added unthrottled surge multiplier calling payment-gateway synchronously",
-        )
-        hook_result = self.subpoena_bridge.inspect_pre_tool_use(attempt, self.cases)
-        case: Case = hook_result["case"]
+    def decide(self, case_id, command, principal):
+        with self.lock:
+            brief = self.manager.record_verdict(case_id, command, principal=principal)
+            case = self.cases[case_id]
+            advisory = self.store.get('advisory', case_id)
+            if advisory:
+                brief += '\n\n## AI advisory (not authorization)\n' + advisory['prosecutor_indictment'] + '\n' + advisory['defender_rebuttal']
+                case.release_brief = brief
+            evidence = self.store.get('evidence', case_id) or {}
+            model = self.store.get('simulation', case_id) or {}
+            case.release_brief += '\n\n## Evidence provenance\nPR: ' + case.pr_url + '\nReviewed head: ' + evidence.get('head_sha', 'unknown') + '\nRisk analysis: ' + model.get('mode', 'unavailable') + '\nRollback execution: not performed.\n'
+            brief = case.release_brief
+            self.store.put('case', case_id, case)
+            self.store.event('court.human_verdict', case_id, principal.subject, {'verdict': case.verdict.type.value}, actor_type='human')
+            return brief
 
-        floor_req = self.floor_controller.raise_hand(
-            meeting_id="boardroom-huddle-042",
-            agent_id="third-voice",
-            emoji="⚠️",
-            reason="Teammate-2 synchronous payment call contradicts Decision #DEC-014.",
-            spoken_script="Hold on team—Teammate 2 modified checkout with a synchronous payment call.",
-            priority=90,
-            evidence_refs=["DEC-014", "INC-2025-112", case.case_id],
-        )
-        floor_grant = self.floor_controller.grant_floor(floor_req.request_id, human_actor=human_approver)
+    def github_plan(self, case_id, principal):
+        self.authorization.require(principal, role='operator')
+        plan = self.github_ops.plan(self.cases[case_id], self.store.get('evidence', case_id))
+        self.store.put('github_plan', case_id, plan)
+        return plan
 
-        case.state = CaseState.OBJECTIONS_RAISED
-        prosecutor_obj = Objection(
-            id=f"OBJ-{case.case_id}-2",
-            claim="Synchronous call in checkout path risks Tier-1 SLA breach.",
-            evidence="Historical incident INC-2025-112 match.",
-            classification=ObjectionSeverity.WARNING,
-        )
-        case.objections.append(prosecutor_obj)
-        self.bridge.forward_to_chat(prosecutor_obj.claim, agent_role="prosecutor")
+    def execute_github(self, case_id, principal, plan_hash):
+        import hashlib
+        plan = self.store.get('github_plan', case_id)
+        if not plan or hashlib.sha256(json.dumps(plan, sort_keys=True).encode()).hexdigest() != plan_hash:
+            raise ValueError('Review and approve the exact current plan hash')
+        return self.github_ops.execute(plan, principal)
 
-        case.state = CaseState.DEFENSE_RESPONSE
-        defense = Defense(
-            objection_id=prosecutor_obj.id,
-            claim="Circuit breaker wraps pricing lookup with 150ms fallback cache.",
-            evidence="Unit test passes in local worktree.",
-            is_conceded=False,
-        )
-        case.defenses.append(defense)
-        prosecutor_obj.status = ObjectionStatus.MITIGATED
-        self.bridge.forward_to_chat(defense.claim, agent_role="defender")
+    def ingest_violation(self, event, principal):
+        self.authorization.require(principal, role='hook', scope='hook:' + event['agent_id'])
+        key = principal.subject + ':' + event['event_id']
+        with self.lock:
+            existing = self.store.get('violation', key)
+            if existing:
+                return existing
+            if event.get('decision_taken') not in ('BLOCK', 'ASK', 'WARN'):
+                raise ValueError('Expected a scope guard violation decision')
+            case_id = 'AG-' + uuid.uuid4().hex
+            case = Case(case_id, '', '', [], 'Not verified', change_summary=event['explanation'])
+            self.cases[case_id] = case
+            self.store.put('case', case_id, case)
+            result = {'case_id': case_id, 'event_id': event['event_id'], 'status': 'ESCALATED',
+                      'hook_enforcement': 'reported by authenticated hook; not independently observed'}
+            self.store.put('violation', key, result)
+            self.store.event('developer.scope_violation_detected', case_id, principal.subject, event, source_platform='antigravity', actor_type='agent')
+            self.store.put('switch_notification', case_id, {'case_id': case_id, 'status': 'PENDING',
+                'content': json.dumps({'event': 'scope_violation', 'case_id': case_id,
+                                       'agent_id': event['agent_id'], 'explanation': event['explanation']})})
+            return result
 
-        earth_report = self.parallel_earth.run_simulation(case, estimated_downtime_minutes=15.0)
-        case.state = CaseState.AWAITING_VERDICT
-
-        verdict = Verdict(
-            judge=human_approver,
-            type=VerdictType.CONDITIONAL,
-            reason="Approved with Parallel Earth canary guardrails.",
-            conditions=earth_report.recommended_conditions,
-        )
-        case.verdict = verdict
-        case.state = CaseState.CASE_CLOSED
-        self.room.record_decision(case.case_id, verdict)
-
-        gh_record = self.github_ops.execute_post_verdict_github_ops(
-            case=case,
-            verdict=verdict,
-            human_approver=human_approver,
-            earth_report=earth_report,
-            pr_number=18,
-        )
-        return {
-            "case": case,
-            "subpoena": hook_result["subpoena"],
-            "floor_grant": floor_grant,
-            "earth_report": earth_report,
-            "github_op": gh_record,
-            "discord_payload_count": len(self.bridge.sent_payloads),
-        }
+    def execute_full_flowchart_run(self, *args, **kwargs):
+        raise RuntimeError('Automatic canned approval removed. Use open_case, review, decide and separately approve the GitHub plan.')

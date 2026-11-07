@@ -1,240 +1,119 @@
-# SHIP COURT
-> **"We built a courtroom where AI agents must argue against a deployment before a human judge lets it ship."**  
-> *No Deploy Survives Cross-Examination.*
+# SHIP COURT × BOARDROOM OS
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Hackathon](https://img.shields.io/badge/WeMakeDevs%20x%20DevTools%20Academy-Flip%20the%20Switch-blueviolet)](https://www.wemakedevs.org/hackathons/switch/rules)
-[![Track](https://img.shields.io/badge/Track-01%20Best%20Business%20Workflow-green)](https://www.wemakedevs.org/hackathons/switch/rules)
-[![CI Status](https://github.com/GaneshNair007/switch-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/GaneshNair007/switch-AI/actions)
-[![Release](https://img.shields.io/badge/Release-v0.9.0--local--simulation-yellow)](https://github.com/GaneshNair007/switch-AI/releases/tag/v0.9.0-local-simulation)
+**The AI engineering team that meets, debates, simulates, and ships.**
 
----
+Ship Court connects developer scope checks, human–AI meetings, adversarial PR review, modeled deployment risk, and human-approved GitHub deliverables. The development branch is `arjit`.
 
-## Verification status
+**Current status:** the integrated local workflow and security boundaries are tested. GitHub public evidence retrieval was verified live. Switch collaboration, Discord communication, Groq inference, voice calls, staging workloads, and GitHub writes still need live verification with configured services. See [verification and limitations](docs/VERIFICATION.md).
 
-| Capability | Status | Evidence / Details |
-|---|---|---|
-| Groq provider credential | ✅ Verified LIVE | HTTP 200 via `api.groq.com`, latency ~46ms |
-| Real 3-Bot LLM Courtroom | ✅ Verified LIVE | Prosecutor, Defender, Judge unscripted LLM tokens |
-| Local Web Console UI | ✅ Running LIVE | `http://127.0.0.1:8080/` with interactive debate & power meter |
-| Switch template lint | ✅ Verified LIVE | 0 errors, 0 warnings via official `switch_core.template_lint` |
-| Switch template planning | ✅ Verified LIVE | 5 agents, aliases & approver role via `plan_template` |
-| Human Approver Gate | ✅ Verified LIVE | Non-human & unauthorized callers blocked cryptographically |
-| Documentation Suite | ✅ Verified LIVE | `runtime-discovery.md`, `integration-evidence.md`, `compliance-matrix.md` |
-| Pytest Test Suite | ✅ 42 Passed | 42 passed, 1 skipped (ControlServer closed gate) |
-| Docker Desktop Engine | ⬜ User UAC Required | Installer ready in Downloads; requires human UAC elevation |
-| Switch Console Electron App | ⬜ Installed | Located at `%LOCALAPPDATA%\Programs\Switch Console Canary` |
-| Mattermost Container Bridge | ⬜ Awaiting Docker | `startNativeMattermost()` checks Docker engine availability |
-| Live Switch-Routed Chat | ⬜ Awaiting Docker | Requires active containerized Mattermost room `#ship-court` |
+## What works together
 
-> ⚠️ **Live vs Simulation Clarity:**  
-> The 3-bot courtroom arena operates with **real live LLM inference** and local web/API endpoints. However, end-to-end routing through containerized Mattermost remains blocked until Docker Desktop is interactively approved on Windows.
-
----
-
-## ⚡ 60-Second Overview
-
-Traditional AI code reviews are passive and shallow ("Looks good to me!"). Catastrophic production outages happen because no one rigorously argued against shipping or verified the rollback plan.
-
-**Ship Court** turns AI agents from polite assistants into accountable courtroom participants:
-1. **Case Intake:** When a developer proposes a release, the system convenes a courtroom inside a shared Switch room (`#ship-court`).
-2. **Adversarial Cross-Examination:** The **Prosecutor** must formulate at most 3 evidence-backed objections using past failure precedent from the **Incident Historian**.
-3. **Factual Defense:** The **Defender** must address every objection in order or explicitly concede (`CONCEDED`).
-4. **Guaranteed Reversibility:** The **Rollback Engineer** validates the target version, runbook command, health checks, and owner.
-5. **Exclusive Human Gate:** No deploy or rollback executes autonomously. A human **Release Judge** holding the exclusive `approver` role issues a binding verdict: **APPROVE**, **BLOCK**, or **SHIP WITH CONDITIONS**.
-6. **Verifiable Artifact:** Switch registers the decision, assigns follow-up tasks to owners, and publishes the signed **Release Brief**.
-
----
-
-## 🎬 Target Live Interaction Sequence
-
-The courtroom sequence designed for the Switch room:
-
-```
-Developer:              @court-clerk open case https://github.com/acme/shop/pull/482
-
-Court Clerk:            Case SC-0482 opened. Change: dynamic checkout pricing.
-                        Affected: checkout-service, cart-service, pricing-worker. CI: 42 passed.
-                        @historian: Please search incident memory for relevant precedent.
-
-Incident Historian:     Relevant precedent found: INC-017.
-                        A pricing-related change on 2026-08-19 caused cart total mismatch (41 failed checkouts).
-                        Lesson: Require server-side pricing assertion and mismatch alert.
-                        @prosecutor: Formulate objections based on precedent.
-
-Prosecutor:             Prosecution Objections:
-                        • OBJ-1 [BLOCKING]: Dynamic pricing may create cart-total mismatch. Evidence: INC-017.
-                        • OBJ-2 [WARNING]: No monitoring exists for pricing inconsistency. Evidence: Missing alert.
-                        • OBJ-3 [NOTE]: Rollout percentage is not specified.
-                        @defender: Please address each objection in order or concede.
-
-Defender:               Defense Responses:
-                        • For OBJ-1: Pricing is calculated only server-side; validated by pricing_consistency_test.py.
-                        • For OBJ-2: CONCEDED. No mismatch alert currently exists.
-                        • For OBJ-3: Proposed 5% canary rollout with progressive stepping.
-                        @rollback: Please produce validated rollback plan.
-
-Rollback Engineer:      Rollback plan verified: target version: v2.13.2.
-                        Command: ./scripts/rollback.sh checkout-service v2.13.2
-                        Health checks: checkout error rate < 1%, cart latency < 400ms, pricing consistency job passes.
-                        Rollback owner: Priya (Status: READY). Auto-execution is disabled.
-                        @clerk: Ready for Release Judge.
-
-Court Clerk:            Case ready for verdict. Unresolved blocking condition: pricing mismatch alert.
-                        Awaiting binding verdict from Human Release Judge (@Priya).
-
-Priya (Human Judge):    @court-clerk verdict CONDITIONS canary 5%; add checkout mismatch alert; Priya owns rollback
-
-Court Clerk:            Verdict recorded: CONDITIONS.
-                        Switch Tasks Created:
-                        1. Configure canary 5% rollout — owner: Priya
-                        2. add checkout mismatch alert — owner: DevOps
-                        3. Confirm rollback owner and rehearse rollback — owner: Priya
-                        Signed Release Brief published to #ship-court.
+```mermaid
+flowchart LR
+    A[Antigravity tool event] --> B[Authenticated scope coordinator]
+    B --> C[Persistent case]
+    H[Human PR request] --> C
+    C --> D[GitHub evidence + incident context]
+    D --> E[Live LLM advisory courtroom]
+    F[Parallel Earth model] --> E
+    E --> G[Authenticated human verdict]
+    G --> P[Review exact GitHub plan]
+    P --> I[Explicit GitHub authorization]
+    I --> J[PR comment, labels, condition issues]
+    M[Meeting + floor control] --> G
+    S[Official Switch SSE and HTTP] <--> C
+    N[Discord text and voice adapters] <--> M
 ```
 
----
+The clerk coordinates cases; the historian supplies labeled incident context; prosecutor and defender analyze supplied evidence; the AI reviewer produces an advisory recommendation. An authenticated human issues the binding decision. Model output cannot grant permissions or execute GitHub operations.
 
-## ⚖️ Why Switch Is Load-Bearing (Remove-Switch Test)
+Switch's two native clients can hand work from clerk to reviewer through actual room messages. They use registered agent keys, SSE delivery, heartbeats, room membership, and HTTP operations. Disconnecting Switch stops that native handoff. The local Python room remains an explicitly separate development harness.
 
-If Switch is removed, the architecture fails to meet Track 01 requirements:
-1. **Durable Room State:** `#ship-court` hosts the case timeline, agent identities, and evidence logs.
-2. **Multi-Agent Session Routing:** Coordinates 5 distinct agents running across distributed machine boundaries (Server vs. Developer Laptop vs. Ops Host).
-3. **Exclusive Approver Role:** Guarantees that only a verified human holding the `approver` role can issue verdicts. Agent attempts to self-approve are strictly rejected.
-4. **Integrated Task & Decision Storage:** Natively turns conditional verdicts into assigned, trackable Switch tasks.
+## Run locally
 
----
+Use Python **3.12**. On this checkout an isolated environment already exists at `.runtime/venv`.
 
-## 🏛️ System Architecture & Machine Topology
+```powershell
+# Clean checkout:
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.txt -r requirements-discord.txt
+.venv\Scripts\python.exe -m server.configure
+.venv\Scripts\python.exe -m server.main --serve --port 8080
 
-```
-+---------------------------------------------------------------------------------------+
-|                                      TEAM CHAT                                        |
-|  (Mattermost / Slack / Teams / Discord)                                               |
-|       Developer <-------------> #ship-court <-------------> Human Judge (Exclusive)   |
-+------------------------------------------+--------------------------------------------+
-                                           |
-                                   Switch Chat Bridge
-                                           |
-+------------------------------------------v--------------------------------------------+
-|                                     SWITCH CORE                                       |
-|  • Room State & Message Bus               • Task & Decision Storage                   |
-|  • SSE In / HTTP Out Engine               • Exclusive Role Gate (approver)            |
-|  • Shared Instructions & Procedure        • Distributed Session Registry              |
-+------------------------------------------+--------------------------------------------+
-                                           |
-                    +----------------------+----------------------+
-                    |                                             |
-+-------------------v-------------------+ +-----------------------v---------------------+
-|        ALWAYS-ON SERVER HOST          | |          DEVELOPER / OPS MACHINE            |
-|  • Court Clerk (Orchestrator)         | |  • Defender (Local repo & tests)            |
-|  • Incident Historian (Memory search) | |  • Rollback Engineer (Runbook verification) |
-|  • Prosecutor (Adversarial review)    | |                                             |
-+-------------------+-------------------+ +-----------------------+---------------------+
-                    |                                             |
-                    +----------------------+----------------------+
-                                           |
-+------------------------------------------v--------------------------------------------+
-|                                 CORE EVIDENCE CHAIN                                   |
-|  GitHub PR / Diff / CI  --->  Incident Memory (INC-XXX)  --->  Rollback Runbook       |
-|  (Optional: Firecrawl web crawler for dynamic PR scraping)                            |
-+---------------------------------------------------------------------------------------+
+# Existing prepared checkout:
+.runtime\venv\Scripts\python.exe -m server.configure
+.runtime\venv\Scripts\python.exe -m server.main --serve --port 8080
 ```
 
----
+Open `http://127.0.0.1:8080`. The **Release workflow** panel uses the same authenticated services as the CLI. Read your generated `SHIPCOURT_TOKEN` from the gitignored `.env` and enter it in the access field; the dashboard keeps it in memory. Keep the server on loopback unless you put it behind HTTPS.
 
-## 🚀 Local Verification & Reproducibility
+Configure external services only when ready, using the [single credentials checklist](docs/CREDENTIALS.md). `server.configure` refuses to overwrite an existing credential. Copy individual settings from `.env.example` into `.env`; do not replace a generated `.env` wholesale.
 
-### 1. Clone & Install
-```bash
-git clone https://github.com/GaneshNair007/switch-AI.git
-cd switch-AI
-pip install -r requirements.txt
+## Workflow
+
+1. Open a real GitHub PR and name affected services from the configured dependency graph.
+2. Run the advisory review. Retrieved PR title, body, patch excerpts, reviewed head SHA, incident fixtures and modeled risk feed the existing LLM engine.
+3. Inspect the evidence and record **BLOCK**, **CONDITIONS**, or **APPROVE** as an authenticated approver.
+4. Preview GitHub changes. Execution requires a separate approval of that exact plan hash and rejects changed PR heads.
+5. Inspect returned GitHub URLs and correlated audit events.
+
+No deploy, rollback command, merge, or force push is executed. A GitHub failure is retained as failed/partial, including confirmed URLs obtained before failure. Replay uses durable operation records and remote markers to avoid repeating completed work.
+
+## Discord and meetings
+
+The optional Python Discord gateway supports authenticated `!court` commands, slow reviews without interaction timeouts, and actual **Grant Floor / Text Instead / Dismiss** buttons. Exact Discord user IDs are provisioned server-side; bots and display-name impersonation cannot approve.
+
+Meeting records include consent, transcript entries, approved decisions, assigned tasks, owners, source references, and summaries. Decisions and assignments persist after meetings end. See [commands and demo](docs/DEMO.md).
+
+```mermaid
+stateDiagram-v2
+    LISTENING --> EVALUATING
+    EVALUATING --> HAND_RAISED
+    HAND_RAISED --> WAITING
+    WAITING --> GRANTED: authenticated human
+    GRANTED --> SPEAKING: playback/text begins
+    SPEAKING --> YIELDING
+    YIELDING --> LISTENING
+    WAITING --> EXPIRED
+    WAITING --> DISMISSED
+    GRANTED --> CANCELLED
+    SPEAKING --> INTERRUPTED
 ```
 
-### 2. Validate Switch Template (Structural Pre-Checks)
-```bash
-python switch/validate_template.py
+One active AI floor owner is enforced per meeting. Requests have TTLs, deterministic priority order, duplicate suppression and cooldowns. Restart interrupts outstanding grants; it never resumes speech automatically.
+
+The optional Node voice gateway uses `@discordjs/voice` with DAVE, receives consented audio, sends it to Groq transcription, generates grounded hand requests, and plays Groq TTS only after a floor grant. Human speech interrupts pending or active playback. Raw audio is held briefly in bounded memory and is not stored on disk. **Actual Discord voice remains unverified until a real call is tested.**
+
+## Antigravity
+
+The bundled Scope Guard hook retrieves versioned assignments, denies unknown assignments, checks ownership/path boundaries, spools failed reports, and posts authenticated violations to `/api/v1/violations`. A violation opens a durable case; `/api/cases/attach` links its real PR before review. Human-approved exceptions name exact files and persist for the assignment's lifetime. They are not blanket ownership grants.
+
+Configure the actual IDE/CLI hook according to [the existing integration guide](linking_antigravity/README.md), plus [current backend configuration](docs/CREDENTIALS.md). Local hook-to-HTTP delivery is tested; actual editor installation must still be verified on the developer machine.
+
+## Parallel Earth and research
+
+The bundled dependency graph is illustrative. Financial exposure is a model that sums node rates; shared revenue can be double-counted. Canary success is a seeded Bernoulli model with an explicit failure probability. Neither result is an observed production measurement. Unsupported target services and invalid numeric inputs fail explicitly. Reports never claim an unexecuted rollback succeeded.
+
+An optional operator-configured staging endpoint can be sampled with bounded GET requests. It reports observed success rate and latency, without injecting faults or executing rollback.
+
+Research fetches bounded content only from operator-allowlisted HTTPS hosts, rejects redirects and invented source IDs, and records the LLM's supported/contradicted/inconclusive assessment with source excerpts. That assessment is not independent factual proof.
+
+## Tests
+
+```powershell
+.runtime\venv\Scripts\python.exe -m pytest -q
+.runtime\venv\Scripts\python.exe switch/validate_template.py
+npm.cmd ci --prefix voice --ignore-scripts
+node --test voice/audio.test.mjs
 ```
 
-### 3. Run Test Suite (21 Unit & HTTP API Tests)
-```bash
-python -m pytest -v tests/
-```
+The local integration tests exercise real HTTP delivery; external GitHub/LLM responses are explicitly controlled fixtures. Missing live provider credentials produce skips, not fake successes. Official Switch lint runs when `switch_core` is installed; otherwise the validator explicitly reports only structural checks. CI covers `main` and `arjit`, the Scope Guard suite, pinned official Switch lint, and local voice tests.
 
-### 4. Run the 10-Cycle Continuous Local Stress Verifier
-```bash
-python tests/stress_and_health_check.py
-```
+## Documentation and submission
 
-### 5. Run the Switch Native Courtroom Runner
-```bash
-# Runs natively when Switch Console is installed, or with offline protocol fallback
-python -m server.switch_native_runner
-```
+- [Credentials and account setup](docs/CREDENTIALS.md)
+- [Runnable demo and command reference](docs/DEMO.md)
+- [Verification, evidence, and known limitations](docs/VERIFICATION.md)
+- [Original product narrative and sample transcripts](docs/HISTORICAL_README.md)
 
-### 6. Run the Google Opal Workflow Bridge
-```bash
-# Executes chained multi-step workflow with Opal graph semantics over Switch room
-python -c "from server.opal_workflow import GoogleOpalWorkflowBridge; print(GoogleOpalWorkflowBridge().execute_workflow())"
-```
-
-### 7. Run the Local Multi-Agent Simulation Harness
-```bash
-python -m server.local_courtroom_simulation
-```
-
-### 8. Run the High-Concurrency 20,000-Request Stress Test
-```bash
-# Simulates 20,000 concurrent requests across 100 worker threads (100% pass, 0 dropouts)
-python tests/heavy_load_test.py -n 20000 -c 100
-```
-
----
-
-## 📜 Verifiable Terminal Artifact: Release Brief
-
-Every case terminates in an auditable Release Brief stored with the case record:
-
-```markdown
-# Release Brief - SC-0482
-Change: Dynamic checkout pricing
-Repository: acme/shop
-PR: #482
-Requested by: Priya
-Decision: SHIP WITH CONDITIONS
-
-## Risk assessment
-| # | Objection | Classification | Status | Evidence |
-|---|---|---|---|---|
-| 1 | Dynamic pricing may create cart-total mismatch between client and server. | BLOCKING | Mitigated | INC-017: client-side and server-side pricing divergence |
-| 2 | No monitoring exists for pricing inconsistency. | BLOCKING | Open | No alert named pricing-mismatch in monitoring configuration. |
-| 3 | Rollout percentage is not specified. | NOTE | Resolved | Deployment target specified canary without explicit traffic percentage. |
-
-## Rollback plan
-- Current version: v2.14.0
-- Rollback target: v2.13.2
-- Command: ./scripts/rollback.sh checkout-service v2.13.2
-- Health checks: checkout error rate < 1%, cart-service p95 latency < 400ms, pricing consistency job passes
-- Rollback owner: Priya
-- Execution status: READY -- requires explicit human approval
-
-## Conditions before full rollout
-- [ ] Configure canary 5% rollout -- Priya
-- [ ] add checkout mismatch alert -- DevOps
-- [ ] Confirm rollback owner and rehearse rollback (rollback) -- Priya
-
-## Decision record
-- Judge: Priya
-- Verdict: SHIP WITH CONDITIONS
-- Switch room: #ship-court
-- Case ID: SC-0482
-```
-
----
-
-## 👥 Hackathon Details & Authors
-- **Event:** WeMakeDevs × DevTools Academy × Switch AI Flip the Switch Hackathon
-- **Track:** Track 01 — Best Business Workflow
-- **Author:** Ganesh Nair ([@GaneshNair007](https://github.com/GaneshNair007))
-- **License:** [MIT](LICENSE)
+Target: Flip the Switch, Best Business Workflow. Submission is **not yet live-verified** and has not been published or submitted. Preserve a real human message, Switch handoff, authenticated decision, GitHub artifact URL, and common case ID in the final demonstration.

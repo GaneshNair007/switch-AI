@@ -89,29 +89,15 @@ class SwitchNativeCourtroom:
         # 2. Run procedural pipeline
         pipeline_res = self.manager.run_procedural_pipeline(case_id=case_id, rollback_owner=requested_by)
 
-        # 3. Human judge issues verdict
-        verdict_result = self.manager.record_verdict(
-            case_id=case_id,
-            command=f"@court-clerk verdict {verdict_text}",
-            judge=requested_by,
-            is_human=True,
-        )
-
-        # 4. Also record in room
-        self.room.handle_command(f"!verdict {verdict_text}", sender="human-judge")
-
-        active_case = self.manager.active_cases.get(case_id)
-        brief = active_case.release_brief if active_case else None
-
         return {
-            "status": "COMPLETED",
+            "status": "AWAITING_AUTHENTICATED_HUMAN",
+            "mode": "LOCAL_PROCEDURAL_SIMULATION",
             "case_id": case_id,
-            "switch_core_active": self.has_switch_core,
-            "verdict_result": verdict_result,
-            "pipeline_objections": len(pipeline_res.get("objections", [])),
+            "switch_core_importable": self.has_switch_core,
+            "switch_native_verified": False,
             "messages_count": len(self.room.messages),
             "sessions_count": len(self.room.sessions),
-            "has_brief": bool(brief),
+            "has_brief": False,
         }
 
 

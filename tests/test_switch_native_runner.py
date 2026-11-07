@@ -11,8 +11,9 @@ def test_switch_native_runner_execution():
         pr_number=482,
         requested_by="Priya",
     )
-    assert result["status"] == "COMPLETED"
+    assert result["status"] == "AWAITING_AUTHENTICATED_HUMAN"
     assert result["case_id"] == "SC-0482"
     assert result["sessions_count"] == 5
     assert result["messages_count"] >= 1
-    assert "SHIP WITH CONDITIONS" in result["verdict_result"]
+    assert result["switch_native_verified"] is False
+    assert result["has_brief"] is False

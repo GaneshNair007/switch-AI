@@ -1,5 +1,5 @@
 """Tests for ShipCourtHTTPHandler REST API and Webhooks."""
-import json, threading, time, urllib.request, urllib.error
+import json, threading, time, urllib.request, urllib.error, hashlib
 from unittest.mock import patch
 from http.server import HTTPServer
 import pytest
@@ -7,6 +7,7 @@ from server.main import ShipCourtHTTPHandler
 from server.case_manager import CaseManager
 from server.local_courtroom_simulation import setup_live_courtroom
 
+TOKEN = "test-http-credential-with-32-characters"
 PORT = 8999
 BASE_URL = f"http://127.0.0.1:{PORT}"
 
@@ -16,12 +17,16 @@ def run_test_server():
     mgr = CaseManager()
     ShipCourtHTTPHandler.room = room
     ShipCourtHTTPHandler.mgr = mgr
+    identity = {'id': 'test-http-human', 'token_sha256': hashlib.sha256(TOKEN.encode()).hexdigest(), 'roles': ['operator', 'approver'], 'scopes': ['*']}
+    mgr.authorization.identities.append(identity)
     httpd = HTTPServer(("127.0.0.1", PORT), ShipCourtHTTPHandler)
     server_thread = threading.Thread(target=httpd.serve_forever, daemon=True)
     server_thread.start()
     time.sleep(0.3)
     yield
     httpd.shutdown()
+    httpd.server_close()
+    mgr.authorization.identities.remove(identity)
 
 def test_health_endpoint():
     req = urllib.request.Request(f"{BASE_URL}/health")
@@ -45,7 +50,7 @@ def test_case_open_and_verdict_api():
     req = urllib.request.Request(
         f"{BASE_URL}/api/case/open",
         data=json.dumps({"pr_url": "https://github.com/acme/shop/pull/482"}).encode(),
-        headers={"Content-Type": "application/json"}
+        headers={"Content-Type": "application/json", "Authorization": "Bearer " + TOKEN}
     )
     with urllib.request.urlopen(req) as resp:
         assert resp.status == 200
@@ -72,7 +77,7 @@ def test_case_open_and_verdict_api():
             "judge": "Priya",
             "is_human": True
         }).encode(),
-        headers={"Content-Type": "application/json"}
+        headers={"Content-Type": "application/json", "Authorization": "Bearer " + TOKEN}
     )
     with urllib.request.urlopen(req_good) as resp:
         assert resp.status == 200
@@ -100,7 +105,7 @@ def test_debate_endpoint_contract():
         req = urllib.request.Request(
             f"{BASE_URL}/api/debate",
             data=json.dumps({"task": "Test Canary Migration", "repo": "acme/shop", "judge": "Priya"}).encode(),
-            headers={"Content-Type": "application/json"}
+            headers={"Content-Type": "application/json", "Authorization": "Bearer " + TOKEN}
         )
         with urllib.request.urlopen(req) as resp:
             assert resp.status == 200
@@ -117,7 +122,7 @@ def test_debate_endpoint_rejects_empty_task():
     req = urllib.request.Request(
         f"{BASE_URL}/api/debate",
         data=json.dumps({"task": "", "repo": "acme/shop"}).encode(),
-        headers={"Content-Type": "application/json"}
+        headers={"Content-Type": "application/json", "Authorization": "Bearer " + TOKEN}
     )
     with pytest.raises(urllib.error.HTTPError) as exc_info:
         urllib.request.urlopen(req)

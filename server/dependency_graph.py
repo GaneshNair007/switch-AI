@@ -4,6 +4,7 @@ Analyzes downstream microservice topologies, calculates monetary and systemic bl
 radii, and produces evidentiary graphs for courtroom cross-examination.
 """
 from __future__ import annotations
+import math
 from typing import Dict, List, Set, Any
 from dataclasses import dataclass, field
 
@@ -64,7 +65,7 @@ class DependencyGraph:
     }
 
     def __init__(self, topology: Dict[str, ServiceNode] | None = None):
-        self.nodes: Dict[str, ServiceNode] = topology or dict(self.DEFAULT_TOPOLOGY)
+        self.nodes: Dict[str, ServiceNode] = dict(self.DEFAULT_TOPOLOGY) if topology is None else dict(topology)
 
     def register_service(self, service: ServiceNode) -> None:
         """Register or update a service node in the topology."""
@@ -88,6 +89,10 @@ class DependencyGraph:
 
     def calculate_blast_radius(self, target_service: str, estimated_downtime_minutes: float = 30.0) -> Dict[str, Any]:
         """Calculate forensic blast radius including financial exposure and affected nodes."""
+        if not target_service or target_service not in self.nodes:
+            raise ValueError("Target service must exist in the configured topology")
+        if not math.isfinite(estimated_downtime_minutes) or estimated_downtime_minutes < 0:
+            raise ValueError("Downtime must be finite and non-negative")
         impacted_downstream = self.get_downstream_closure(target_service)
         all_impacted = {target_service}.union(impacted_downstream)
 

@@ -1,6 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 import fnmatch
+import uuid
+from pathlib import PurePosixPath
 import time
 from typing import Any, Dict, List, Optional
 from .bridge_connector import ChatBridgeConnector
@@ -85,7 +87,11 @@ class AntigravitySubpoenaBridge:
         )
 
     def _matches_any(self, path: str, globs: List[str]) -> bool:
-        norm = path.lstrip("./")
+        norm = path.replace("\\", "/")
+        if not norm or PurePosixPath(norm).is_absolute() or ":" in norm or ".." in PurePosixPath(norm).parts:
+            return False
+        while norm.startswith("./"):
+            norm = norm[2:]
         return any(fnmatch.fnmatch(norm, g) for g in globs)
 
     def _find_owner_of_path(self, path: str, exclude_teammate: str) -> Optional[TeammateScopeAssignment]:
@@ -100,7 +106,7 @@ class AntigravitySubpoenaBridge:
         self, attempt: AntigravityToolAttempt, case_registry: Optional[Dict[str, Case]] = None
     ) -> Dict[str, Any]:
         assignment = self.assignments.get(attempt.teammate_id)
-        if assignment and self._matches_any(attempt.target_path, assignment.allowed_globs):
+        if assignment and self._matches_any(attempt.target_path, assignment.allowed_globs) and not self._find_owner_of_path(attempt.target_path, attempt.teammate_id):
             msg = (
                 f"✅ [Antigravity Scope Guard] Permitted `{attempt.tool_name}` by "
                 f"`{attempt.teammate_id}` on in-scope file `{attempt.target_path}`."
@@ -117,8 +123,8 @@ class AntigravitySubpoenaBridge:
             )
         )
 
-        subpoena_id = f"SUBPOENA-{len(self.subpoenas) + 1:03d}"
-        case_id = f"CASE-AG-{len(self.subpoenas) + 101}"
+        subpoena_id = f"SUBPOENA-{uuid.uuid4().hex}"
+        case_id = f"CASE-AG-{uuid.uuid4().hex}"
         reason = (
             f"Teammate `{attempt.teammate_id}` attempted `{attempt.tool_name}` on out-of-scope file "
             f"`{attempt.target_path}` (owned by `{colliding_id}`). Diff: {attempt.diff_summary}"
@@ -156,7 +162,7 @@ class AntigravitySubpoenaBridge:
             case_registry[case_id] = new_case
 
         alert_text = (
-            f"🛰️ **[AUTO-SUBPOENA {subpoena_id}]** Antigravity PreToolUse Hook froze `{attempt.tool_name}` "
+            f"🛰️ **[AUTO-SUBPOENA {subpoena_id}]** Scope policy rejected `{attempt.tool_name}` "
             f"by `{attempt.teammate_id}` on `{attempt.target_path}` (collides with `{colliding_id}`). "
             f"Summoning 3-AI Ship Court under Case `{case_id}`!"
         )

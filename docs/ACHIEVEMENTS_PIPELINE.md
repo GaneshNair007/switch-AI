@@ -1,3 +1,5 @@
+> Historical planning/sample evidence. Current verified behavior and limitations are documented in [VERIFICATION.md](VERIFICATION.md). Do not treat sample transcripts as live proof.
+
 # Ship Court Architecture & Engineering Pipeline
 
 This document records the engineering methodology, adversarial AI framework, and collaborative development flow powering Ship Court.

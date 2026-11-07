@@ -2,10 +2,10 @@ name: Ship Court CI & Switch Validation
 
 on:
   push:
-    branches: [ main, courtroom-ship-court ]
+    branches: [ main, arjit, courtroom-ship-court ]
     tags: [ 'v*' ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, arjit ]
   workflow_dispatch:
 
 jobs:
@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements.txt -r requirements-discord.txt
 
       - name: Validate Switch Console Template Schema Pre-Checks
         run: |
@@ -34,7 +34,7 @@ jobs:
 
       - name: Run Pytest Suite
         run: |
-          python -m pytest -v tests/
+          python scripts/run.py pytest -q tests/ linking_antigravity/tests/
 
       - name: Run Local Courtroom Multi-Agent Simulation
         run: |
@@ -121,3 +121,29 @@ jobs:
           else:
               print(f"Credential validation passed for all {checked} configured provider(s).")
           PY
+
+  official-template:
+    name: Official Switch template lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install reviewed Switch source revision
+        run: pip install 'git+https://github.com/sandbox-quantum/switch.git@7bf37f8f82b45865b0f0bb207857fd9c25796172#subdirectory=core'
+      - run: python switch/validate_template.py
+
+  voice-local:
+    name: Voice codec and permission-state tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.18.0'
+          cache: npm
+          cache-dependency-path: voice/package-lock.json
+      - run: npm ci --prefix voice --ignore-scripts
+      - run: node --test voice/audio.test.mjs
+      - run: node --check voice/gateway.mjs

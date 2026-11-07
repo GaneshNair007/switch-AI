@@ -20,14 +20,15 @@ class GitHubOperationRecord:
     labels_applied: List[str] = field(default_factory=list)
     created_issues: List[str] = field(default_factory=list)
     rollback_branch: Optional[str] = None
+    mode: str = "SIMULATED — NO EXTERNAL GITHUB CHANGE"
     timestamp: float = field(default_factory=time.time)
 
 
 class GitHubOpsAgent:
     VERDICT_LABEL_MAP: Dict[VerdictType, str] = {
-        VerdictType.APPROVED: "ship-court:approved",
-        VerdictType.CONDITIONAL: "ship-court:conditional",
-        VerdictType.BLOCKED: "ship-court:blocked",
+        VerdictType.APPROVE: "ship-court:approved",
+        VerdictType.CONDITIONS: "ship-court:conditional",
+        VerdictType.BLOCK: "ship-court:blocked",
     }
 
     def __init__(self, room: SwitchRoom, bridge: Optional[ChatBridgeConnector] = None, ledger_path: Optional[Path] = None):
@@ -45,13 +46,13 @@ class GitHubOpsAgent:
         earth_report: Optional[EarthSimulationReport] = None,
         pr_number: int = 18,
     ) -> GitHubOperationRecord:
-        if not self.room.enforce_human_verdict_gate(human_approver):
+        if not self.room.enforce_human_verdict_gate(human_approver, scope=f"case:{case.case_id}:github"):
             raise PermissionError(f"GitHubOpsAgent blocked: `{human_approver}` is not an authorized human approver.")
         labels = [self.VERDICT_LABEL_MAP[verdict.type], "antigravity:scope-checked"]
         if earth_report and earth_report.auto_rollback_verified:
             labels.append("parallel-earth:verified")
         created_issues = [f"[ShipCourt Condition {c.id}] {c.description[:60]}" for c in verdict.conditions]
-        rollback_branch = f"rollback/{case.case_id.lower()}" if verdict.type != VerdictType.APPROVED else None
+        rollback_branch = f"rollback/{case.case_id.lower()}" if verdict.type != VerdictType.APPROVE else None
         op_id = f"GH-OP-{len(self.operations) + 1:03d}"
         record = GitHubOperationRecord(
             op_id=op_id,
@@ -65,7 +66,7 @@ class GitHubOpsAgent:
             rollback_branch=rollback_branch,
         )
         self.operations.append(record)
-        msg = f"🐙 **[GITHUB OPS {op_id}]** Applied labels `{labels}`, opened {len(created_issues)} condition issues, armed `{rollback_branch}`."
+        msg = f"🐙 **[GITHUB OPS {op_id}]** SIMULATED — NO EXTERNAL GITHUB CHANGE. Proposed labels `{labels}`, {len(created_issues)} condition issues, rollback branch `{rollback_branch}`."
         self.room.post_message("github-ops", msg, sender_role="github-ops")
         if self.bridge:
             self.bridge.forward_to_chat(msg)

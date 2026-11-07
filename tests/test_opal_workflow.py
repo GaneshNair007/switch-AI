@@ -21,10 +21,10 @@ def test_opal_workflow_execution():
         judge_name="Priya",
         canary_percent=5.0,
     )
-    assert result["status"] == "SUCCESS"
+    assert result["status"] == "AWAITING_AUTHENTICATED_HUMAN"
     assert result["case_id"] == "SC-0482"
-    assert result["verdict"] == "CONDITIONS"
-    assert len(result["execution_steps"]) == 7
-    assert result["brief_published"] is True
+    assert result["verdict"] is None
+    assert len(result["execution_steps"]) == 6
+    assert result["brief_published"] is False
     assert result["switch_room"] == "#ship-court"
 

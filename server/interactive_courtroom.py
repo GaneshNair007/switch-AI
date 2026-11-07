@@ -260,67 +260,7 @@ class InteractiveCourtroom:
         print(f"🎯  JUDGE'S PRIORITY   : {priority}")
         print(f"📝  LEGAL RATIONALE    : {explanation}\n")
 
-        # 7. Official Verdict Rendering
-        print("-" * 80)
-        print(f"[STEP 6: PRESIDING JUDGE @{self.judge_name} RENDERS BINDING VERDICT]")
-        print("-" * 80)
-        verdict_command = f"@court-clerk verdict {verdict_decision} reason=\"{explanation}\""
-        print(f"Judge (@{self.judge_name}) in #ship-court: {verdict_command}\n")
-        self.room.post_message(self.judge_name, verdict_command)
-
-        # Record tasks and decisions
-        if verdict_decision == "CONDITIONS":
-            tasks = [
-                f"Staged canary rollout capped at 5% traffic for 30m (Owner: {self.judge_name})",
-                f"Activate real-time pricing and error spike alert (Owner: SRE-Team)",
-                f"Verify rollback trigger ./scripts/emergency-rollback.sh (Owner: {self.judge_name})"
-            ]
-        elif verdict_decision == "BLOCK":
-            tasks = [
-                f"Remediate blocking schema flaw OBJ-CRIT-2 in staging environment (Owner: Developer)",
-                f"Implement idempotency deduplication test suite (Owner: QA-Team)"
-            ]
-        else:
-            tasks = [
-                f"Execute canary deployment to production (Owner: {self.judge_name})",
-                f"Monitor error rates for 60m post-deployment (Owner: SRE-Team)"
-            ]
-
-        verdict_obj = VerdictParser.parse_command(verdict_command, judge_name=self.judge_name)
-        self.room.record_decision(case.case_id, verdict_obj)
-
-        final_brief = (
-            f"⚖️  FINAL COURT JUDGMENT PUBLISHED: {verdict_decision}\n\n"
-            f"Summary of Adjudication:\n"
-            f"  - Case ID              : {case.case_id}\n"
-            f"  - Dominant Argument    : {winner} (Score: {max(prosecution_power, defense_power)} vs {min(prosecution_power, defense_power)})\n"
-            f"  - Ruling               : {priority}\n"
-            f"  - Presiding Judge      : @{self.judge_name} (Exclusive Human Gate)\n\n"
-            f"Binding Operational Tasks Created in Switch:\n" +
-            "\n".join([f"  {i}. [OPEN] {t}" for i, t in enumerate(tasks, 1)]) + "\n\n"
-            f"STATUS: VERDICT RECORDED IN AUDIT LEDGER. TRIAL ADJOURNED."
-        )
-        self.room.post_message("court-clerk", final_brief)
-        print(f"[@court-clerk]:\n{final_brief}\n")
-
-        return {
-            "case_id": case.case_id,
-            "task": task_description,
-            "prosecution_power": prosecution_power,
-            "defense_power": defense_power,
-            "winner": winner,
-            "verdict": verdict_decision,
-            "priority": priority,
-            "tasks": tasks,
-            "messages": [{"sender": m.sender, "content": m.content, "timestamp": m.timestamp} for m in self.room.messages]
-        }
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Run Ship Court Interactive Multi-Agent Debate")
-    parser.add_argument("--task", type=str, default="Emergency Stripe checkout webhook refactor + DB migration removing customer_id nullability, bypassing staging because Black Friday is in 2 hours", help="The task / PR description")
-    parser.add_argument("--repo", type=str, default="acme/shop", help="Repository name")
-    parser.add_argument("--judge", type=str, default="Priya", help="Human approver / judge name")
-    args = parser.parse_args()
-
-    courtroom = InteractiveCourtroom(judge_name=args.judge)
-    courtroom.run_debate_on_task(args.task, repo=args.repo)
+        print("Advisory simulation complete. An authenticated human decision is required.")
+        return {"case_id": case.case_id, "task": task_description,
+                "verdict": verdict_decision, "binding_authorization": False,
+                "mode": "LOCAL_SIMULATION", "status": "AWAITING_AUTHENTICATED_HUMAN"}

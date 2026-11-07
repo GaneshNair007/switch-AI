@@ -1,3 +1,5 @@
+> Historical planning/sample evidence. Current verified behavior and limitations are documented in [VERIFICATION.md](VERIFICATION.md). Do not treat sample transcripts as live proof.
+
 # Ship Court Integration Evidence Ledger
 
 This document collects verified, non-fabricated execution evidence from real commands executed against the local environment, LLM providers, and Switch Core v0.31.0.

@@ -1,6 +1,8 @@
 """Case Manager: orchestrates case intake, bounded agent rounds, and verdict enforcement."""
 from __future__ import annotations
-import random
+import uuid
+import threading
+from .authorization import default_authorization
 from typing import Dict, Any, Optional, List
 from .models import Case, CaseState, ObjectionSeverity, RollbackStatus
 from .evidence import EvidenceCollector
@@ -11,7 +13,9 @@ from .verdict import VerdictParser
 from .release_brief import ReleaseBriefGenerator
 
 class CaseManager:
-    def __init__(self, data_dir=None):
+    def __init__(self, data_dir=None, authorization=None):
+        self.authorization = authorization or default_authorization()
+        self._verdict_lock = threading.RLock()
         self.evidence_collector = EvidenceCollector(data_dir=data_dir)
         self.rollback_engine = RollbackEngine(data_dir=data_dir)
         self.prosecutor_rules = ProsecutorRuleEngine
@@ -20,7 +24,7 @@ class CaseManager:
 
     def open_case(self, pr_url: str, custom_case_id: Optional[str] = None, task_description: Optional[str] = None) -> Case:
         """Initialize a new courtroom case from PR URL or custom task description."""
-        case_id = custom_case_id or f"SC-{random.randint(100, 999):04d}"
+        case_id = custom_case_id or f"SC-{uuid.uuid4().hex}"
         repo_meta = self.evidence_collector.fetch_pr_evidence(pr_url)
         ci_meta = repo_meta.get("ci_status", {})
         ci_str = f"{ci_meta.get('passed', 42)} passed, {ci_meta.get('failed', 0)} failed" if isinstance(ci_meta, dict) else str(ci_meta)
@@ -97,17 +101,21 @@ class CaseManager:
             "rollback_status": case.rollback_plan.execution_status.value
         }
 
-    def record_verdict(self, case_id: str, command: str, judge: str = "Priya", is_human: bool = True) -> str:
+    def record_verdict(self, case_id: str, command: str, judge: str = "Priya", is_human: bool = True, principal=None) -> str:
         """Enforce exclusive human approver role and register final verdict."""
+        self.authorization.require(principal, scope=f"case:{case_id}:verdict")
         if not is_human:
             raise PermissionError("Security violation: Only a human holding the exclusive approver role may issue a verdict.")
-        case = self.active_cases.get(case_id)
-        if not case:
-            raise KeyError(f"Case '{case_id}' not found.")
+        with self._verdict_lock:
+            case = self.active_cases.get(case_id)
+            if not case:
+                raise KeyError(f"Case '{case_id}' not found.")
 
-        verdict = VerdictParser.parse_command(command, judge_name=judge)
-        VerdictParser.apply_verdict(case, verdict)
-        case.release_brief = ReleaseBriefGenerator.generate_markdown(case)
-        case.state = CaseState.CASE_CLOSED
-        return case.release_brief
+            if case.state != CaseState.AWAITING_VERDICT:
+                raise ValueError("Case must be awaiting a human verdict")
+            verdict = VerdictParser.parse_command(command, judge_name=principal.subject)
+            VerdictParser.apply_verdict(case, verdict)
+            case.release_brief = ReleaseBriefGenerator.generate_markdown(case)
+            case.state = CaseState.CASE_CLOSED
+            return case.release_brief
 
