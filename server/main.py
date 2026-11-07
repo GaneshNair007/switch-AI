@@ -104,9 +104,13 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
             body = {}
 
         if self.path == "/api/debate":
-            task_desc = body.get("task", "Dynamic checkout pricing rollout")
-            repo = body.get("repo", "acme/shop")
-            judge = body.get("judge", "Priya")
+            task_desc = str(body.get("task", "")).strip()
+            if not task_desc:
+                self._set_headers(400)
+                self.wfile.write(json.dumps({"error": "Task description is required. No default or hardcoded task will be assumed."}).encode("utf-8"))
+                return
+            repo = str(body.get("repo", "")).strip() or "unspecified-repository"
+            judge = str(body.get("judge", "")).strip() or "Release-Judge"
             from .live_courtroom_debate import LiveCourtroomDebateEngine
             engine = LiveCourtroomDebateEngine()
             try:
