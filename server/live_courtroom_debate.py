@@ -234,7 +234,7 @@ class LiveCourtroomDebateEngine:
             f"DEFENSE REBUTTAL:\n{defender_output}\n\n"
             f"Presiding Judge (@{judge_name}), evaluate the evidence, assign power scores, and render your binding judgment with explicit conditions!"
         )
-        judge_output, judge_live = self._call_llm(self.k_judge, judge_system, judge_prompt, max_tokens=220, temperature=0.2, role="judge", task_context=task_description)
+        judge_output, judge_live = self._call_llm(self.k_judge, judge_system, judge_prompt, max_tokens=280, temperature=0.2, role="judge", task_context=task_description)
 
         # Extract structured metrics from Judge
         pros_score = 50
