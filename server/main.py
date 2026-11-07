@@ -91,6 +91,17 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
         if self.path in ("/", "/dashboard", "/ui"):
             self._set_headers(200, "text/html; charset=utf-8")
             self.wfile.write(HTML_DASHBOARD.encode("utf-8"))
+        elif self.path.startswith("/assets/"):
+            asset_name = os.path.basename(self.path.split("?")[0])
+            asset_path = Path(__file__).resolve().parent.parent / "assets" / asset_name
+            if asset_path.exists() and asset_path.is_file():
+                content_type = "image/svg+xml" if asset_name.endswith(".svg") else "application/octet-stream"
+                self._set_headers(200, content_type)
+                with open(asset_path, "rb") as f:
+                    self.wfile.write(f.read())
+            else:
+                self._set_headers(404)
+                self.wfile.write(b"Not Found")
         elif self.path == "/api/keys":
             self._set_headers(200)
             self.wfile.write(json.dumps(llm_manager.get_keys_status(), indent=2).encode("utf-8"))

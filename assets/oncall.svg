@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="540" viewBox="0 0 1200 540" font-family="Inter,'Segoe UI',-apple-system,'Helvetica Neue',Arial,sans-serif">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0e1f"/><stop offset="1" stop-color="#1a1040"/></linearGradient>
+<linearGradient id="brand" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1200" y2="0"><stop offset="0" stop-color="#a78bfa"/><stop offset=".5" stop-color="#22d3ee"/><stop offset="1" stop-color="#4ade80"/></linearGradient>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect width="1200" height="540" rx="22" fill="url(#bg)"/><rect x="1" y="1" width="1198" height="538" rx="21" fill="none" stroke="#fff" stroke-opacity=".09"/>
+<text x="30" y="40" font-size="15" fill="url(#brand)" font-weight="800" letter-spacing="3" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace">CHATGPT ON-CALL AGENT  //  THIRD VOICE</text>
+<circle cx="842" cy="34" r="6" fill="#fb7185" filter="url(#glow)"><animate attributeName="opacity" values="1;.25;1" dur="1.6s" repeatCount="indefinite"/></circle>
+<text x="1170" y="40" text-anchor="end" font-size="13" fill="#9aa3c7" font-weight="700" letter-spacing="1" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace">LIVE · #meeting-floor · Boardroom Live</text>
+<line x1="30" y1="56" x2="1170" y2="56" stroke="#fff" stroke-opacity=".08"/>
+<rect x="30" y="76" width="170" height="156" rx="16" fill="#a78bfa" fill-opacity=".07" stroke="#a78bfa" stroke-opacity=".45" stroke-width="1.5"/>
+<circle cx="115.0" cy="130" r="30" fill="#a78bfa" fill-opacity=".18" stroke="#a78bfa" stroke-width="2.5"/>
+<text x="115.0" y="139" font-size="22" fill="#a78bfa" font-weight="900" text-anchor="middle" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace">T1</text>
+<text x="115.0" y="186" font-size="16" fill="#e8eaff" font-weight="800" text-anchor="middle">Teammate 1</text>
+<text x="115.0" y="208" font-size="12.5" fill="#9aa3c7" text-anchor="middle">Frontend scope</text>
+<rect x="216" y="76" width="170" height="156" rx="16" fill="#fbbf24" fill-opacity=".07" stroke="#fbbf24" stroke-opacity=".45" stroke-width="1.5"/>
+<circle cx="301.0" cy="130" r="30" fill="#fbbf24" fill-opacity=".18" stroke="#fbbf24" stroke-width="2.5"/>
+<text x="301.0" y="139" font-size="22" fill="#fbbf24" font-weight="900" text-anchor="middle" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace">T2</text>
+<text x="301.0" y="186" font-size="16" fill="#e8eaff" font-weight="800" text-anchor="middle">Teammate 2</text>
+<text x="301.0" y="208" font-size="12.5" fill="#9aa3c7" text-anchor="middle">Pricing scope</text>
+<rect x="402" y="76" width="170" height="156" rx="16" fill="#4ade80" fill-opacity=".07" stroke="#4ade80" stroke-opacity=".45" stroke-width="1.5"/>
+<circle cx="487.0" cy="130" r="30" fill="#4ade80" fill-opacity=".18" stroke="#4ade80" stroke-width="2.5"/>
+<text x="487.0" y="139" font-size="22" fill="#4ade80" font-weight="900" text-anchor="middle" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace">T3</text>
+<text x="487.0" y="186" font-size="16" fill="#e8eaff" font-weight="800" text-anchor="middle">Teammate 3</text>
+<text x="487.0" y="208" font-size="12.5" fill="#9aa3c7" text-anchor="middle">Infra / Auth scope</text>
+<rect x="588" y="76" width="170" height="156" rx="16" fill="#22d3ee" fill-opacity=".12" stroke="#22d3ee" stroke-opacity=".9" stroke-width="2.5" stroke-dasharray="7 5"><animate attributeName="stroke-dashoffset" values="0;-24" dur="1.4s" repeatCount="indefinite"/></rect>
+<circle cx="673.0" cy="130" r="30" fill="#22d3ee" fill-opacity=".18" stroke="#22d3ee" stroke-width="2.5"/>
+<circle cx="673.0" cy="130" r="30" fill="none" stroke="#22d3ee" stroke-width="2"><animate attributeName="r" values="30;50;30" dur="2.4s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".8;0;.8" dur="2.4s" repeatCount="indefinite"/></circle>
+<text x="673.0" y="139" font-size="22" fill="#22d3ee" font-weight="900" text-anchor="middle" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace">3V</text>
+<text x="673.0" y="186" font-size="16" fill="#e8eaff" font-weight="800" text-anchor="middle">ChatGPT</text>
+<text x="673.0" y="208" font-size="12.5" fill="#9aa3c7" text-anchor="middle">Third Voice · on call</text>
+<g><rect x="233" y="64" width="112" height="22" rx="11" fill="#fbbf24"><animate attributeName="opacity" values="1;.55;1" dur="1.8s" repeatCount="indefinite"/></rect><text x="289" y="79.5" font-size="11" fill="#0a0e1f" font-weight="900" text-anchor="middle" letter-spacing="1" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace">SCOPE DRIFT</text></g>
+<g><rect x="663" y="64" width="86" height="22" rx="11" fill="#22d3ee"/><text x="706" y="79.5" font-size="11" fill="#0a0e1f" font-weight="900" text-anchor="middle" letter-spacing="1" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace">ON CALL</text></g>
+<rect x="30" y="252" width="728" height="176" rx="18" fill="#fbbf24" fill-opacity=".07" stroke="#fbbf24" stroke-width="2"><animate attributeName="stroke-opacity" values=".35;1;.35" dur="2.2s" repeatCount="indefinite"/></rect>
+<path d="M72 280 l26 46 h-52 z" fill="#fbbf24" fill-opacity=".2" stroke="#fbbf24" stroke-width="2.5" stroke-linejoin="round"/><text x="72" y="320" font-size="22" fill="#fbbf24" font-weight="900" text-anchor="middle">!</text>
+<text x="118" y="292" font-size="12.5" fill="#fbbf24" font-weight="800" letter-spacing="2" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace">HIGH PRIORITY HAND RAISED</text>
+<text x="118" y="318" font-size="18" fill="#e8eaff" font-weight="800">Edit conflicts with approved Decision #DEC-014</text>
+<text x="118" y="340" font-size="14" fill="#9aa3c7">Teammate 2 touched pricing-engine + checkout-service.</text>
+<text x="118" y="360" font-size="14" fill="#9aa3c7">Auto-Subpoena opened CASE-AG-101.</text>
+<rect x="56" y="376" width="676" height="6" rx="3" fill="#fff" fill-opacity=".08"/>
+<rect x="56" y="376" width="676" height="6" rx="3" fill="#fbbf24"><animate attributeName="width" values="676;0;0" keyTimes="0;.85;1" dur="12s" repeatCount="indefinite"/></rect>
+<text x="732" y="372" font-size="10.5" fill="#fbbf24" font-weight="700" text-anchor="end" letter-spacing="1" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace">TTL · CARD EXPIRES</text>
+<rect x="56" y="390" width="186" height="28" rx="9" fill="#4ade80" fill-opacity=".28" stroke="#4ade80" stroke-opacity=".85"><animate attributeName="fill-opacity" values=".15;.4;.15" dur="2.2s" repeatCount="indefinite"/></rect>
+<text x="149.0" y="409" font-size="13" fill="#4ade80" font-weight="800" text-anchor="middle">Grant Floor</text>
+<rect x="256" y="390" width="150" height="28" rx="9" fill="#22d3ee" fill-opacity=".1" stroke="#22d3ee" stroke-opacity=".85"/>
+<text x="331.0" y="409" font-size="13" fill="#22d3ee" font-weight="800" text-anchor="middle">Text Instead</text>
+<rect x="420" y="390" width="150" height="28" rx="9" fill="#fb7185" fill-opacity=".1" stroke="#fb7185" stroke-opacity=".85"/>
+<text x="495.0" y="409" font-size="13" fill="#fb7185" font-weight="800" text-anchor="middle">Dismiss</text>
+<text x="788" y="96" font-size="12.5" fill="#22d3ee" font-weight="800" letter-spacing="2" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace">THREE STREAMS MONITORED</text>
+<rect x="788" y="110" width="382" height="64" rx="14" fill="#a78bfa" fill-opacity=".07" stroke="#a78bfa" stroke-opacity=".5"/>
+<circle cx="822" cy="142" r="5" fill="#a78bfa"><animate attributeName="opacity" values="1;.2;1" dur="1.5s" begin="0.0s" repeatCount="indefinite"/></circle>
+<circle cx="822" cy="142" r="5" fill="none" stroke="#a78bfa"><animate attributeName="r" values="5;17;5" dur="1.5s" begin="0.0s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".9;0;.9" dur="1.5s" begin="0.0s" repeatCount="indefinite"/></circle>
+<text x="852" y="138" font-size="16" fill="#e8eaff" font-weight="800">Teammates / Antigravity</text>
+<text x="852" y="158" font-size="13" fill="#9aa3c7">Undeclared scope drift</text>
+<rect x="788" y="186" width="382" height="64" rx="14" fill="#fb7185" fill-opacity=".07" stroke="#fb7185" stroke-opacity=".5"/>
+<circle cx="822" cy="218" r="5" fill="#fb7185"><animate attributeName="opacity" values="1;.2;1" dur="1.5s" begin="0.5s" repeatCount="indefinite"/></circle>
+<circle cx="822" cy="218" r="5" fill="none" stroke="#fb7185"><animate attributeName="r" values="5;17;5" dur="1.5s" begin="0.5s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".9;0;.9" dur="1.5s" begin="0.5s" repeatCount="indefinite"/></circle>
+<text x="852" y="214" font-size="16" fill="#e8eaff" font-weight="800">Courtroom</text>
+<text x="852" y="234" font-size="13" fill="#9aa3c7">Contradiction Radar vs audit_ledger.py</text>
+<rect x="788" y="262" width="382" height="64" rx="14" fill="#4ade80" fill-opacity=".07" stroke="#4ade80" stroke-opacity=".5"/>
+<circle cx="822" cy="294" r="5" fill="#4ade80"><animate attributeName="opacity" values="1;.2;1" dur="1.5s" begin="1.0s" repeatCount="indefinite"/></circle>
+<circle cx="822" cy="294" r="5" fill="none" stroke="#4ade80"><animate attributeName="r" values="5;17;5" dur="1.5s" begin="1.0s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".9;0;.9" dur="1.5s" begin="1.0s" repeatCount="indefinite"/></circle>
+<text x="852" y="290" font-size="16" fill="#e8eaff" font-weight="800">Parallel Earth</text>
+<text x="852" y="310" font-size="13" fill="#9aa3c7">Unmitigated Tier-1 blast radius</text>
+<rect x="788" y="348" width="382" height="80" rx="14" fill="#22d3ee" fill-opacity=".07" stroke="#22d3ee" stroke-opacity=".5"/>
+<text x="806" y="372" font-size="11.5" fill="#22d3ee" font-weight="800" letter-spacing="2" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace">SPEAKING · 20-SECOND BRIEFING</text>
+<rect x="806" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="17;30;17" dur="0.60s" repeatCount="indefinite"/><animate attributeName="y" values="390;383;390" dur="0.60s" repeatCount="indefinite"/></rect>
+<rect x="817" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="23;30;23" dur="0.73s" repeatCount="indefinite"/><animate attributeName="y" values="387;383;387" dur="0.73s" repeatCount="indefinite"/></rect>
+<rect x="828" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="26;30;26" dur="0.86s" repeatCount="indefinite"/><animate attributeName="y" values="385;383;385" dur="0.86s" repeatCount="indefinite"/></rect>
+<rect x="839" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="25;30;25" dur="0.99s" repeatCount="indefinite"/><animate attributeName="y" values="386;383;386" dur="0.99s" repeatCount="indefinite"/></rect>
+<rect x="850" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="20;30;20" dur="1.12s" repeatCount="indefinite"/><animate attributeName="y" values="388;383;388" dur="1.12s" repeatCount="indefinite"/></rect>
+<rect x="861" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="14;30;14" dur="0.60s" repeatCount="indefinite"/><animate attributeName="y" values="391;383;391" dur="0.60s" repeatCount="indefinite"/></rect>
+<rect x="872" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="9;25;9" dur="0.73s" repeatCount="indefinite"/><animate attributeName="y" values="393;385;393" dur="0.73s" repeatCount="indefinite"/></rect>
+<rect x="883" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="8;24;8" dur="0.86s" repeatCount="indefinite"/><animate attributeName="y" values="394;386;394" dur="0.86s" repeatCount="indefinite"/></rect>
+<rect x="894" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="11;27;11" dur="0.99s" repeatCount="indefinite"/><animate attributeName="y" values="392;384;392" dur="0.99s" repeatCount="indefinite"/></rect>
+<rect x="905" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="17;30;17" dur="1.12s" repeatCount="indefinite"/><animate attributeName="y" values="389;383;389" dur="1.12s" repeatCount="indefinite"/></rect>
+<rect x="916" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="23;30;23" dur="0.60s" repeatCount="indefinite"/><animate attributeName="y" values="387;383;387" dur="0.60s" repeatCount="indefinite"/></rect>
+<rect x="927" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="26;30;26" dur="0.73s" repeatCount="indefinite"/><animate attributeName="y" values="385;383;385" dur="0.73s" repeatCount="indefinite"/></rect>
+<rect x="938" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="25;30;25" dur="0.86s" repeatCount="indefinite"/><animate attributeName="y" values="386;383;386" dur="0.86s" repeatCount="indefinite"/></rect>
+<rect x="949" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="20;30;20" dur="0.99s" repeatCount="indefinite"/><animate attributeName="y" values="388;383;388" dur="0.99s" repeatCount="indefinite"/></rect>
+<rect x="960" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="14;30;14" dur="1.12s" repeatCount="indefinite"/><animate attributeName="y" values="391;383;391" dur="1.12s" repeatCount="indefinite"/></rect>
+<rect x="971" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="9;25;9" dur="0.60s" repeatCount="indefinite"/><animate attributeName="y" values="393;385;393" dur="0.60s" repeatCount="indefinite"/></rect>
+<rect x="982" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="8;24;8" dur="0.73s" repeatCount="indefinite"/><animate attributeName="y" values="394;386;394" dur="0.73s" repeatCount="indefinite"/></rect>
+<rect x="993" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="11;27;11" dur="0.86s" repeatCount="indefinite"/><animate attributeName="y" values="392;384;392" dur="0.86s" repeatCount="indefinite"/></rect>
+<rect x="1004" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="17;30;17" dur="0.99s" repeatCount="indefinite"/><animate attributeName="y" values="389;383;389" dur="0.99s" repeatCount="indefinite"/></rect>
+<rect x="1015" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="23;30;23" dur="1.12s" repeatCount="indefinite"/><animate attributeName="y" values="386;383;386" dur="1.12s" repeatCount="indefinite"/></rect>
+<rect x="1026" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="26;30;26" dur="0.60s" repeatCount="indefinite"/><animate attributeName="y" values="385;383;385" dur="0.60s" repeatCount="indefinite"/></rect>
+<rect x="1037" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="25;30;25" dur="0.73s" repeatCount="indefinite"/><animate attributeName="y" values="386;383;386" dur="0.73s" repeatCount="indefinite"/></rect>
+<rect x="1048" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="20;30;20" dur="0.86s" repeatCount="indefinite"/><animate attributeName="y" values="388;383;388" dur="0.86s" repeatCount="indefinite"/></rect>
+<rect x="1059" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="14;30;14" dur="0.99s" repeatCount="indefinite"/><animate attributeName="y" values="391;383;391" dur="0.99s" repeatCount="indefinite"/></rect>
+<rect x="1070" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="9;25;9" dur="1.12s" repeatCount="indefinite"/><animate attributeName="y" values="393;385;393" dur="1.12s" repeatCount="indefinite"/></rect>
+<rect x="1081" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="8;24;8" dur="0.60s" repeatCount="indefinite"/><animate attributeName="y" values="394;386;394" dur="0.60s" repeatCount="indefinite"/></rect>
+<rect x="1092" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="12;28;12" dur="0.73s" repeatCount="indefinite"/><animate attributeName="y" values="392;384;392" dur="0.73s" repeatCount="indefinite"/></rect>
+<rect x="1103" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="17;30;17" dur="0.86s" repeatCount="indefinite"/><animate attributeName="y" values="389;383;389" dur="0.86s" repeatCount="indefinite"/></rect>
+<rect x="1114" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="23;30;23" dur="0.99s" repeatCount="indefinite"/><animate attributeName="y" values="386;383;386" dur="0.99s" repeatCount="indefinite"/></rect>
+<rect x="1125" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="26;30;26" dur="1.12s" repeatCount="indefinite"/><animate attributeName="y" values="385;383;385" dur="1.12s" repeatCount="indefinite"/></rect>
+<rect x="1136" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="25;30;25" dur="0.60s" repeatCount="indefinite"/><animate attributeName="y" values="386;383;386" dur="0.60s" repeatCount="indefinite"/></rect>
+<rect x="1147" y="384" width="6" height="28" rx="3" fill="#22d3ee" fill-opacity=".85"><animate attributeName="height" values="20;30;20" dur="0.73s" repeatCount="indefinite"/><animate attributeName="y" values="388;383;388" dur="0.73s" repeatCount="indefinite"/></rect>
+<text x="30" y="458" font-size="12.5" fill="#9aa3c7" font-weight="800" letter-spacing="2" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace">FLOOR STATE MACHINE  ·  ONE AI HOLDS THE FLOOR AT A TIME</text>
+<rect x="30" y="472" width="150" height="40" rx="12" fill="#9aa3c7" fill-opacity=".06" stroke="#9aa3c7" stroke-opacity=".45"/>
+<rect x="30" y="472" width="150" height="40" rx="12" fill="#9aa3c7" fill-opacity="0"><animate attributeName="fill-opacity" calcMode="discrete" values=".38;0;0" keyTimes="0.0000;0.1429;1.0000" dur="14s" repeatCount="indefinite"/></rect>
+<text x="105.0" y="497" font-size="14" fill="#e8eaff" font-weight="800" text-anchor="middle">Listening</text>
+<path d="M182 492 l11 0" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
+<rect x="195" y="472" width="150" height="40" rx="12" fill="#a78bfa" fill-opacity=".06" stroke="#a78bfa" stroke-opacity=".45"/>
+<rect x="195" y="472" width="150" height="40" rx="12" fill="#a78bfa" fill-opacity="0"><animate attributeName="fill-opacity" calcMode="discrete" values="0;.38;0;0" keyTimes="0.0000;0.1429;0.2857;1.0000" dur="14s" repeatCount="indefinite"/></rect>
+<text x="270.0" y="497" font-size="14" fill="#e8eaff" font-weight="800" text-anchor="middle">Evaluating</text>
+<path d="M347 492 l11 0" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
+<rect x="360" y="472" width="150" height="40" rx="12" fill="#fbbf24" fill-opacity=".06" stroke="#fbbf24" stroke-opacity=".45"/>
+<rect x="360" y="472" width="150" height="40" rx="12" fill="#fbbf24" fill-opacity="0"><animate attributeName="fill-opacity" calcMode="discrete" values="0;.38;0;0" keyTimes="0.0000;0.2857;0.4286;1.0000" dur="14s" repeatCount="indefinite"/></rect>
+<text x="435.0" y="497" font-size="14" fill="#e8eaff" font-weight="800" text-anchor="middle">HandRaised</text>
+<path d="M512 492 l11 0" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
+<rect x="525" y="472" width="150" height="40" rx="12" fill="#fbbf24" fill-opacity=".06" stroke="#fbbf24" stroke-opacity=".45"/>
+<rect x="525" y="472" width="150" height="40" rx="12" fill="#fbbf24" fill-opacity="0"><animate attributeName="fill-opacity" calcMode="discrete" values="0;.38;0;0" keyTimes="0.0000;0.4286;0.5714;1.0000" dur="14s" repeatCount="indefinite"/></rect>
+<text x="600.0" y="497" font-size="14" fill="#e8eaff" font-weight="800" text-anchor="middle">Waiting</text>
+<path d="M677 492 l11 0" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
+<rect x="690" y="472" width="150" height="40" rx="12" fill="#4ade80" fill-opacity=".06" stroke="#4ade80" stroke-opacity=".45"/>
+<rect x="690" y="472" width="150" height="40" rx="12" fill="#4ade80" fill-opacity="0"><animate attributeName="fill-opacity" calcMode="discrete" values="0;.38;0;0" keyTimes="0.0000;0.5714;0.7143;1.0000" dur="14s" repeatCount="indefinite"/></rect>
+<text x="765.0" y="497" font-size="14" fill="#e8eaff" font-weight="800" text-anchor="middle">Granted</text>
+<path d="M842 492 l11 0" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
+<rect x="855" y="472" width="150" height="40" rx="12" fill="#22d3ee" fill-opacity=".06" stroke="#22d3ee" stroke-opacity=".45"/>
+<rect x="855" y="472" width="150" height="40" rx="12" fill="#22d3ee" fill-opacity="0"><animate attributeName="fill-opacity" calcMode="discrete" values="0;.38;0;0" keyTimes="0.0000;0.7143;0.8571;1.0000" dur="14s" repeatCount="indefinite"/></rect>
+<text x="930.0" y="497" font-size="14" fill="#e8eaff" font-weight="800" text-anchor="middle">Speaking</text>
+<path d="M1007 492 l11 0" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
+<rect x="1020" y="472" width="150" height="40" rx="12" fill="#f9a8d4" fill-opacity=".06" stroke="#f9a8d4" stroke-opacity=".45"/>
+<rect x="1020" y="472" width="150" height="40" rx="12" fill="#f9a8d4" fill-opacity="0"><animate attributeName="fill-opacity" calcMode="discrete" values="0;.38;.38" keyTimes="0.0000;0.8571;1.0000" dur="14s" repeatCount="indefinite"/></rect>
+<text x="1095.0" y="497" font-size="14" fill="#e8eaff" font-weight="800" text-anchor="middle">Yielding</text>
+</svg>
