@@ -89,3 +89,20 @@ def test_metrics_endpoint():
         assert "shipcourt_cases_total" in body
         assert "shipcourt_verdicts_total" in body
         assert "shipcourt_server_healthy 1" in body
+
+def test_debate_endpoint_contract():
+    req = urllib.request.Request(
+        f"{BASE_URL}/api/debate",
+        data=json.dumps({"task": "Test Canary Migration", "repo": "acme/shop", "judge": "Priya"}).encode(),
+        headers={"Content-Type": "application/json"}
+    )
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        data = json.loads(resp.read().decode())
+        assert "verdict" in data
+        assert "conditions" in data
+        assert isinstance(data["conditions"], list)
+        assert len(data["conditions"]) > 0
+        assert "judge" in data
+        assert data["judge"] == "Priya"
+
