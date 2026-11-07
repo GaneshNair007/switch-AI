@@ -65,7 +65,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
     }
     .key-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .key-title { font-weight: 700; font-size: 14px; }
-    .key-code { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #60a5fa; background: #1e293b; padding: 3px 8px; border-radius: 6px; }
+    .key-code { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #60a5fa; background: #1e293b; padding: 3px 8px; border-radius: 6px; word-break: break-all; }
     .key-role { font-size: 12px; color: var(--muted); margin-top: 6px; }
     
     .court-layout { display: grid; grid-template-columns: 1fr; gap: 24px; }
@@ -199,16 +199,6 @@ HTML_DASHBOARD = """<!DOCTYPE html>
       border: 1px solid #059669;
       margin-left: 8px;
     }
-    .tag-failover {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: #78350f;
-      color: #fbbf24;
-      border: 1px solid #d97706;
-      margin-left: 8px;
-    }
   </style>
 </head>
 <body>
@@ -219,35 +209,14 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         <p>No Deploy Survives Cross-Examination — Multi-Agent Adversarial Release Arena</p>
       </div>
       <div>
-        <span class="badge badge-live">● 3 API Keys Active | Free-Tier Guard Calibrated</span>
+        <span class="badge badge-live">● 100% Dynamic Inference Active</span>
       </div>
     </header>
 
-    <!-- 3 API Keys / 3 Real LLM Bots Status Grid -->
+    <!-- Dynamic API Keys Grid loaded live via /api/keys -->
     <div class="keys-grid" id="keys-grid">
-      <div class="key-card">
-        <div class="key-header">
-          <span class="key-title">⚔️ Bot 1: Prosecutor (The Adversary)</span>
-          <span class="badge badge-live">LIVE LLM BOT</span>
-        </div>
-        <div class="key-code">Groq Key 1: gsk_PTu...ctzK</div>
-        <div class="key-role">Model: <strong>qwen/qwen3.8-27b</strong><br>Function: Deep forensic attack, exposes schema locks, race conditions, blast radiuses.</div>
-      </div>
-      <div class="key-card">
-        <div class="key-header">
-          <span class="key-title">🛡️ Bot 2: Defender (Defense Counsel)</span>
-          <span class="badge badge-live">LIVE LLM BOT</span>
-        </div>
-        <div class="key-code">Groq Key 2: gsk_QY7...el3W</div>
-        <div class="key-role">Model: <strong>qwen/qwen3.8-27b</strong><br>Function: Combative technical rebuttal, cites mitigations, rollback kill-switches.</div>
-      </div>
-      <div class="key-card">
-        <div class="key-header">
-          <span class="key-title">⚖️ Bot 3: Judge (Chief Magistrate)</span>
-          <span class="badge badge-live">LIVE LLM BOT</span>
-        </div>
-        <div class="key-code">Groq Key 3: gsk_gep...VC3Q</div>
-        <div class="key-role">Model: <strong>qwen/qwen3.8-27b</strong><br>Function: Objectively scores Prosecution vs Defense power, renders binding verdict with explicit conditions.</div>
+      <div style="grid-column: 1 / -1; padding: 12px; background: var(--card-bg); border-radius: 8px; color: var(--muted); font-size: 13px;">
+        Loading live connected LLM inference providers...
       </div>
     </div>
 
@@ -258,27 +227,27 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         <h2>📑 Docket Case on Trial</h2>
         
         <div class="form-group">
-          <label>Sample Risk Presets (Different Outcomes)</label>
+          <label>Quick Fill Shortcuts</label>
           <div>
-            <button class="preset-btn" onclick="setPreset(1)">1. Dynamic Pricing Rollout (CONDITIONS)</button>
-            <button class="preset-btn" onclick="setPreset(2)">2. Drop user_sessions Table (BLOCK)</button>
-            <button class="preset-btn" onclick="setPreset(3)">3. Redis Caching Layer (APPROVE)</button>
+            <button class="preset-btn" onclick="setPreset(1)">1. Dynamic Pricing Rollout</button>
+            <button class="preset-btn" onclick="setPreset(2)">2. Drop user_sessions Table</button>
+            <button class="preset-btn" onclick="setPreset(3)">3. Redis Caching Layer</button>
           </div>
         </div>
 
         <div class="form-group">
-          <label>Proposed Deployment / Change Petition (Type Custom Input Below)</label>
-          <textarea id="task_desc" rows="4">Dynamic checkout pricing rollout</textarea>
+          <label>Proposed Deployment / Change Petition</label>
+          <textarea id="task_desc" rows="4" placeholder="Type ANY deployment petition, pull request, or architectural change to put on trial..."></textarea>
         </div>
 
         <div class="form-group">
           <label>Repository & PR Target</label>
-          <input type="text" id="repo_target" value="acme/shop (PR #482)">
+          <input type="text" id="repo_target" placeholder="e.g. acme/shop (PR #482)">
         </div>
 
         <div class="form-group">
           <label>Presiding Human Judge (Exclusive Gate)</label>
-          <input type="text" id="judge_name" value="Priya">
+          <input type="text" id="judge_name" placeholder="Enter human judge name (e.g. Priya)" value="Priya">
         </div>
 
         <button class="btn-run" id="btn-run" onclick="runTrial()">
@@ -289,11 +258,11 @@ HTML_DASHBOARD = """<!DOCTYPE html>
 
         <div id="loading">
           <div class="spinner"></div>
-          <p style="margin-top: 8px;" id="loading-msg">Court in Session... Prosecutor & Defender cross-examining...</p>
+          <p style="margin-top: 8px;" id="loading-msg">Court in session... Cross-examining petition across 3 live LLM agents...</p>
         </div>
 
         <div style="margin-top: 20px; padding: 12px; background: #1f2937; border-radius: 8px; font-size: 12px; color: var(--muted);">
-          <strong>Governance Invariant:</strong> AI courtroom agents cross-examine evidence and compute leverage power scores, but CANNOT self-approve deployments. Only human gatekeeper (@Priya) holds binding signature authority.
+          <strong>Governance Invariant:</strong> AI courtroom agents cross-examine evidence and compute leverage power scores, but CANNOT self-approve deployments. Only the human gatekeeper holds binding signature authority.
         </div>
       </div>
 
@@ -325,7 +294,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
               <span style="color:#60a5fa;">@court-clerk (Bailiff)</span>
               <span>STANDBY</span>
             </div>
-            <div class="msg-content">Welcome to Ship Court. Select a preset or type ANY custom deployment petition and click 'Convene Courtroom & Run Trial'. Every change undergoes live unscripted cross-examination.</div>
+            <div class="msg-content">Welcome to Ship Court. Type ANY deployment petition into the text box and click 'Convene Courtroom & Run Trial'. Every change undergoes live unscripted adversarial cross-examination.</div>
           </div>
         </div>
       </div>
@@ -333,6 +302,32 @@ HTML_DASHBOARD = """<!DOCTYPE html>
   </div>
 
   <script>
+    async function loadApiKeys() {
+      try {
+        const resp = await fetch('/api/keys');
+        if (!resp.ok) return;
+        const keys = await resp.json();
+        const grid = document.getElementById('keys-grid');
+        grid.innerHTML = '';
+        for (const [k, v] of Object.entries(keys)) {
+          const div = document.createElement('div');
+          div.className = 'key-card';
+          div.innerHTML = `
+            <div class="key-header">
+              <span class="key-title">${escapeHtml(v.name || k)}</span>
+              <span class="badge ${v.status === 'LIVE' ? 'badge-live' : 'badge-gold'}">${escapeHtml(v.status || 'INACTIVE')}</span>
+            </div>
+            <div class="key-code">${escapeHtml(v.env_var)}: ${escapeHtml(v.masked)}</div>
+            <div class="key-role">Model: <strong>${escapeHtml(v.default_model || 'Standard')}</strong><br>Function: ${escapeHtml(v.role)}</div>
+          `;
+          grid.appendChild(div);
+        }
+      } catch (err) {
+        console.error('Failed to load keys dynamically:', err);
+      }
+    }
+    window.addEventListener('DOMContentLoaded', loadApiKeys);
+
     function setPreset(n) {
       const desc = document.getElementById('task_desc');
       hideError();
@@ -368,26 +363,30 @@ HTML_DASHBOARD = """<!DOCTYPE html>
       const powerBox = document.getElementById('power-box');
       const verdictBox = document.getElementById('verdict-box');
 
-      if (!task.trim()) {
-        showError('Please enter a deployment description or choose a preset before convening court.');
+      if (!task || !task.trim()) {
+        showError('Please enter a change or deployment petition to put on trial.');
         return;
       }
 
       btn.disabled = true;
       btn.style.opacity = '0.5';
       loader.style.display = 'block';
-      document.getElementById('loading-msg').innerText = 'Court in session... Cross-examining petition before 3 live LLM bots...';
+      document.getElementById('loading-msg').innerText = 'Court in session... Cross-examining petition across 3 live LLM agents...';
 
       try {
         const resp = await fetch('/api/debate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ task: task.trim(), judge: judge.trim(), repo: repo.trim() })
+          body: JSON.stringify({
+            task: task.trim(),
+            judge: judge ? judge.trim() : 'Release-Judge',
+            repo: repo ? repo.trim() : 'unspecified-repo'
+          })
         });
-        if (!resp.ok) {
-          throw new Error('Server returned HTTP ' + resp.status);
-        }
         const data = await resp.json();
+        if (!resp.ok) {
+          throw new Error(data.error || ('Server returned HTTP ' + resp.status));
+        }
 
         // Update Power Bar
         const pScore = data.prosecution_power || 0;
@@ -401,7 +400,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         document.getElementById('def-bar').style.width = dPct + '%';
         document.getElementById('pros-label').innerText = 'Prosecution: ' + pScore + ' pts (' + pPct + '%)';
         document.getElementById('def-label').innerText = 'Defense: ' + dScore + ' pts (' + dPct + '%)';
-        document.getElementById('winner-label').innerText = 'RULING: ' + data.priority;
+        document.getElementById('winner-label').innerText = 'RULING: ' + (data.priority || data.verdict);
         document.getElementById('rationale-text').innerText = 'Dominant Side: ' + data.winner + '. Verdict: ' + data.verdict;
 
         // Populate Conditions Box
@@ -414,7 +413,11 @@ HTML_DASHBOARD = """<!DOCTYPE html>
               <span style="color: #f3f4f6; font-size: 13px;">${escapeHtml(c)}</span>
             </li>
           `).join('');
+        } else {
+          conditionsHtml = '<li style="color: #9ca3af; font-size: 12px;">No explicit operational conditions required by the Judge.</li>';
         }
+
+        const effectiveJudge = data.judge || judge || 'Release-Judge';
 
         if (data.verdict === 'CONDITIONS') {
           verdictBox.innerHTML = `
@@ -426,13 +429,13 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                 <span class="badge badge-gold">CONDITIONS BINDING</span>
               </div>
               <p style="font-size: 12px; color: #d1d5db; margin-bottom: 12px;">
-                The Court ruled that deployment may proceed <strong>ONLY</strong> if the following mandatory operational guardrails are satisfied and signed by human gatekeeper <strong>@${escapeHtml(judge)}</strong>:
+                The Court ruled that deployment may proceed <strong>ONLY</strong> if the following mandatory operational guardrails are satisfied and signed by human gatekeeper <strong>@${escapeHtml(effectiveJudge)}</strong>:
               </p>
               <ul style="list-style: none; padding-left: 0; margin-bottom: 14px;">
                 ${conditionsHtml}
               </ul>
               <div style="background: rgba(217, 119, 6, 0.15); border: 1px dashed #d97706; border-radius: 6px; padding: 10px; font-size: 11px; color: #fbbf24;">
-                ⚖️ <strong>Exclusive Authority Lock:</strong> AI agents cannot self-ship. Only @${escapeHtml(judge)} can authorize canary traffic ramp.
+                ⚖️ <strong>Exclusive Authority Lock:</strong> AI agents cannot self-ship. Only @${escapeHtml(effectiveJudge)} can authorize canary traffic ramp.
               </div>
             </div>
           `;
@@ -483,10 +486,10 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             else if (m.sender.includes('prosecutor')) { senderClass = 'msg-prosecutor'; color = '#ef4444'; }
             else if (m.sender.includes('defender')) { senderClass = 'msg-defender'; color = '#10b981'; }
             else if (m.sender.includes('rollback')) { senderClass = 'msg-rollback'; color = '#8b5cf6'; }
-            else if (m.sender.includes(judge)) { senderClass = 'msg-judge'; color = '#ec4899'; }
+            else if (m.sender.includes('judge')) { senderClass = 'msg-judge'; color = '#ec4899'; }
 
-            const badgeTag = m.is_live !== undefined
-              ? (m.is_live ? '<span class="tag-live">● LIVE LLM (qwen3.8-27b)</span>' : '<span class="tag-failover">▲ PROCEDURAL FAILOVER</span>')
+            const badgeTag = m.is_live
+              ? '<span class="tag-live">● LIVE LLM (qwen3.8-27b)</span>'
               : '';
 
             div.className = 'msg ' + senderClass;

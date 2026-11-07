@@ -1,5 +1,6 @@
 """Tests for ShipCourtHTTPHandler REST API and Webhooks."""
 import json, threading, time, urllib.request, urllib.error
+from unittest.mock import patch
 from http.server import HTTPServer
 import pytest
 from server.main import ShipCourtHTTPHandler
@@ -78,7 +79,6 @@ def test_case_open_and_verdict_api():
         verdict_res = json.loads(resp.read().decode())
         assert "Release Brief" in verdict_res["release_brief"]
 
-
 def test_metrics_endpoint():
     req = urllib.request.Request(f"{BASE_URL}/metrics")
     with urllib.request.urlopen(req) as resp:
@@ -91,18 +91,34 @@ def test_metrics_endpoint():
         assert "shipcourt_server_healthy 1" in body
 
 def test_debate_endpoint_contract():
+    mock_responses = [
+        "Prosecutor indictment: High lock contention hazard.",
+        "Defender rebuttal: Canary rollout mitigates contention.",
+        "PROSECUTION POWER: 70\nDEFENSE POWER: 80\nWINNER: DEFENSE\nVERDICT: CONDITIONS\nRATIONALE: Defense provided viable canary.\nCONDITIONS:\n1. 5% canary for 20m.\nTASKS:\n- Monitor canary (Owner: SRE)\n"
+    ]
+    with patch("server.live_courtroom_debate.LiveCourtroomDebateEngine._call_llm", side_effect=mock_responses):
+        req = urllib.request.Request(
+            f"{BASE_URL}/api/debate",
+            data=json.dumps({"task": "Test Canary Migration", "repo": "acme/shop", "judge": "Priya"}).encode(),
+            headers={"Content-Type": "application/json"}
+        )
+        with urllib.request.urlopen(req) as resp:
+            assert resp.status == 200
+            data = json.loads(resp.read().decode())
+            assert "verdict" in data
+            assert data["verdict"] == "CONDITIONS"
+            assert "conditions" in data
+            assert isinstance(data["conditions"], list)
+            assert len(data["conditions"]) == 1
+            assert "5% canary" in data["conditions"][0]
+            assert data["judge"] == "Priya"
+
+def test_debate_endpoint_rejects_empty_task():
     req = urllib.request.Request(
         f"{BASE_URL}/api/debate",
-        data=json.dumps({"task": "Test Canary Migration", "repo": "acme/shop", "judge": "Priya"}).encode(),
+        data=json.dumps({"task": "", "repo": "acme/shop"}).encode(),
         headers={"Content-Type": "application/json"}
     )
-    with urllib.request.urlopen(req) as resp:
-        assert resp.status == 200
-        data = json.loads(resp.read().decode())
-        assert "verdict" in data
-        assert "conditions" in data
-        assert isinstance(data["conditions"], list)
-        assert len(data["conditions"]) > 0
-        assert "judge" in data
-        assert data["judge"] == "Priya"
-
+    with pytest.raises(urllib.error.HTTPError) as exc_info:
+        urllib.request.urlopen(req)
+    assert exc_info.value.code == 400

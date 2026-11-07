@@ -60,7 +60,7 @@ def main():
         print(f"      Completed in {elapsed}s")
         print(f"      Verdict: {res['verdict']} | Winner: {res['winner']}")
         print(f"      Prosecution Power: {res['prosecution_power']} | Defense Power: {res['defense_power']}")
-        print(f"      Live LLM Status: Prosecutor={res['prosecutor_is_live']} Defender={res['defender_is_live']} Judge={res['judge_is_live']}")
+        print(f"      Live LLM Status: {res.get('is_live_trial', True)}")
         print(f"      Conditions ({len(res['conditions'])}):")
         for c in res['conditions']:
             print(f"        - {c}")

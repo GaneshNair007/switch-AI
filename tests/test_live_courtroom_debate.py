@@ -45,12 +45,11 @@ TASKS:
 
 def test_engine_returns_conditions_field():
     engine = LiveCourtroomDebateEngine()
-    # Mocking _call_llm to test orchestration without live network latency
-    def mock_call(api_key, system, user, max_tokens=160, temperature=0.7, role="agent", task_context=""):
+    def mock_call(api_key, system, user, max_tokens=160, temperature=0.7, role="agent"):
         if role == "prosecutor":
-            return "Indictment: Database migration lacks backwards compatibility.", True
+            return "Indictment: Database migration lacks backwards compatibility."
         elif role == "defender":
-            return "Rebuttal: Dual-write strategy enabled with automated rollback.", True
+            return "Rebuttal: Dual-write strategy enabled with automated rollback."
         else:
             return """
 PROSECUTION POWER: 80
@@ -63,7 +62,7 @@ CONDITIONS:
 2. Canary traffic capped at 10%.
 TASKS:
 - Monitor dual-write lag (Owner: DB-Team)
-""", True
+"""
     engine._call_llm = mock_call
     res = engine.run_live_trial("Test DB Migration", repo="acme/shop", pr_number="999", judge_name="Priya")
 
@@ -75,3 +74,18 @@ TASKS:
     assert res["winner"] == "PROSECUTION"
     assert res["judge"] == "Priya"
     assert res["is_live_trial"] is True
+
+def test_engine_rejects_empty_task():
+    engine = LiveCourtroomDebateEngine()
+    with pytest.raises(ValueError):
+        engine.run_live_trial("")
+
+def test_engine_fails_fast_on_api_error_without_fake_fallback():
+    engine = LiveCourtroomDebateEngine()
+    def mock_failing_call(api_key, system, user, max_tokens=160, temperature=0.7, role="agent"):
+        raise RuntimeError("Network partition")
+    engine._call_llm = mock_failing_call
+
+    with pytest.raises(RuntimeError) as exc_info:
+        engine.run_live_trial("Valid task description")
+    assert "Network partition" in str(exc_info.value)
