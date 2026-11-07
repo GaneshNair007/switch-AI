@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="430" viewBox="0 0 1280 430" font-family="Inter,'Segoe UI',-apple-system,'Helvetica Neue',Arial,sans-serif">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0e1f"/><stop offset="1" stop-color="#1a1040"/></linearGradient>
+<linearGradient id="brand" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1280" y2="0"><stop offset="0" stop-color="#a78bfa"/><stop offset=".5" stop-color="#22d3ee"/><stop offset="1" stop-color="#4ade80"/></linearGradient>
+<linearGradient id="hot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1280" y2="0"><stop offset="0" stop-color="#fb7185"/><stop offset="1" stop-color="#fbbf24"/></linearGradient>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>
+
+</defs>
+<rect width="1280" height="430" rx="22" fill="url(#bg)"/><rect x="1" y="1" width="1278" height="428" rx="21" fill="none" stroke="#fff" stroke-opacity=".09"/>
+
+<linearGradient id="tg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#a78bfa"/><stop offset=".5" stop-color="#22d3ee"/><stop offset="1" stop-color="#4ade80"/></linearGradient><clipPath id="clip"><rect width="1280" height="430" rx="22"/></clipPath>
+<pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse"><path d="M44 0H0V44" fill="none" stroke="#fff" stroke-opacity=".05"/><animateTransform attributeName="patternTransform" type="translate" from="0 0" to="44 44" dur="5s" repeatCount="indefinite"/></pattern>
+<g clip-path="url(#clip)">
+<rect width="1280" height="430" fill="url(#grid)"/>
+<circle cx="160" cy="120" r="120" fill="#a78bfa" opacity=".35" filter="url(#soft)"><animate attributeName="cx" values="160;220;160" dur="11s" repeatCount="indefinite"/><animate attributeName="cy" values="120;80;120" dur="14.3s" repeatCount="indefinite"/></circle><circle cx="1100" cy="90" r="140" fill="#22d3ee" opacity=".35" filter="url(#soft)"><animate attributeName="cx" values="1100;1160;1100" dur="13s" repeatCount="indefinite"/><animate attributeName="cy" values="90;50;90" dur="16.900000000000002s" repeatCount="indefinite"/></circle><circle cx="900" cy="380" r="130" fill="#fb7185" opacity=".35" filter="url(#soft)"><animate attributeName="cx" values="900;960;900" dur="15s" repeatCount="indefinite"/><animate attributeName="cy" values="380;340;380" dur="19.5s" repeatCount="indefinite"/></circle><circle cx="420" cy="400" r="90" fill="#4ade80" opacity=".35" filter="url(#soft)"><animate attributeName="cx" values="420;480;420" dur="9s" repeatCount="indefinite"/><animate attributeName="cy" values="400;360;400" dur="11.700000000000001s" repeatCount="indefinite"/></circle><circle cx="300" cy="380" r="2.2" fill="#fff"><animate attributeName="opacity" values="0;.9;0" dur="4s" begin="0s" repeatCount="indefinite"/><animate attributeName="cy" values="380;350" dur="4s" begin="0s" repeatCount="indefinite"/></circle><circle cx="520" cy="60" r="2.2" fill="#fff"><animate attributeName="opacity" values="0;.9;0" dur="5s" begin="1s" repeatCount="indefinite"/><animate attributeName="cy" values="60;30" dur="5s" begin="1s" repeatCount="indefinite"/></circle><circle cx="760" cy="110" r="2.2" fill="#fff"><animate attributeName="opacity" values="0;.9;0" dur="4.5s" begin="2s" repeatCount="indefinite"/><animate attributeName="cy" values="110;80" dur="4.5s" begin="2s" repeatCount="indefinite"/></circle><circle cx="1010" cy="360" r="2.2" fill="#fff"><animate attributeName="opacity" values="0;.9;0" dur="5s" begin="0.5s" repeatCount="indefinite"/><animate attributeName="cy" values="360;330" dur="5s" begin="0.5s" repeatCount="indefinite"/></circle><circle cx="1190" cy="200" r="2.2" fill="#fff"><animate attributeName="opacity" values="0;.9;0" dur="4s" begin="3s" repeatCount="indefinite"/><animate attributeName="cy" values="200;170" dur="4s" begin="3s" repeatCount="indefinite"/></circle><circle cx="60" cy="300" r="2.2" fill="#fff"><animate attributeName="opacity" values="0;.9;0" dur="5s" begin="1.5s" repeatCount="indefinite"/><animate attributeName="cy" values="300;270" dur="5s" begin="1.5s" repeatCount="indefinite"/></circle><circle cx="650" cy="390" r="2.2" fill="#fff"><animate attributeName="opacity" values="0;.9;0" dur="4s" begin="2.5s" repeatCount="indefinite"/><animate attributeName="cy" values="390;360" dur="4s" begin="2.5s" repeatCount="indefinite"/></circle><circle cx="930" cy="50" r="2.2" fill="#fff"><animate attributeName="opacity" values="0;.9;0" dur="5s" begin="0.8s" repeatCount="indefinite"/><animate attributeName="cy" values="50;20" dur="5s" begin="0.8s" repeatCount="indefinite"/></circle>
+<rect x="-300" y="0" width="200" height="430" fill="#fff" opacity=".05" transform="skewX(-20)"><animate attributeName="x" values="-300;1500" dur="7s" repeatCount="indefinite"/></rect>
+</g>
+<!-- scales of justice -->
+<g transform="translate(40,10)" filter="url(#glow)">
+ <circle cx="205" cy="210" r="150" fill="none" stroke="url(#brand)" stroke-opacity=".25" stroke-dasharray="3 9"><animateTransform attributeName="transform" type="rotate" from="0 205 210" to="360 205 210" dur="40s" repeatCount="indefinite"/></circle>
+ <path d="M205 100V330" stroke="url(#brand)" stroke-width="7" stroke-linecap="round"/>
+ <path d="M150 335H260M165 335Q205 305 245 335" stroke="url(#brand)" stroke-width="7" fill="none" stroke-linecap="round"/>
+ <circle cx="205" cy="96" r="12" fill="#fbbf24"/>
+ <g>
+  <animateTransform attributeName="transform" type="rotate" values="-7 205 110;7 205 110;-7 205 110" keyTimes="0;.5;1" dur="6s" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" repeatCount="indefinite"/>
+  <path d="M85 110H325" stroke="#fbbf24" stroke-width="7" stroke-linecap="round"/>
+  <g stroke="#e8eaff" stroke-opacity=".7" stroke-width="2"><path d="M85 110L45 215M85 110L125 215M325 110L285 215M325 110L365 215"/></g>
+  <path d="M35 215H135Q85 270 35 215Z" fill="#fb7185" fill-opacity=".85"/>
+  <path d="M275 215H375Q325 270 275 215Z" fill="#4ade80" fill-opacity=".85"/>
+ </g>
+</g>
+<text x="470" y="112" font-size="15" fill="#22d3ee" font-weight="600" text-anchor="start" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace" letter-spacing="3">WEMAKEDEVS × DEVTOOLS ACADEMY  ·  FLIP THE SWITCH</text>
+<text x="466" y="238" font-size="118" font-weight="900" fill="url(#tg)" textLength="760" lengthAdjust="spacingAndGlyphs" filter="url(#glow)">SHIP COURT</text>
+<rect x="470" y="262" width="0" height="5" rx="2.5" fill="url(#hot)"><animate attributeName="width" values="0;760;760" keyTimes="0;.15;1" dur="14s" repeatCount="indefinite"/></rect>
+<text x="470" y="318" font-size="30" font-weight="600" fill="#e8eaff" opacity="1">AI agents argue AGAINST your deploy.<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0;0.025;0.225;0.25;1" dur="14s" repeatCount="indefinite"/></text><text x="470" y="318" font-size="30" font-weight="600" fill="#e8eaff" opacity="0">A human judge holds the only gavel.<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.250;0.275;0.475;0.500;1" dur="14s" repeatCount="indefinite"/></text><text x="470" y="318" font-size="30" font-weight="600" fill="#e8eaff" opacity="0">Parallel Earth simulates the blast radius first.<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.500;0.525;0.725;0.750;1" dur="14s" repeatCount="indefinite"/></text><text x="470" y="318" font-size="30" font-weight="600" fill="#e8eaff" opacity="0">Remove Switch, and the whole thing breaks.<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.750;0.775;0.975;1.000;1" dur="14s" repeatCount="indefinite"/></text>
+<g font-size="14" font-weight="600" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace">
+ <rect x="470" y="354" width="196" height="34" rx="17" fill="#a78bfa" fill-opacity=".18" stroke="#a78bfa"/><text x="568" y="376" text-anchor="middle" fill="#a78bfa">TRACK 01 · BUSINESS</text>
+ <rect x="678" y="354" width="196" height="34" rx="17" fill="#fb7185" fill-opacity=".18" stroke="#fb7185"/><text x="776" y="376" text-anchor="middle" fill="#fb7185">TRACK 02 · CREATIVE</text>
+ <rect x="886" y="354" width="196" height="34" rx="17" fill="#22d3ee" fill-opacity=".18" stroke="#22d3ee"/><text x="984" y="376" text-anchor="middle" fill="#22d3ee">POWERED BY SWITCH</text>
+</g>
+</svg>
