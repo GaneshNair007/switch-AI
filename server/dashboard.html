@@ -3,511 +3,561 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ship Court — Autonomous Adversarial Release Experience</title>
+  <title>SHIP COURT — The Autonomous Release Tribunal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Cinzel:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=VT323&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     :root {
-      --bg-deep: #07090e;
-      --bg-surface: #0d111a;
-      --bg-card: #131826;
-      --bg-card-hover: #1a2133;
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-medium: rgba(255, 255, 255, 0.16);
-      --border-gold: rgba(245, 158, 11, 0.4);
-      --text-white: #f8fafc;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
-      --gold-primary: #f59e0b;
+      --bg-void: #06080d;
+      --bg-panel: #0c1019;
+      --bg-panel-elevated: #121826;
+      --bg-panel-highlight: #192236;
+      --gold-dark: #b45309;
+      --gold-brass: #d97706;
       --gold-bright: #fbbf24;
-      --emerald-def: #10b981;
-      --crimson-pros: #f43f5e;
-      --indigo-brand: #6366f1;
-      --cyan-tech: #0ea5e9;
-      --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --gold-radiant: #fef08a;
+      --crimson-hazard: #f43f5e;
+      --crimson-glow: rgba(244, 63, 94, 0.4);
+      --emerald-safe: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.4);
+      --cyan-tech: #06b6d4;
+      --cyan-bright: #38bdf8;
+      --text-pure: #ffffff;
+      --text-muted: #8492a6;
+      --text-dim: #4b5563;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-brass: rgba(217, 119, 6, 0.35);
+      --border-hazard: rgba(244, 63, 94, 0.4);
+      --font-tribunal: 'Cinzel', serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
-      --font-display: 'Cinzel', serif;
+      --font-crt: 'VT323', monospace;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background-color: var(--bg-deep);
-      color: var(--text-white);
-      font-family: var(--font-ui);
+      background-color: var(--bg-void);
+      color: var(--text-pure);
+      font-family: var(--font-body);
       font-size: 13px;
       line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(217, 119, 6, 0.08) 0%, transparent 60%),
+        radial-gradient(circle at 85% 100%, rgba(6, 182, 212, 0.05) 0%, transparent 50%),
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+      min-height: 100vh;
     }
 
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg-deep); }
-    ::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: 3px; }
+    ::-webkit-scrollbar-track { background: var(--bg-void); }
+    ::-webkit-scrollbar-thumb { background: #1f293d; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--gold-brass); }
 
-    /* Top Navigation Bar */
-    header.site-header {
+    /* =========================================================================
+       HERO TOP NAV & TACTICAL APP BAR
+       ========================================================================= */
+    header.tribunal-header {
       position: sticky;
       top: 0;
       z-index: 1000;
-      background: rgba(13, 17, 26, 0.92);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(10, 14, 23, 0.94);
+      backdrop-filter: blur(16px);
+      border-bottom: 2px solid var(--border-brass);
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 12px 28px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.7);
     }
 
-    .brand-group {
+    .brand-insignia {
       display: flex;
       align-items: center;
       gap: 16px;
     }
 
-    .brand-crest {
-      width: 34px;
-      height: 34px;
-      background: linear-gradient(135deg, #1e2538 0%, #131826 100%);
-      border: 1px solid var(--border-gold);
-      border-radius: 8px;
+    .seal-crest {
+      width: 40px;
+      height: 40px;
+      background: radial-gradient(circle at 30% 30%, #2d1d06 0%, #150d03 100%);
+      border: 2px solid var(--gold-bright);
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 15px;
-      color: var(--gold-bright);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      font-size: 20px;
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.4), inset 0 0 10px rgba(245, 158, 11, 0.2);
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .seal-crest:hover {
+      transform: rotate(20deg) scale(1.05);
     }
 
-    .brand-meta h1 {
-      font-family: var(--font-display);
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      color: var(--text-white);
+    .brand-text h1 {
+      font-family: var(--font-tribunal);
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      background: linear-gradient(135deg, #ffffff 0%, var(--gold-bright) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
-    .brand-meta p {
+    .brand-text p {
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-muted);
+      letter-spacing: 0.5px;
     }
 
-    /* Page Navigation Tabs */
-    nav.site-nav {
+    /* Tactile Navigator Switcher */
+    nav.chamber-navigation {
       display: flex;
-      align-items: center;
       gap: 6px;
-      background: var(--bg-deep);
-      padding: 4px;
-      border-radius: 8px;
-      border: 1px solid var(--border-subtle);
+      background: rgba(6, 8, 13, 0.9);
+      padding: 5px;
+      border-radius: 10px;
+      border: 1px solid var(--border-brass);
     }
 
-    .nav-tab-btn {
-      padding: 7px 14px;
+    .nav-chamber-btn {
+      padding: 8px 16px;
       background: transparent;
-      border: none;
+      border: 1px solid transparent;
       border-radius: 6px;
-      color: var(--text-secondary);
-      font-family: var(--font-ui);
+      color: var(--text-muted);
+      font-family: var(--font-body);
       font-size: 12px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 7px;
-      transition: all 0.2s ease;
+      gap: 8px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       text-decoration: none;
     }
 
-    .nav-tab-btn:hover {
-      color: var(--text-white);
+    .nav-chamber-btn:hover {
+      color: var(--text-pure);
       background: rgba(255, 255, 255, 0.05);
     }
 
-    .nav-tab-btn.active {
-      color: #fff;
-      background: var(--bg-card);
-      border: 1px solid var(--border-medium);
-      font-weight: 600;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    .nav-chamber-btn.active {
+      color: var(--gold-radiant);
+      background: linear-gradient(180deg, #1f180e 0%, #130f08 100%);
+      border-color: var(--gold-brass);
+      box-shadow: 0 2px 10px rgba(217, 119, 6, 0.25);
     }
 
-    .nav-tab-btn .badge-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
+    .nav-chamber-btn .icon {
+      font-size: 14px;
     }
 
-    /* System Status HUD Pill */
-    .system-hud-pills {
+    /* Sound and Gatekeeper Status Deck */
+    .top-controls-deck {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
-    .hud-pill {
+    .sound-toggle-btn {
+      background: #111624;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
       display: flex;
       align-items: center;
       gap: 6px;
-      padding: 5px 11px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
+      transition: all 0.15s ease;
+    }
+    .sound-toggle-btn:hover {
+      border-color: var(--gold-brass);
+      color: var(--gold-bright);
+    }
+    .sound-toggle-btn.sound-on {
+      color: var(--emerald-safe);
+      border-color: var(--emerald-safe);
+    }
+
+    .gatekeeper-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: linear-gradient(135deg, #1e1708 0%, #120e05 100%);
+      border: 1px solid var(--border-brass);
       border-radius: 6px;
       font-family: var(--font-mono);
       font-size: 11px;
-      color: var(--text-secondary);
+      color: var(--gold-bright);
     }
 
-    .hud-pill .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-    }
-    .hud-pill .dot.green { background: var(--emerald-def); }
-    .hud-pill .dot.gold { background: var(--gold-primary); }
-
-    /* Page Containers */
-    main.page-container {
+    /* Main Container Shell */
+    main.tribunal-shell {
       max-width: 1600px;
       margin: 0 auto;
-      padding: 24px 28px 60px;
-      width: 100%;
+      padding: 24px 28px 80px;
     }
 
-    .page-section {
+    .chamber-room {
       display: none;
-      animation: fadeIn 0.25s ease-in-out;
+      animation: roomReveal 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
-    .page-section.active {
+    .chamber-room.active {
       display: block;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
+    @keyframes roomReveal {
+      from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Page Intro Banner */
-    .page-hero-banner {
-      background: linear-gradient(180deg, rgba(20, 26, 40, 0.8) 0%, rgba(13, 17, 26, 0.95) 100%);
-      border: 1px solid var(--border-subtle);
-      border-radius: 10px;
-      padding: 20px 24px;
+    /* Banner Headings */
+    .chamber-intro-banner {
+      background: linear-gradient(90deg, #101625 0%, #0d121e 100%);
+      border: 1px solid var(--border-brass);
+      border-left: 4px solid var(--gold-brass);
+      border-radius: 8px;
+      padding: 18px 24px;
       margin-bottom: 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
     }
 
-    .page-hero-banner .title-area h2 {
-      font-family: var(--font-display);
+    .chamber-intro-banner h2 {
+      font-family: var(--font-tribunal);
       font-size: 18px;
-      font-weight: 700;
-      color: var(--text-white);
-      margin-bottom: 4px;
+      font-weight: 800;
+      color: var(--gold-radiant);
+      letter-spacing: 0.8px;
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .page-hero-banner .title-area p {
-      font-size: 13px;
-      color: var(--text-secondary);
+    .chamber-intro-banner p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
     }
 
-    .page-hero-banner .tag-pill {
+    .banner-right-meta {
       font-family: var(--font-mono);
       font-size: 11px;
-      padding: 4px 10px;
+      padding: 4px 12px;
       border-radius: 4px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-medium);
+      background: var(--bg-void);
+      border: 1px solid var(--border-brass);
       color: var(--gold-bright);
     }
 
     /* =========================================================================
-       PAGE 1: COURTROOM CHAMBER (ANIMATED COURT STAGE)
+       CHAMBER 1: THE ANIMATED COURTROOM (ACE ATTORNEY × DIESELPUNK TRIBUNAL)
        ========================================================================= */
-    .court-stage-wrapper {
-      background: #090c13;
-      border: 1px solid var(--border-subtle);
+    .court-stage-arena {
+      background: radial-gradient(circle at 50% 25%, #182035 0%, #090c14 85%);
+      border: 2px solid var(--border-brass);
       border-radius: 12px;
-      padding: 24px;
+      height: 400px;
+      position: relative;
+      overflow: hidden;
       margin-bottom: 24px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .court-stage-canvas {
-      position: relative;
-      height: 340px;
-      background: radial-gradient(circle at 50% 30%, #151c2e 0%, #0a0d14 70%);
-      border-radius: 8px;
-      border: 1px solid var(--border-subtle);
-      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.8), inset 0 0 60px rgba(0,0,0,0.9);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 20px 30px;
+      padding: 24px 32px 18px;
+    }
+
+    /* Dramatic Anime/Ace Attorney Objection Overlay */
+    .objection-banner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0) rotate(-6deg);
+      background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+      color: #fff;
+      font-family: var(--font-tribunal);
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      padding: 14px 48px;
+      border: 4px solid #fff;
+      box-shadow: 0 0 50px rgba(225, 29, 72, 0.8);
+      z-index: 100;
+      pointer-events: none;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    }
+    .objection-banner.fire {
+      transform: translate(-50%, -50%) scale(1) rotate(-6deg);
     }
 
     /* High Judge Bench */
-    .judge-bench-area {
+    .tribunal-bench {
       display: flex;
       flex-direction: column;
       align-items: center;
       z-index: 10;
     }
 
-    .judge-avatar-podium {
+    .bench-pedestal {
+      background: linear-gradient(180deg, #1e1708 0%, #110e05 100%);
+      border: 2px solid var(--gold-brass);
+      border-radius: 12px;
+      padding: 10px 28px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      background: var(--bg-card);
-      border: 2px solid var(--gold-primary);
-      border-radius: 12px;
-      padding: 10px 24px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.8);
       position: relative;
     }
 
-    .judge-title {
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 14px;
+    .bench-magistrate-title {
+      font-family: var(--font-tribunal);
+      font-size: 15px;
+      font-weight: 800;
       color: var(--gold-bright);
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      letter-spacing: 1px;
     }
 
-    .judge-sub {
+    .bench-sub {
       font-family: var(--font-mono);
       font-size: 11px;
       color: var(--text-muted);
     }
 
-    /* Animated Gavel */
-    .gavel-icon-box {
+    /* Gavel and Sound Block */
+    .gavel-assembly {
       margin-top: 6px;
-      font-size: 24px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .gavel-sprite {
+      font-size: 32px;
       display: inline-block;
       transform-origin: bottom right;
-      transition: transform 0.1s ease;
+      transition: transform 0.08s linear;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
     }
-    .gavel-icon-box.slamming {
-      animation: gavelHit 0.4s ease-in-out;
+    .gavel-sprite.strike {
+      animation: gavelStrikeDown 0.35s cubic-bezier(0.3, 1.6, 0.4, 1);
     }
-    @keyframes gavelHit {
+    @keyframes gavelStrikeDown {
       0% { transform: rotate(0deg); }
-      40% { transform: rotate(-45deg); }
-      75% { transform: rotate(15deg); }
+      35% { transform: rotate(-55deg); }
+      75% { transform: rotate(18deg); }
       100% { transform: rotate(0deg); }
     }
 
-    .gavel-shockwave {
+    .gavel-impact-ripple {
       position: absolute;
-      top: 50%;
+      top: 60%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 20px;
-      height: 20px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
-      border: 2px solid var(--gold-bright);
+      border: 3px solid var(--gold-bright);
       opacity: 0;
       pointer-events: none;
     }
-    .gavel-shockwave.active {
-      animation: shockwaveExpand 0.6s ease-out;
+    .gavel-impact-ripple.active {
+      animation: rippleBurst 0.6s ease-out;
     }
-    @keyframes shockwaveExpand {
-      0% { width: 20px; height: 20px; opacity: 1; }
-      100% { width: 280px; height: 280px; opacity: 0; }
+    @keyframes rippleBurst {
+      0% { width: 10px; height: 10px; opacity: 1; }
+      100% { width: 340px; height: 340px; opacity: 0; }
     }
 
-    /* Center Scales of Justice */
-    .scales-center-area {
+    /* Scales of Justice */
+    .scales-assembly {
       display: flex;
       justify-content: center;
       align-items: center;
-      margin: 10px 0;
+      margin: 8px 0;
       z-index: 5;
     }
 
-    .scales-visual-container {
+    .scales-fulcrum-box {
       display: flex;
       flex-direction: column;
       align-items: center;
-      position: relative;
     }
 
-    .scales-beam {
-      width: 260px;
-      height: 6px;
-      background: var(--gold-primary);
-      border-radius: 3px;
+    .scales-crossbar {
+      width: 320px;
+      height: 8px;
+      background: linear-gradient(90deg, #78350f, #d97706, #fbbf24, #d97706, #78350f);
+      border-radius: 4px;
       position: relative;
       transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-      box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
     }
 
-    .scales-fulcrum {
+    .scales-center-pillar {
       width: 14px;
-      height: 20px;
+      height: 28px;
       background: var(--gold-bright);
       clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-      margin-top: -2px;
+      margin-top: -3px;
     }
 
-    .scale-plate {
+    .scale-plate-container {
       position: absolute;
-      top: 6px;
-      width: 70px;
+      top: 8px;
+      width: 80px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-    .scale-plate.pros { left: -10px; }
-    .scale-plate.def { right: -10px; }
+    .scale-plate-container.prosecution-side { left: -14px; }
+    .scale-plate-container.defense-side { right: -14px; }
 
-    .scale-string {
-      width: 1px;
-      height: 34px;
-      background: var(--gold-primary);
+    .scale-chain {
+      width: 2px;
+      height: 42px;
+      background: repeating-linear-gradient(to bottom, #d97706, #d97706 4px, #78350f 4px, #78350f 8px);
     }
 
-    .scale-pan {
-      width: 60px;
-      height: 8px;
-      border-radius: 0 0 30px 30px;
-      border: 2px solid var(--gold-primary);
+    .scale-brass-dish {
+      width: 74px;
+      height: 12px;
+      border-radius: 0 0 37px 37px;
+      border: 2px solid var(--gold-bright);
       border-top: none;
+      background: radial-gradient(circle at 50% 0%, #3e2607, #180f02);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
       display: flex;
       justify-content: center;
       align-items: center;
     }
 
-    .scale-pan-weight {
+    .scale-counterweight-badge {
       font-family: var(--font-mono);
       font-size: 10px;
       font-weight: 700;
-      padding: 1px 4px;
+      padding: 1px 6px;
       border-radius: 3px;
-      margin-top: 14px;
+      margin-top: 18px;
     }
-    .scale-pan-weight.pros { color: var(--crimson-pros); background: rgba(244, 63, 94, 0.15); border: 1px solid var(--crimson-pros); }
-    .scale-pan-weight.def { color: var(--emerald-def); background: rgba(16, 185, 129, 0.15); border: 1px solid var(--emerald-def); }
+    .scale-counterweight-badge.pros { color: var(--crimson-hazard); background: rgba(244, 63, 94, 0.2); border: 1px solid var(--crimson-hazard); }
+    .scale-counterweight-badge.def { color: var(--emerald-safe); background: rgba(16, 185, 129, 0.2); border: 1px solid var(--emerald-safe); }
 
-    /* The Floor Tables: Prosecution vs Defense */
-    .court-floor-area {
+    /* Arena Floor: Adversary vs SRE Counsel */
+    .arena-floor {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
       z-index: 10;
     }
 
-    .counsel-box {
-      width: 260px;
-      background: var(--bg-card);
+    .counsel-podium {
+      width: 320px;
+      background: rgba(14, 20, 32, 0.95);
       border-radius: 8px;
-      padding: 12px 16px;
+      padding: 14px 18px;
       border: 1px solid var(--border-subtle);
-      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      transition: all 0.25s ease;
     }
-    .counsel-box.prosecution {
-      border-left: 4px solid var(--crimson-pros);
+    .counsel-podium.pros-podium {
+      border-left: 4px solid var(--crimson-hazard);
     }
-    .counsel-box.defense {
-      border-right: 4px solid var(--emerald-def);
+    .counsel-podium.def-podium {
+      border-right: 4px solid var(--emerald-safe);
     }
 
-    .counsel-header {
+    .counsel-speaker-bar {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-weight: 600;
-      font-size: 12px;
-      margin-bottom: 4px;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 6px;
     }
-    .counsel-box.prosecution .counsel-header { color: var(--crimson-pros); }
-    .counsel-box.defense .counsel-header { color: var(--emerald-def); }
-
-    .counsel-role {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--text-muted);
-    }
+    .pros-podium .counsel-speaker-bar { color: var(--crimson-hazard); }
+    .def-podium .counsel-speaker-bar { color: var(--emerald-safe); justify-content: flex-end; }
 
     .counsel-speech-bubble {
-      margin-top: 8px;
-      background: #090c13;
+      background: #080b13;
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
-      padding: 8px 10px;
+      padding: 10px 12px;
       font-family: var(--font-mono);
       font-size: 11px;
-      color: var(--text-secondary);
-      min-height: 48px;
-      max-height: 60px;
+      color: #cbd5e1;
+      min-height: 52px;
+      max-height: 64px;
       overflow-y: auto;
-      line-height: 1.4;
+      line-height: 1.45;
     }
 
-    /* Central PR Docket Pedestal */
-    .docket-pedestal {
-      background: var(--bg-card);
-      border: 1px solid var(--border-gold);
+    /* Floating Center Docket */
+    .floating-docket-pedestal {
+      background: linear-gradient(180deg, #1b160b 0%, #100d06 100%);
+      border: 1px solid var(--border-brass);
       border-radius: 8px;
-      padding: 10px 18px;
+      padding: 10px 20px;
       text-align: center;
-      max-width: 320px;
+      max-width: 340px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.7);
     }
-
-    .docket-pedestal .lbl {
+    .floating-docket-pedestal .tag-label {
       font-family: var(--font-mono);
       font-size: 10px;
       color: var(--gold-bright);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
     }
-
-    .docket-pedestal .pr-name {
+    .floating-docket-pedestal .pr-title-marquee {
       font-family: var(--font-mono);
       font-size: 12px;
-      font-weight: 600;
-      color: var(--text-white);
+      font-weight: 700;
+      color: #fff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 280px;
+      max-width: 300px;
     }
 
-    /* Courtroom Control Deck */
-    .court-controls-grid {
+    /* Courtroom Interactive Controls Grid */
+    .court-interact-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1.05fr;
       gap: 20px;
     }
     @media (max-width: 1024px) {
-      .court-controls-grid { grid-template-columns: 1fr; }
+      .court-interact-grid { grid-template-columns: 1fr; }
     }
 
-    .control-card {
-      background: var(--bg-surface);
+    .tactical-box {
+      background: var(--bg-panel);
       border: 1px solid var(--border-subtle);
       border-radius: 10px;
-      padding: 20px;
+      padding: 22px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
 
-    .card-title-bar {
+    .tactical-box-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -515,158 +565,152 @@
       padding-bottom: 10px;
       border-bottom: 1px solid var(--border-subtle);
     }
-
-    .card-title-bar h3 {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-white);
+    .tactical-box-header h3 {
+      font-family: var(--font-tribunal);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--gold-bright);
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
-    /* Scenario Quick Chips */
-    .scenario-chip-deck {
+    /* Scenario Selection Chips */
+    .preset-deck {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
       margin-bottom: 14px;
     }
 
-    .scenario-chip {
-      background: var(--bg-card);
+    .preset-tile {
+      background: var(--bg-panel-elevated);
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
-      padding: 8px 12px;
+      padding: 9px 12px;
       font-family: var(--font-mono);
       font-size: 11px;
-      color: var(--text-secondary);
-      text-align: left;
+      color: var(--text-muted);
       cursor: pointer;
+      text-align: left;
       transition: all 0.15s ease;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .scenario-chip:hover {
-      background: var(--bg-card-hover);
-      color: var(--text-white);
-      border-color: var(--border-medium);
+    .preset-tile:hover {
+      background: var(--bg-panel-highlight);
+      color: #fff;
+      border-color: var(--border-brass);
     }
-    .scenario-chip.active {
-      border-color: var(--gold-primary);
-      background: rgba(245, 158, 11, 0.1);
+    .preset-tile.active {
+      border-color: var(--gold-brass);
+      background: rgba(217, 119, 6, 0.15);
       color: var(--gold-bright);
     }
 
-    .form-row {
-      margin-bottom: 12px;
-    }
-    .form-row label {
-      display: block;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-bottom: 5px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .text-input {
+    .tactical-input {
       width: 100%;
-      background: var(--bg-card);
+      background: var(--bg-void);
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
-      padding: 9px 12px;
-      color: var(--text-white);
+      padding: 10px 14px;
       font-family: var(--font-mono);
       font-size: 12px;
+      color: #fff;
       outline: none;
       transition: border-color 0.15s;
     }
-    .text-input:focus {
-      border-color: var(--gold-primary);
+    .tactical-input:focus {
+      border-color: var(--gold-brass);
     }
 
-    .btn-action-gold {
+    .btn-tribunal-primary {
       width: 100%;
-      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+      background: linear-gradient(135deg, #d97706 0%, #92400e 100%);
       color: #fff;
       border: 1px solid var(--gold-bright);
       border-radius: 6px;
       padding: 12px 18px;
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 13px;
-      letter-spacing: 0.5px;
+      font-family: var(--font-tribunal);
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: 1px;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+      box-shadow: 0 4px 16px rgba(217, 119, 6, 0.35);
+      margin-top: 14px;
     }
-    .btn-action-gold:hover:not(:disabled) {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4);
+    .btn-tribunal-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+      box-shadow: 0 6px 22px rgba(245, 158, 11, 0.5);
+      transform: translateY(-1px);
     }
-    .btn-action-gold:disabled {
+    .btn-tribunal-primary:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
 
-    /* Proclamation Decree Card */
-    .proclamation-card {
+    /* Red Wax Sealed Judicial Decree */
+    .judicial-decree-scroll {
+      background: linear-gradient(180deg, #1b1509 0%, #0e0c05 100%);
+      border: 2px solid var(--gold-brass);
       border-radius: 8px;
-      padding: 16px 20px;
+      padding: 18px 22px;
       margin-bottom: 16px;
-      border: 1px solid var(--border-subtle);
-      animation: decreeUnroll 0.5s ease-out;
+      position: relative;
+      animation: unrollScroll 0.4s ease-out;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
     }
-    @keyframes decreeUnroll {
-      from { opacity: 0; transform: scaleY(0.7); }
-      to { opacity: 1; transform: scaleY(1); }
-    }
-    .proclamation-card.conditions {
-      background: rgba(245, 158, 11, 0.08);
-      border-color: var(--gold-primary);
-    }
-    .proclamation-card.block {
-      background: rgba(244, 63, 94, 0.08);
-      border-color: var(--crimson-pros);
-    }
-    .proclamation-card.approve {
-      background: rgba(16, 185, 129, 0.08);
-      border-color: var(--emerald-def);
+    @keyframes unrollScroll {
+      from { transform: scaleY(0.7); opacity: 0; }
+      to { transform: scaleY(1); opacity: 1; }
     }
 
-    .proclamation-title {
-      font-family: var(--font-display);
-      font-size: 13px;
-      font-weight: 700;
+    .wax-seal-badge {
+      position: absolute;
+      top: -14px;
+      right: 20px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #e11d48, #881337);
+      border: 2px solid #fda4af;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .decree-heading {
+      font-family: var(--font-tribunal);
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--gold-radiant);
       margin-bottom: 8px;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .proclamation-card.conditions .proclamation-title { color: var(--gold-bright); }
-    .proclamation-card.block .proclamation-title { color: var(--crimson-pros); }
-    .proclamation-card.approve .proclamation-title { color: var(--emerald-def); }
 
-    .proclamation-body {
+    .decree-content {
       font-family: var(--font-mono);
       font-size: 11px;
-      color: var(--text-secondary);
+      color: #cbd5e1;
       line-height: 1.6;
     }
-    .proclamation-body ul {
+    .decree-content ul {
       margin-top: 6px;
       padding-left: 18px;
     }
 
-    /* Dialectic Transcript */
-    .court-transcript-log {
+    /* Dialectic Monospace Feed */
+    .dialectic-feed-box {
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -675,18 +719,18 @@
       padding-right: 4px;
     }
 
-    .log-entry {
-      background: var(--bg-card);
+    .speech-docket-card {
+      background: var(--bg-void);
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
       padding: 10px 14px;
     }
-    .log-entry.pros { border-left: 3px solid var(--crimson-pros); }
-    .log-entry.def { border-left: 3px solid var(--emerald-def); }
-    .log-entry.jdg { border-left: 3px solid var(--gold-primary); }
-    .log-entry.clk { border-left: 3px solid var(--text-muted); }
+    .speech-docket-card.pros { border-left: 3px solid var(--crimson-hazard); }
+    .speech-docket-card.def { border-left: 3px solid var(--emerald-safe); }
+    .speech-docket-card.jdg { border-left: 3px solid var(--gold-bright); }
+    .speech-docket-card.clk { border-left: 3px solid var(--text-muted); }
 
-    .log-meta {
+    .docket-card-meta {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -694,747 +738,784 @@
       font-size: 11px;
       margin-bottom: 5px;
     }
-    .log-speaker.pros { color: var(--crimson-pros); font-weight: 600; }
-    .log-speaker.def { color: var(--emerald-def); font-weight: 600; }
-    .log-speaker.jdg { color: var(--gold-bright); font-weight: 700; }
-    .log-speaker.clk { color: var(--text-muted); }
-    .log-time { color: var(--text-muted); font-size: 10px; }
+    .docket-card-meta .speaker.pros { color: var(--crimson-hazard); font-weight: 700; }
+    .docket-card-meta .speaker.def { color: var(--emerald-safe); font-weight: 700; }
+    .docket-card-meta .speaker.jdg { color: var(--gold-bright); font-weight: 800; }
+    .docket-card-meta .speaker.clk { color: var(--text-muted); }
 
-    .log-text {
+    .docket-card-text {
       font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 11.5px;
       line-height: 1.5;
-      color: var(--text-white);
+      color: #e2e8f0;
       white-space: pre-wrap;
     }
 
     /* =========================================================================
-       PAGE 2: ANTIGRAVITY AGENT STUDIO (MULTI-AGENT SCOPE GUARD)
+       CHAMBER 2: ANTIGRAVITY AGENT SECTORS (MISSION CONTROL DISPATCH)
        ========================================================================= */
-    .studio-grid {
+    .dispatch-stations-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 20px;
       margin-bottom: 24px;
     }
     @media (max-width: 1024px) {
-      .studio-grid { grid-template-columns: 1fr; }
+      .dispatch-stations-grid { grid-template-columns: 1fr; }
     }
 
-    .agent-workstation-card {
-      background: var(--bg-surface);
+    .terminal-station-bay {
+      background: #080d17;
       border: 1px solid var(--border-subtle);
       border-radius: 10px;
       padding: 20px;
       position: relative;
-      transition: all 0.25s ease;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.6);
     }
-    .agent-workstation-card:hover {
-      border-color: var(--border-medium);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    .terminal-station-bay:hover {
+      border-color: var(--cyan-tech);
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
     }
-    .agent-workstation-card.frozen {
-      border-color: var(--crimson-pros);
-      box-shadow: 0 0 20px rgba(244, 63, 94, 0.25);
+    .terminal-station-bay.quarantined {
+      border-color: var(--crimson-hazard);
+      box-shadow: 0 0 30px rgba(244, 63, 94, 0.4);
+      background: #14080a;
     }
 
-    .station-header {
+    .bay-header {
       display: flex;
       align-items: center;
       gap: 12px;
       margin-bottom: 14px;
     }
 
-    .station-avatar {
+    .bay-insignia {
       width: 44px;
       height: 44px;
       border-radius: 8px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-medium);
+      background: var(--bg-void);
+      border: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 22px;
     }
 
-    .station-info h4 {
+    .bay-identity h4 {
+      font-family: var(--font-mono);
       font-size: 14px;
       font-weight: 700;
-      color: var(--text-white);
-      font-family: var(--font-mono);
+      color: #fff;
     }
-    .station-info p {
+    .bay-identity p {
       font-size: 11px;
-      color: var(--text-secondary);
+      color: var(--text-muted);
     }
 
-    .station-status-pill {
+    .bay-status-led {
+      margin-left: auto;
       font-family: var(--font-mono);
       font-size: 10px;
-      font-weight: 600;
+      font-weight: 700;
       padding: 2px 8px;
       border-radius: 4px;
-      margin-left: auto;
+      letter-spacing: 0.5px;
     }
-    .station-status-pill.active {
-      color: var(--emerald-def);
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid var(--emerald-def);
+    .bay-status-led.safe {
+      color: var(--emerald-safe);
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--emerald-safe);
     }
-    .station-status-pill.frozen {
-      color: var(--crimson-pros);
-      background: rgba(244, 63, 94, 0.1);
-      border: 1px solid var(--crimson-pros);
+    .bay-status-led.breached {
+      color: var(--crimson-hazard);
+      background: rgba(244, 63, 94, 0.2);
+      border: 1px solid var(--crimson-hazard);
+      animation: flashBlink 0.6s infinite alternate;
+    }
+    @keyframes flashBlink {
+      from { opacity: 0.6; }
+      to { opacity: 1; }
     }
 
-    .scope-box {
-      background: var(--bg-card);
+    .scope-perimeter-box {
+      background: #04060a;
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
       padding: 12px;
       margin-bottom: 14px;
     }
-
-    .scope-box .scope-title {
+    .scope-perimeter-box .perimeter-label {
       font-family: var(--font-mono);
       font-size: 10px;
+      color: var(--text-dim);
       text-transform: uppercase;
-      color: var(--text-muted);
       margin-bottom: 6px;
       letter-spacing: 0.5px;
     }
 
-    .scope-tag-list {
+    .scope-chips-deck {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
     }
 
-    .scope-tag {
+    .scope-chip {
       font-family: var(--font-mono);
       font-size: 11px;
       padding: 2px 7px;
       border-radius: 4px;
-      background: #090c13;
-      border: 1px solid var(--border-subtle);
-      color: var(--cyan-tech);
+      background: #0b111e;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      color: var(--cyan-bright);
     }
 
-    .tool-matrix {
+    .station-telemetry-rows {
       font-family: var(--font-mono);
       font-size: 11px;
-      color: var(--text-secondary);
+      color: var(--text-muted);
       line-height: 1.6;
       margin-bottom: 14px;
     }
+    .station-telemetry-rows strong { color: #fff; }
 
-    .btn-station-action {
+    .btn-bay-test {
       padding: 8px 12px;
-      background: var(--bg-card);
+      background: #0f1523;
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
-      color: var(--text-white);
+      color: #fff;
       font-family: var(--font-mono);
       font-size: 11px;
       cursor: pointer;
       transition: all 0.15s ease;
       text-align: center;
     }
-    .btn-station-action:hover {
-      background: var(--bg-card-hover);
-      border-color: var(--border-medium);
+    .btn-bay-test:hover {
+      background: #182238;
+      border-color: var(--cyan-tech);
     }
 
-    /* Laser Scope Sandbox Interceptor */
-    .sandbox-interceptor-panel {
-      background: var(--bg-surface);
+    /* Laser Scope Interceptor Sandbox */
+    .laser-quarantine-box {
+      background: #080d17;
       border: 1px solid var(--border-subtle);
       border-radius: 10px;
       padding: 24px;
-    }
-
-    .laser-security-grid {
-      background: #06080d;
-      border: 1px solid var(--border-medium);
-      border-radius: 8px;
-      padding: 20px;
       position: relative;
       overflow: hidden;
-      margin-top: 16px;
     }
 
-    .laser-line {
+    .laser-security-curtain {
+      height: 120px;
+      background: radial-gradient(circle at 50% 50%, #111a2e 0%, #05070c 80%);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      margin: 16px 0;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .laser-beam-vertical {
       position: absolute;
       top: 0;
       bottom: 0;
       width: 2px;
-      background: var(--crimson-pros);
-      box-shadow: 0 0 12px var(--crimson-pros);
+      background: var(--crimson-hazard);
+      box-shadow: 0 0 16px var(--crimson-hazard);
       opacity: 0;
-      transition: opacity 0.3s;
+      transition: opacity 0.25s ease;
     }
-    .laser-line.active { opacity: 1; }
-    .laser-line.l1 { left: 33%; }
-    .laser-line.l2 { left: 66%; }
+    .laser-beam-vertical.b1 { left: 33%; }
+    .laser-beam-vertical.b2 { left: 66%; }
+    .laser-beam-vertical.active { opacity: 1; }
 
-    .intercept-alert-box {
+    .quarantine-alert-card {
       display: none;
-      background: rgba(244, 63, 94, 0.12);
-      border: 1px solid var(--crimson-pros);
-      border-radius: 6px;
-      padding: 14px 18px;
-      margin-top: 14px;
-      animation: alertFlash 0.4s ease-in-out;
+      background: rgba(244, 63, 94, 0.14);
+      border: 2px solid var(--crimson-hazard);
+      border-radius: 8px;
+      padding: 16px 20px;
+      animation: alertPopIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 4px 24px rgba(244, 63, 94, 0.3);
     }
-    @keyframes alertFlash {
-      0% { opacity: 0; transform: scale(0.98); }
-      100% { opacity: 1; transform: scale(1); }
+    @keyframes alertPopIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
 
     /* =========================================================================
-       PAGE 3: BOARDROOM OS (DISCORD VOICE THIRD VOICE)
+       CHAMBER 3: BOARDROOM OS (DISCORD BROADCAST INTERCOM)
        ========================================================================= */
-    .boardroom-stage-box {
-      background: #090c13;
-      border: 1px solid var(--border-subtle);
+    .intercom-console-faceplate {
+      background: linear-gradient(180deg, #131929 0%, #0a0e17 100%);
+      border: 2px solid #232d44;
       border-radius: 12px;
       padding: 24px;
       margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
     }
 
-    .discord-huddle-bar {
+    .intercom-top-strip {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #101420;
+      background: #080b12;
       border: 1px solid var(--border-subtle);
       border-radius: 8px;
-      padding: 16px 20px;
+      padding: 14px 20px;
       margin-bottom: 20px;
     }
 
-    .huddle-speakers-deck {
+    .intercom-avatars-row {
       display: flex;
       align-items: center;
       gap: 16px;
     }
 
-    .huddle-avatar {
-      position: relative;
+    .radio-station-pod {
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
-    .avatar-bubble {
+    .radio-avatar-orb {
       width: 48px;
       height: 48px;
       border-radius: 50%;
-      background: var(--bg-card);
-      border: 2px solid var(--border-medium);
+      background: #0d121f;
+      border: 2px solid #283550;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 20px;
-      transition: all 0.3s ease;
+      transition: all 0.25s ease;
+      position: relative;
     }
-    .avatar-bubble.speaking {
-      border-color: var(--emerald-def);
-      box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
+    .radio-avatar-orb.speaking {
+      border-color: var(--emerald-safe);
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.5);
     }
-    .avatar-bubble.bot-speaking {
+    .radio-avatar-orb.ai-speaking {
       border-color: var(--gold-bright);
-      box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
+      box-shadow: 0 0 22px rgba(245, 158, 11, 0.6);
     }
 
-    .avatar-name {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--text-secondary);
-      margin-top: 4px;
-    }
-
-    .rfc-reason-cards-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-    @media (max-width: 1024px) {
-      .rfc-reason-cards-grid { grid-template-columns: 1fr 1fr; }
-    }
-
-    .rfc-card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      padding: 14px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .rfc-card:hover {
-      background: var(--bg-card);
-      border-color: var(--border-medium);
-      transform: translateY(-2px);
-    }
-
-    .rfc-card .tag {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 3px;
-      display: inline-block;
-      margin-bottom: 8px;
-      width: fit-content;
-    }
-    .rfc-card.clarify .tag { color: var(--gold-bright); background: rgba(245, 158, 11, 0.15); border: 1px solid var(--gold-primary); }
-    .rfc-card.incident .tag { color: var(--crimson-pros); background: rgba(244, 63, 94, 0.15); border: 1px solid var(--crimson-pros); }
-    .rfc-card.mitigate .tag { color: var(--emerald-def); background: rgba(16, 185, 129, 0.15); border: 1px solid var(--emerald-def); }
-    .rfc-card.hazard .tag { color: #f97316; background: rgba(249, 115, 22, 0.15); border: 1px solid #f97316; }
-
-    .rfc-card p {
-      font-size: 12px;
-      color: var(--text-white);
-      margin-bottom: 10px;
-      line-height: 1.4;
-    }
-
-    .rfc-card .btn-trigger-rfc {
+    .radio-station-name {
       font-family: var(--font-mono);
       font-size: 10px;
       color: var(--text-muted);
+      margin-top: 5px;
+    }
+
+    /* 4 Hardware Style RFC Pushbuttons */
+    .rfc-pushbuttons-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1024px) {
+      .rfc-pushbuttons-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .rfc-tactical-switch {
+      background: #0c111d;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-top: 3px solid #283550;
+    }
+    .rfc-tactical-switch:hover {
+      background: #141c2e;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    }
+    .rfc-tactical-switch.clarify:hover { border-top-color: var(--gold-bright); }
+    .rfc-tactical-switch.incident:hover { border-top-color: var(--crimson-hazard); }
+    .rfc-tactical-switch.mitigate:hover { border-top-color: var(--emerald-safe); }
+    .rfc-tactical-switch.hazard:hover { border-top-color: #f97316; }
+
+    .switch-banner-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      width: fit-content;
+      margin-bottom: 10px;
+    }
+    .rfc-tactical-switch.clarify .switch-banner-tag { color: var(--gold-bright); background: rgba(245, 158, 11, 0.15); }
+    .rfc-tactical-switch.incident .switch-banner-tag { color: var(--crimson-hazard); background: rgba(244, 63, 94, 0.15); }
+    .rfc-tactical-switch.mitigate .switch-banner-tag { color: var(--emerald-safe); background: rgba(16, 185, 129, 0.15); }
+    .rfc-tactical-switch.hazard .switch-banner-tag { color: #f97316; background: rgba(249, 115, 22, 0.15); }
+
+    .rfc-tactical-switch p {
+      font-size: 12px;
+      color: #e2e8f0;
+      line-height: 1.45;
+      margin-bottom: 12px;
+    }
+
+    .switch-footer-action {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-dim);
       border-top: 1px solid var(--border-subtle);
       padding-top: 8px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
     }
 
     /* =========================================================================
-       PAGE 4: PARALLEL EARTH DIGITAL TWIN (3D TOPOLOGY)
+       CHAMBER 4: PARALLEL EARTH (3D DIGITAL TWIN)
        ========================================================================= */
-    .earth-3d-box {
-      background: #05070a;
-      border: 1px solid var(--border-subtle);
+    .earth-viewport-vault {
+      background: #030508;
+      border: 2px solid var(--border-brass);
       border-radius: 12px;
       height: 520px;
       position: relative;
       overflow: hidden;
       margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.9);
     }
 
-    #three-canvas-holder {
+    #three-digital-twin-canvas {
       width: 100%;
       height: 100%;
     }
 
-    .earth-toolbar {
+    .earth-hud-glass {
       position: absolute;
-      top: 16px;
-      left: 16px;
+      bottom: 18px;
+      left: 18px;
+      right: 18px;
+      background: rgba(10, 14, 23, 0.94);
+      border: 1px solid var(--border-brass);
+      border-radius: 8px;
+      padding: 16px 22px;
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .earth-hud-specs-deck {
+      display: flex;
+      gap: 28px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+    .hud-stat-col {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    .hud-stat-col .stat-lbl {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .hud-stat-col .stat-val {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .earth-toolbar-overlay {
+      position: absolute;
+      top: 18px;
+      left: 18px;
       display: flex;
       gap: 8px;
       z-index: 10;
     }
 
-    .btn-earth-tool {
-      padding: 6px 12px;
-      background: rgba(13, 17, 26, 0.85);
-      border: 1px solid var(--border-medium);
+    .btn-earth-pill {
+      padding: 6px 14px;
+      background: rgba(10, 14, 23, 0.85);
+      border: 1px solid var(--border-subtle);
       border-radius: 6px;
-      color: var(--text-white);
+      color: #fff;
       font-family: var(--font-mono);
       font-size: 11px;
       cursor: pointer;
       backdrop-filter: blur(6px);
       transition: all 0.15s ease;
     }
-    .btn-earth-tool:hover {
-      background: var(--bg-card);
-      border-color: var(--gold-primary);
+    .btn-earth-pill:hover {
+      background: #182236;
+      border-color: var(--gold-bright);
     }
-    .btn-earth-tool.active {
-      background: rgba(245, 158, 11, 0.2);
-      border-color: var(--gold-primary);
+    .btn-earth-pill.active {
+      background: rgba(217, 119, 6, 0.2);
+      border-color: var(--gold-brass);
       color: var(--gold-bright);
     }
 
-    .node-pin-3d {
+    .service-pin-3d {
       position: absolute;
       transform: translate(-50%, -100%);
       font-family: var(--font-mono);
       font-size: 10px;
-      font-weight: 600;
+      font-weight: 700;
       padding: 2px 7px;
       border-radius: 4px;
-      background: rgba(13, 17, 26, 0.9);
-      border: 1px solid var(--border-medium);
-      color: var(--text-white);
+      background: rgba(8, 12, 20, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
       pointer-events: none;
       white-space: nowrap;
       user-select: none;
       z-index: 5;
     }
 
-    .earth-hud-drawer {
-      position: absolute;
-      bottom: 16px;
-      left: 16px;
-      right: 16px;
-      background: rgba(13, 17, 26, 0.95);
-      border: 1px solid var(--border-medium);
-      border-radius: 8px;
-      padding: 14px 20px;
-      backdrop-filter: blur(8px);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 10;
-    }
-
     /* =========================================================================
-       PAGE 5: CRYPTOGRAPHIC RELEASE VAULT (GITHUB OPS & AUDIT)
+       CHAMBER 5: CRYPTOGRAPHIC RELEASE VAULT (DUAL-KEY DEPLOYMENT)
        ========================================================================= */
-    .vault-stepper-deck {
+    .vault-sequence-row {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
-      gap: 10px;
-      margin-bottom: 20px;
+      gap: 12px;
+      margin-bottom: 24px;
     }
     @media (max-width: 1024px) {
-      .vault-stepper-deck { grid-template-columns: 1fr 1fr; }
+      .vault-sequence-row { grid-template-columns: 1fr 1fr; }
     }
 
-    .vault-step-btn {
-      background: var(--bg-surface);
+    .vault-key-step-btn {
+      background: #0a0f1a;
       border: 1px solid var(--border-subtle);
       border-radius: 8px;
-      padding: 12px 14px;
+      padding: 14px;
       font-family: var(--font-mono);
       font-size: 11px;
-      color: var(--text-white);
+      color: #fff;
       cursor: pointer;
       transition: all 0.15s ease;
+      text-align: left;
       display: flex;
       flex-direction: column;
       gap: 4px;
-      text-align: left;
     }
-    .vault-step-btn:hover:not(:disabled) {
-      background: var(--bg-card);
-      border-color: var(--border-medium);
+    .vault-key-step-btn:hover:not(:disabled) {
+      background: #141c2d;
+      border-color: var(--gold-brass);
     }
-    .vault-step-btn:disabled {
+    .vault-key-step-btn:disabled {
       opacity: 0.4;
       cursor: not-allowed;
     }
-    .vault-step-btn.btn-exec {
-      border-color: var(--emerald-def);
+    .vault-key-step-btn.btn-release-exec {
+      border-color: var(--emerald-safe);
       color: #34d399;
     }
 
-    .vault-terminal {
-      background: #05070a;
-      border: 1px solid var(--border-subtle);
+    .phosphor-crt-terminal {
+      background: #020406;
+      border: 2px solid #142032;
       border-radius: 8px;
-      padding: 16px 20px;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--text-secondary);
-      max-height: 340px;
+      padding: 18px 22px;
+      font-family: var(--font-crt);
+      font-size: 16px;
+      color: #38bdf8;
+      max-height: 360px;
       overflow-y: auto;
       white-space: pre-wrap;
-      line-height: 1.5;
+      line-height: 1.4;
+      box-shadow: inset 0 0 20px rgba(6, 182, 212, 0.1);
     }
 
     /* =========================================================================
-       PAGE 6: 5-RING ARCHITECTURE OVERVIEW
+       CHAMBER 6: 5-RING SOVEREIGN CODEX
        ========================================================================= */
-    .rings-timeline-flow {
+    .codex-scroll-flow {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
     }
 
-    .ring-card {
-      background: var(--bg-surface);
+    .codex-card {
+      background: #0a0f19;
       border: 1px solid var(--border-subtle);
+      border-left: 4px solid var(--gold-brass);
       border-radius: 10px;
-      padding: 20px 24px;
+      padding: 22px 28px;
       display: grid;
-      grid-template-columns: 80px 1fr 220px;
+      grid-template-columns: 80px 1fr 200px;
       gap: 20px;
       align-items: center;
       transition: all 0.2s ease;
     }
-    .ring-card:hover {
-      border-color: var(--border-medium);
-      background: var(--bg-card);
+    .codex-card:hover {
+      background: #101625;
+      border-color: var(--gold-bright);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
 
-    .ring-num-badge {
-      font-family: var(--font-display);
-      font-size: 22px;
-      font-weight: 700;
+    .codex-num {
+      font-family: var(--font-tribunal);
+      font-size: 26px;
+      font-weight: 800;
       color: var(--gold-bright);
       text-align: center;
-      padding: 10px;
-      background: #090c13;
-      border: 1px solid var(--border-gold);
+      padding: 12px;
+      background: #05080e;
+      border: 1px solid var(--border-brass);
       border-radius: 8px;
     }
 
-    .ring-desc h3 {
-      font-size: 15px;
+    .codex-details h3 {
+      font-family: var(--font-tribunal);
+      font-size: 16px;
       font-weight: 700;
-      color: var(--text-white);
+      color: #fff;
       margin-bottom: 4px;
     }
-    .ring-desc p {
+    .codex-details p {
       font-size: 13px;
-      color: var(--text-secondary);
+      color: var(--text-muted);
     }
 
-    .ring-action-btn {
-      padding: 8px 14px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-medium);
+    .btn-codex-enter {
+      padding: 10px 16px;
+      background: #141c2c;
+      border: 1px solid var(--border-brass);
       border-radius: 6px;
-      color: var(--text-white);
+      color: var(--gold-bright);
       font-family: var(--font-mono);
       font-size: 11px;
-      cursor: pointer;
       text-align: center;
       text-decoration: none;
       display: block;
+      transition: all 0.15s ease;
     }
-    .ring-action-btn:hover {
-      border-color: var(--gold-primary);
-      color: var(--gold-bright);
+    .btn-codex-enter:hover {
+      background: #1f2a40;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
     }
-
-    /* Spinner */
-    .spinner-gold {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border: 2px solid rgba(245, 158, 11, 0.3);
-      border-top-color: var(--gold-bright);
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
-  <!-- Top Navigation Header -->
-  <header class="site-header">
-    <div class="brand-group">
-      <div class="brand-crest">SC</div>
-      <div class="brand-meta">
-        <h1>SHIP COURT <span>&middot;</span> EXPERIENCE</h1>
-        <p>Autonomous Adversarial Release Governance &middot; Switch Native #ship-court</p>
+  <!-- Top Tactical Command Bar -->
+  <header class="tribunal-header">
+    <div class="brand-insignia">
+      <div class="seal-crest" onclick="playAudio('chime')">⚖️</div>
+      <div class="brand-text">
+        <h1>SHIP COURT</h1>
+        <p>Sovereign Release Tribunal &middot; Switch Native #ship-court</p>
       </div>
     </div>
 
-    <!-- Multi-Page Navigation -->
-    <nav class="site-nav">
-      <a href="#courtroom" class="nav-tab-btn active" onclick="navigate('courtroom')">
-        <span>⚖️</span>
-        <span>Courtroom Chamber</span>
+    <!-- Chamber Router Navigation -->
+    <nav class="chamber-navigation">
+      <a href="#courtroom" class="nav-chamber-btn active" onclick="jumpChamber('courtroom')">
+        <span class="icon">⚖️</span>
+        <span>The Tribunal</span>
       </a>
-      <a href="#studio" class="nav-tab-btn" onclick="navigate('studio')">
-        <span>🧩</span>
-        <span>Agent Studio</span>
+      <a href="#studio" class="nav-chamber-btn" onclick="jumpChamber('studio')">
+        <span class="icon">🛡️</span>
+        <span>Agent Sectors</span>
       </a>
-      <a href="#boardroom" class="nav-tab-btn" onclick="navigate('boardroom')">
-        <span>🎙️</span>
-        <span>Voice Huddle</span>
+      <a href="#boardroom" class="nav-chamber-btn" onclick="jumpChamber('boardroom')">
+        <span class="icon">🎙️</span>
+        <span>The Intercom</span>
       </a>
-      <a href="#parallel-earth" class="nav-tab-btn" onclick="navigate('parallel-earth')">
-        <span>🌍</span>
-        <span>Parallel Earth 3D</span>
+      <a href="#parallel-earth" class="nav-chamber-btn" onclick="jumpChamber('parallel-earth')">
+        <span class="icon">🪐</span>
+        <span>Parallel Earth</span>
       </a>
-      <a href="#vault" class="nav-tab-btn" onclick="navigate('vault')">
-        <span>🔐</span>
-        <span>Release Vault</span>
+      <a href="#vault" class="nav-chamber-btn" onclick="jumpChamber('vault')">
+        <span class="icon">🔐</span>
+        <span>Launch Vault</span>
       </a>
-      <a href="#overview" class="nav-tab-btn" onclick="navigate('overview')">
-        <span>🧭</span>
-        <span>5-Ring Architecture</span>
+      <a href="#overview" class="nav-chamber-btn" onclick="jumpChamber('overview')">
+        <span class="icon">📜</span>
+        <span>The Codex</span>
       </a>
     </nav>
 
-    <!-- Telemetry Status Pills -->
-    <div class="system-hud-pills">
-      <div class="hud-pill">
-        <div class="dot green"></div>
-        <span>GROQ QWEN-3.8-27B</span>
-      </div>
-      <div class="hud-pill">
-        <div class="dot gold"></div>
+    <!-- Top Deck Status & Audio Toggle -->
+    <div class="top-controls-deck">
+      <button class="sound-toggle-btn sound-on" id="btn-sound-toggle" onclick="toggleSound()">
+        <span id="sound-icon">🔊</span>
+        <span id="sound-label">Audio: ON</span>
+      </button>
+      <div class="gatekeeper-badge">
+        <span>👑</span>
         <span>MAGISTRATE: @Priya</span>
       </div>
     </div>
   </header>
 
-  <!-- Main Website Body -->
-  <main class="page-container">
+  <!-- The Tribunal Shell -->
+  <main class="tribunal-shell">
 
     <!-- ====================================================================
-         PAGE 1: COURTROOM CHAMBER (ANIMATED COURT STAGE)
+         CHAMBER 1: THE TRIBUNAL (ANIMATED COURT STAGE)
          ==================================================================== -->
-    <section id="page-courtroom" class="page-section active">
+    <section id="chamber-courtroom" class="chamber-room active">
       
-      <div class="page-hero-banner">
-        <div class="title-area">
-          <h2>⚖️ The Adversarial Courtroom Chamber</h2>
-          <p>Unscripted forensic cross-examination where AI agents argue, scales balance, and Chief Magistrate Priya bangs the gavel.</p>
+      <div class="chamber-intro-banner">
+        <div>
+          <h2>⚖️ The Adversarial Tribunal Chamber</h2>
+          <p>Forensic cross-examination where AI agents argue, brass scales tip, and Chief Magistrate Priya delivers binding decrees.</p>
         </div>
-        <div class="tag-pill">RING 3 &middot; GROQ LLM ADJUDICATION</div>
+        <div class="banner-right-meta">RING 3 &middot; GROQ QWEN-3.8-27B</div>
       </div>
 
-      <!-- Animated Courtroom Stage -->
-      <div class="court-stage-wrapper">
-        <div class="court-stage-canvas">
+      <!-- Animated Courtroom Stage Arena -->
+      <div class="court-stage-arena" id="court-arena">
+        
+        <!-- Ace Attorney Objection Banner -->
+        <div class="objection-banner" id="objection-banner">OBJECTION!</div>
+
+        <!-- High Bench: Chief Magistrate & Gavel -->
+        <div class="tribunal-bench">
+          <div class="bench-pedestal">
+            <div class="gavel-impact-ripple" id="court-ripple"></div>
+            <div class="bench-magistrate-title">CHIEF MAGISTRATE PRIYA</div>
+            <div class="bench-sub">Supreme Release Authority &middot; Rubber-Stamping Strictly Prohibited</div>
+            <div class="gavel-assembly" onclick="slamGavel(true)">
+              <span class="gavel-sprite" id="court-gavel">🔨</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scales of Justice -->
+        <div class="scales-assembly">
+          <div class="scales-fulcrum-box">
+            <div class="scales-crossbar" id="scales-crossbar">
+              <!-- Left: Prosecution -->
+              <div class="scale-plate-container prosecution-side">
+                <div class="scale-chain"></div>
+                <div class="scale-brass-dish"></div>
+                <div class="scale-counterweight-badge pros" id="badge-weight-pros">50 pts</div>
+              </div>
+              <!-- Right: Defense -->
+              <div class="scale-plate-container defense-side">
+                <div class="scale-chain"></div>
+                <div class="scale-brass-dish"></div>
+                <div class="scale-counterweight-badge def" id="badge-weight-def">50 pts</div>
+              </div>
+            </div>
+            <div class="scales-center-pillar"></div>
+          </div>
+        </div>
+
+        <!-- Arena Floor: Counsel Desks & Central PR Docket -->
+        <div class="arena-floor">
           
-          <!-- High Judge Bench with Animated Gavel -->
-          <div class="judge-bench-area">
-            <div class="judge-avatar-podium">
-              <div class="gavel-shockwave" id="court-shockwave"></div>
-              <div class="judge-title">
-                <span>👑 CHIEF MAGISTRATE PRIYA</span>
-              </div>
-              <div class="judge-sub">Final Release Authority &middot; Rubber-Stamping Strictly Prohibited</div>
-              <div class="gavel-icon-box" id="court-gavel">🔨</div>
+          <!-- Prosecution Desk -->
+          <div class="counsel-podium pros-podium" id="pros-podium">
+            <div class="counsel-speaker-bar">
+              <span>⚔️ @prosecutor</span>
+            </div>
+            <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); margin-bottom:6px;">Adversarial Risk Engine &middot; Outage Subpoena</div>
+            <div class="counsel-speech-bubble" id="pros-speech-bubble">
+              "Subpoenaing incident records... Ready to interrogate monetary blast radius and cache divergence."
             </div>
           </div>
 
-          <!-- Dynamic Scales of Justice -->
-          <div class="scales-center-area">
-            <div class="scales-visual-container">
-              <div class="scales-beam" id="scales-beam">
-                <div class="scale-plate pros">
-                  <div class="scale-string"></div>
-                  <div class="scale-pan"></div>
-                  <div class="scale-pan-weight pros" id="pan-weight-pros">50 pts</div>
-                </div>
-                <div class="scale-plate def">
-                  <div class="scale-string"></div>
-                  <div class="scale-pan"></div>
-                  <div class="scale-pan-weight def" id="pan-weight-def">50 pts</div>
-                </div>
-              </div>
-              <div class="scales-fulcrum"></div>
-            </div>
+          <!-- Central PR Docket -->
+          <div class="floating-docket-pedestal">
+            <div class="tag-label">PR ON TRIAL</div>
+            <div class="pr-title-marquee" id="court-docket-title">PR #482: Dynamic Checkout Pricing Rollout</div>
+            <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); margin-top:2px;">Repo: acme/shop &middot; Risk: TIER-1 CASCADE</div>
           </div>
 
-          <!-- The Floor: Prosecution vs Defense & PR Docket -->
-          <div class="court-floor-area">
-            
-            <!-- Left: Prosecution Desk -->
-            <div class="counsel-box prosecution" id="counsel-pros-box">
-              <div class="counsel-header">
-                <span>🛡️ @prosecutor</span>
-              </div>
-              <div class="counsel-role">Adversarial Risk Engine &middot; Outage Historian</div>
-              <div class="counsel-speech-bubble" id="bubble-pros">
-                "Subpoenaing incident records... Ready to interrogate blast radius and latency delta."
-              </div>
+          <!-- Defense Desk -->
+          <div class="counsel-podium def-podium" id="def-podium">
+            <div class="counsel-speaker-bar">
+              <span>@defender 🛡️</span>
             </div>
-
-            <!-- Center: PR on Trial -->
-            <div class="docket-pedestal">
-              <div class="lbl">Pull Request Docket</div>
-              <div class="pr-name" id="docket-pr-title">PR #482: Dynamic Checkout Pricing Rollout</div>
-              <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); margin-top:2px;">Repo: acme/shop &middot; Cascade Risk: HIGH</div>
+            <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); margin-bottom:6px; text-align:right;">SRE Mitigation Counsel &middot; Rollback Guard</div>
+            <div class="counsel-speech-bubble" id="def-speech-bubble" style="text-align:right;">
+              "Circuit breaker armed. Proposing 5% canary stepping with 1.8s automated rollback SLA."
             </div>
-
-            <!-- Right: Defense Desk -->
-            <div class="counsel-box defense" id="counsel-def-box">
-              <div class="counsel-header" style="justify-content:flex-end;">
-                <span>@defender 🛡️</span>
-              </div>
-              <div class="counsel-role" style="text-align:right;">SRE Mitigation Counsel &middot; Rollback Guard</div>
-              <div class="counsel-speech-bubble" id="bubble-def" style="text-align:right;">
-                "Circuit breakers armed. Standby to present 5% canary splitting and 1.8s rollback SLA."
-              </div>
-            </div>
-
           </div>
 
         </div>
+
       </div>
 
       <!-- Courtroom Interactive Deck -->
-      <div class="court-controls-grid">
+      <div class="court-interact-grid">
         
-        <!-- Left: Case Intake & Gavel Action -->
-        <div class="control-card">
-          <div class="card-title-bar">
-            <h3><span>⚡</span> Convene Adversarial Cross-Examination</h3>
-            <span style="font-family:var(--font-mono); font-size:11px; color:var(--gold-bright);" id="trial-state-pill">STANDBY</span>
+        <!-- Left: Trial Convener & Scenarios -->
+        <div class="tactical-box">
+          <div class="tactical-box-header">
+            <h3><span>⚡</span> Convene Adversarial Trial</h3>
+            <span style="font-family:var(--font-mono); font-size:11px; color:var(--gold-bright);" id="trial-hud-status">STANDBY</span>
           </div>
 
-          <!-- Presets -->
-          <div class="form-row">
-            <label>Select Reference Scenario</label>
-            <div class="scenario-chip-deck">
-              <button class="scenario-chip active" onclick="pickScenario(1, this)">01 &middot; Dynamic Pricing (High Risk)</button>
-              <button class="scenario-chip" onclick="pickScenario(2, this)">02 &middot; Drop user_sessions (Block)</button>
-              <button class="scenario-chip" onclick="pickScenario(3, this)">03 &middot; Redis Cache Fallback (Approve)</button>
-              <button class="scenario-chip" onclick="pickScenario(4, this)">04 &middot; Digital Twin Engine (Canary)</button>
+          <!-- Scenario Presets -->
+          <div style="margin-bottom:12px;">
+            <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px;">Select Reference Failure Case</div>
+            <div class="preset-deck">
+              <button class="preset-tile active" onclick="choosePreset(1, this)">01 &middot; Dynamic Pricing (Tier 1)</button>
+              <button class="preset-tile" onclick="choosePreset(2, this)">02 &middot; Drop user_sessions (Block)</button>
+              <button class="preset-tile" onclick="choosePreset(3, this)">03 &middot; Redis Cache Fallback (Approve)</button>
+              <button class="preset-tile" onclick="choosePreset(4, this)">04 &middot; Digital Twin Engine (Canary)</button>
             </div>
           </div>
 
-          <div class="form-row">
-            <label>Deployment Petition / PR Diff Summary</label>
-            <textarea id="court-task-input" class="text-input" rows="2">Dynamic checkout pricing rollout with ML price optimization model</textarea>
+          <div style="margin-bottom:12px;">
+            <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Deployment Petition / PR Diff Summary</div>
+            <textarea id="court-petition-input" class="tactical-input" rows="2">Dynamic checkout pricing rollout with ML price optimization model</textarea>
           </div>
 
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
-            <div class="form-row" style="margin-bottom:0;">
-              <label>Target Repository</label>
-              <input id="court-repo-input" class="text-input" value="acme/shop (PR #482)">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div>
+              <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Target Repo</div>
+              <input id="court-repo-input" class="tactical-input" value="acme/shop (PR #482)">
             </div>
-            <div class="form-row" style="margin-bottom:0;">
-              <label>Chief Magistrate</label>
-              <input class="text-input" value="Priya" readonly style="color:var(--gold-bright);">
+            <div>
+              <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Presiding Magistrate</div>
+              <input class="tactical-input" value="Priya" readonly style="color:var(--gold-bright);">
             </div>
           </div>
 
-          <button class="btn-action-gold" id="btn-bang-gavel" onclick="runCourtTrial()">
+          <button class="btn-tribunal-primary" id="btn-run-tribunal" onclick="conveneTribunalTrial()">
             <span>🔨</span>
             <span>Convene Trial &amp; Bang Gavel</span>
           </button>
         </div>
 
-        <!-- Right: Official Proclamation Decree & Live Log -->
-        <div class="control-card">
-          <div class="card-title-bar">
-            <h3><span>📜</span> Judicial Proclamation &amp; Dialectic Ledger</h3>
-            <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">BINDING VERDICT</span>
+        <!-- Right: Judicial Decree & Dialectic Log -->
+        <div class="tactical-box">
+          <div class="tactical-box-header">
+            <h3><span>📜</span> Judicial Proclamation Decree</h3>
+            <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">SIGNED BINDING VERDICT</span>
           </div>
 
-          <!-- Proclamation Card Slot -->
-          <div id="proclamation-slot" style="display:none;"></div>
+          <!-- Sealed Decree Scroll -->
+          <div id="sealed-decree-slot" style="display:none;"></div>
 
-          <!-- Court Transcript Log -->
-          <div class="court-transcript-log" id="court-log">
-            <div class="log-entry clk">
-              <div class="log-meta">
-                <span class="log-speaker clk">@court-clerk (Bailiff)</span>
-                <span class="log-time">INITIALIZED</span>
+          <!-- Dialectic Feed -->
+          <div class="dialectic-feed-box" id="tribunal-log-feed">
+            <div class="speech-docket-card clk">
+              <div class="docket-card-meta">
+                <span class="speaker clk">@court-clerk (Bailiff)</span>
+                <span style="font-size:10px; color:var(--text-dim);">INITIALIZED</span>
               </div>
-              <div class="log-text">Court is in session. Click 'Convene Trial &amp; Bang Gavel' to begin live multi-agent cross-examination across Groq Qwen-3.8-27b.</div>
+              <div class="docket-card-text">Tribunal docketed. Click 'Convene Trial &amp; Bang Gavel' to begin live unscripted cross-examination across Groq Qwen-3.8-27b.</div>
             </div>
           </div>
 
@@ -1445,167 +1526,167 @@
     </section>
 
     <!-- ====================================================================
-         PAGE 2: ANTIGRAVITY AGENT STUDIO (MULTI-AGENT SCOPE GUARD)
+         CHAMBER 2: ANTIGRAVITY AGENT SECTORS (MISSION CONTROL DISPATCH)
          ==================================================================== -->
-    <section id="page-studio" class="page-section">
+    <section id="chamber-studio" class="chamber-room">
       
-      <div class="page-hero-banner">
-        <div class="title-area">
-          <h2>🧩 Antigravity Multi-Agent Studio &middot; Scope Guard</h2>
+      <div class="chamber-intro-banner">
+        <div>
+          <h2>🛡️ Antigravity Agent Sectors &middot; PreToolUse Sentinel</h2>
           <p>Three parallel coding teammates operating in isolated boundaries. PreToolUse hooks freeze unauthorized edits and subpoena cases to Ship Court.</p>
         </div>
-        <div class="tag-pill">RING 1 &middot; THREE TEAMMATES IN ANTIGRAVITY</div>
+        <div class="banner-right-meta">RING 1 &middot; MULTI-AGENT SCOPE GUARD</div>
       </div>
 
-      <!-- 3 Teammate Workstations -->
-      <div class="studio-grid">
+      <!-- 3 Workstation Bays -->
+      <div class="dispatch-stations-grid">
         
-        <!-- Teammate 1: Frontend Architect -->
-        <div class="agent-workstation-card" id="card-agent-1">
+        <!-- Bay 1: PixelSmith -->
+        <div class="terminal-station-bay" id="bay-agent-1">
           <div>
-            <div class="station-header">
-              <div class="station-avatar">🎨</div>
-              <div class="station-info">
-                <h4>teammate-1-frontend</h4>
-                <p>Frontend &amp; Design System Engineer</p>
+            <div class="bay-header">
+              <div class="bay-insignia">🎨</div>
+              <div class="bay-identity">
+                <h4>PixelSmith</h4>
+                <p>teammate-1-frontend &middot; UI Architect</p>
               </div>
-              <span class="station-status-pill active" id="badge-agent-1">ACTIVE</span>
+              <span class="bay-status-led safe" id="led-agent-1">ACTIVE</span>
             </div>
 
-            <div class="scope-box">
-              <div class="scope-title">Authorized File Scope</div>
-              <div class="scope-tag-list">
-                <span class="scope-tag">frontend/**</span>
-                <span class="scope-tag">ui/**</span>
-                <span class="scope-tag">styles/**</span>
+            <div class="scope-perimeter-box">
+              <div class="perimeter-label">Authorized Scope Pattern</div>
+              <div class="scope-chips-deck">
+                <span class="scope-chip">frontend/**</span>
+                <span class="scope-chip">ui/**</span>
+                <span class="scope-chip">styles/**</span>
               </div>
             </div>
 
-            <div class="tool-matrix">
-              Active Locks: <strong>0 files</strong><br>
-              Capabilities: <code>edit_file</code>, <code>read_file</code>, <code>npm test</code><br>
-              Boundary Violations: <strong>0</strong>
+            <div class="station-telemetry-rows">
+              Active File Locks: <strong>0 files</strong><br>
+              Authorized Tools: <code>edit_file</code>, <code>read_file</code>, <code>npm test</code><br>
+              PreToolUse Intercepts: <strong>0</strong>
             </div>
           </div>
 
-          <button class="btn-station-action" onclick="simulateAgentSafeEdit(1, 'frontend/components/cart.tsx')">
+          <button class="btn-bay-test" onclick="testSafeAgentEdit(1, 'frontend/components/cart.tsx')">
             Test Safe Action: Edit cart.tsx
           </button>
         </div>
 
-        <!-- Teammate 2: Pricing & ML Algorithms -->
-        <div class="agent-workstation-card" id="card-agent-2">
+        <!-- Bay 2: AlgoBeast -->
+        <div class="terminal-station-bay" id="bay-agent-2">
           <div>
-            <div class="station-header">
-              <div class="station-avatar">🧠</div>
-              <div class="station-info">
-                <h4>teammate-2-pricing</h4>
-                <p>ML Pricing Algorithm Specialist</p>
+            <div class="bay-header">
+              <div class="bay-insignia">🧠</div>
+              <div class="bay-identity">
+                <h4>AlgoBeast</h4>
+                <p>teammate-2-pricing &middot; ML Specialist</p>
               </div>
-              <span class="station-status-pill active" id="badge-agent-2">ACTIVE</span>
+              <span class="bay-status-led safe" id="led-agent-2">ACTIVE</span>
             </div>
 
-            <div class="scope-box">
-              <div class="scope-title">Authorized File Scope</div>
-              <div class="scope-tag-list">
-                <span class="scope-tag">services/pricing/**</span>
-                <span class="scope-tag">models/**</span>
-                <span class="scope-tag">ml/**</span>
+            <div class="scope-perimeter-box">
+              <div class="perimeter-label">Authorized Scope Pattern</div>
+              <div class="scope-chips-deck">
+                <span class="scope-chip">services/pricing/**</span>
+                <span class="scope-chip">models/**</span>
+                <span class="scope-chip">ml/**</span>
               </div>
             </div>
 
-            <div class="tool-matrix">
-              Active Locks: <strong>2 files</strong><br>
-              Capabilities: <code>edit_file</code>, <code>python3 retrain.py</code><br>
-              Boundary Violations: <strong>0</strong>
+            <div class="station-telemetry-rows">
+              Active File Locks: <strong>2 files</strong><br>
+              Authorized Tools: <code>edit_file</code>, <code>python3 retrain.py</code><br>
+              PreToolUse Intercepts: <strong>0</strong>
             </div>
           </div>
 
-          <button class="btn-station-action" onclick="simulateAgentSafeEdit(2, 'services/pricing/models.py')">
-            Test Safe Action: Update Model
+          <button class="btn-bay-test" onclick="testSafeAgentEdit(2, 'services/pricing/models.py')">
+            Test Safe Action: Update ML Curve
           </button>
         </div>
 
-        <!-- Teammate 3: Checkout Platform SRE -->
-        <div class="agent-workstation-card" id="card-agent-3">
+        <!-- Bay 3: IronGate -->
+        <div class="terminal-station-bay" id="bay-agent-3">
           <div>
-            <div class="station-header">
-              <div class="station-avatar">💳</div>
-              <div class="station-info">
-                <h4>teammate-3-checkout</h4>
-                <p>Checkout Core &amp; Payment SRE</p>
+            <div class="bay-header">
+              <div class="bay-insignia">💳</div>
+              <div class="bay-identity">
+                <h4>IronGate</h4>
+                <p>teammate-3-checkout &middot; Payment SRE</p>
               </div>
-              <span class="station-status-pill active" id="badge-agent-3">ACTIVE</span>
+              <span class="bay-status-led safe" id="led-agent-3">ACTIVE</span>
             </div>
 
-            <div class="scope-box">
-              <div class="scope-title">Authorized File Scope</div>
-              <div class="scope-tag-list">
-                <span class="scope-tag">services/checkout/**</span>
-                <span class="scope-tag">api/v1/**</span>
+            <div class="scope-perimeter-box">
+              <div class="perimeter-label">Authorized Scope Pattern</div>
+              <div class="scope-chips-deck">
+                <span class="scope-chip">services/checkout/**</span>
+                <span class="scope-chip">api/v1/**</span>
               </div>
             </div>
 
-            <div class="tool-matrix">
-              Active Locks: <strong>1 file</strong><br>
-              Capabilities: <code>edit_file</code>, <code>db_migrate</code><br>
-              Boundary Violations: <strong id="val-violations-3">0</strong>
+            <div class="station-telemetry-rows">
+              Active File Locks: <strong>1 file</strong><br>
+              Authorized Tools: <code>edit_file</code>, <code>db_migrate</code><br>
+              PreToolUse Intercepts: <strong id="val-breach-count">0</strong>
             </div>
           </div>
 
-          <button class="btn-station-action" onclick="simulateAgentSafeEdit(3, 'services/checkout/payment.py')">
-            Test Safe Action: Update Payment
+          <button class="btn-bay-test" onclick="testSafeAgentEdit(3, 'services/checkout/payment.py')">
+            Test Safe Action: Update Stripe Webhook
           </button>
         </div>
 
       </div>
 
-      <!-- Scope Sandbox & PreToolUse Hook Interceptor -->
-      <div class="sandbox-interceptor-panel">
-        <div class="card-title-bar">
-          <h3><span>🛡️</span> Interactive PreToolUse Hook Conflict Sandbox</h3>
-          <span style="font-family:var(--font-mono); font-size:11px; color:var(--emerald-def);">FAIL-CLOSED ENFORCEMENT</span>
+      <!-- Scope Breach Conflict Simulator -->
+      <div class="laser-quarantine-box">
+        <div class="tactical-box-header">
+          <h3><span>🚨</span> PreToolUse Hook Conflict Simulator</h3>
+          <span style="font-family:var(--font-mono); font-size:11px; color:var(--emerald-safe);">FAIL-CLOSED HOOK DEFENSE</span>
         </div>
 
-        <p style="color:var(--text-secondary); font-size:13px;">
-          When autonomous agents code in parallel, silent cross-machine merge conflicts destroy production. Test what happens when <strong>teammate-3-checkout</strong> attempts to modify <strong>services/pricing/engine.py</strong> outside its authorized boundary:
+        <p style="color:var(--text-muted); font-size:13px;">
+          When autonomous agents code concurrently, silent cross-machine file overwrites cause merge disasters. Simulate what happens when <strong>IronGate (teammate-3-checkout)</strong> attempts to modify <strong>services/pricing/engine.py</strong> outside its authorized boundary:
         </p>
 
         <div style="display:flex; gap:12px; margin-top:14px;">
-          <button class="btn-action-gold" style="width:auto; background:linear-gradient(135deg, #e11d48 0%, #be123c 100%); border-color:#f43f5e;" onclick="triggerUnauthorizedEdit()">
+          <button class="btn-tribunal-primary" style="width:auto; margin-top:0; background:linear-gradient(135deg, #e11d48 0%, #be123c 100%); border-color:#f43f5e;" onclick="triggerLaserQuarantine()">
             <span>🚨</span>
             <span>Trigger Unauthorized Cross-Boundary Edit (PreToolUse Breach)</span>
           </button>
-          <button class="btn-station-action" onclick="resetStudio()">
+          <button class="btn-bay-test" onclick="resetQuarantine()">
             Reset All Agents
           </button>
         </div>
 
-        <!-- Laser Shield & Alert Display -->
-        <div class="laser-security-grid" id="laser-grid">
-          <div class="laser-line l1" id="laser-1"></div>
-          <div class="laser-line l2" id="laser-2"></div>
-          
-          <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); text-align:center;">
-            ANTIGRAVITY SCOPE SENTINEL &middot; PRETOOLUSE HOOK ACTIVE ON LOCAL HOSTS
+        <!-- Laser Security Curtain & Subpoena Alert -->
+        <div class="laser-security-curtain" id="laser-curtain">
+          <div class="laser-beam-vertical b1" id="laser-beam-1"></div>
+          <div class="laser-beam-vertical b2" id="laser-beam-2"></div>
+          <div style="font-family:var(--font-mono); font-size:12px; color:var(--text-dim);" id="curtain-label">
+            ANTIGRAVITY SCOPE SENTINEL ACTIVE &middot; PRETOOLUSE MONITOR ARMED
           </div>
+        </div>
 
-          <div class="intercept-alert-box" id="intercept-alert">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <strong style="color:var(--crimson-pros); font-family:var(--font-mono); font-size:12px;">🚨 PRETOOLUSE HOOK BREACH: EXECUTION FROZEN</strong>
-              <span style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted);">EVENT: AG-PRETOOL-BREACH-01</span>
-            </div>
-            <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-secondary); line-height:1.6;">
-              <strong>Offending Agent:</strong> teammate-3-checkout<br>
-              <strong>Attempted Modification:</strong> <code>services/pricing/engine.py</code> (Authorized only for teammate-2-pricing)<br>
-              <strong>Sentinel Action:</strong> Tool invocation canceled. Process frozen with exit code 0 (fail-closed).<br>
-              <strong>Subpoena Docket:</strong> Automatically opened case <code>CASE-AG-101</code> in Switch Room <code>#ship-court</code> and notified Discord <code>#meeting-floor</code>.
-            </div>
-            <div style="margin-top:10px;">
-              <button class="btn-station-action" style="color:var(--gold-bright); border-color:var(--gold-primary);" onclick="navigate('courtroom')">
-                &rarr; Follow Subpoena CASE-AG-101 to Courtroom Chamber
-              </button>
-            </div>
+        <!-- Quarantined Alert Banner -->
+        <div class="quarantine-alert-card" id="quarantine-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <strong style="color:var(--crimson-hazard); font-family:var(--font-mono); font-size:13px;">🚨 PRETOOLUSE HOOK BREACH: EXECUTION FROZEN</strong>
+            <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">CASE-AG-101</span>
+          </div>
+          <div style="font-family:var(--font-mono); font-size:11.5px; color:#cbd5e1; line-height:1.6;">
+            <strong>Offending Agent:</strong> teammate-3-checkout (IronGate)<br>
+            <strong>Unauthorized Target:</strong> <code>services/pricing/engine.py</code> (Reserved for teammate-2-pricing)<br>
+            <strong>Hook Action:</strong> Tool invocation intercepted and aborted before disk write.<br>
+            <strong>Subpoena Protocol:</strong> Docket CASE-AG-101 opened in Switch Room <code>#ship-court</code> and dispatched to Discord <code>#meeting-floor</code>.
+          </div>
+          <div style="margin-top:12px;">
+            <button class="btn-tribunal-primary" style="width:auto; margin-top:0;" onclick="jumpChamber('courtroom')">
+              &rarr; Follow Subpoena CASE-AG-101 into The Tribunal
+            </button>
           </div>
         </div>
 
@@ -1614,131 +1695,124 @@
     </section>
 
     <!-- ====================================================================
-         PAGE 3: BOARDROOM OS (DISCORD VOICE THIRD VOICE)
+         CHAMBER 3: BOARDROOM OS (DISCORD BROADCAST INTERCOM)
          ==================================================================== -->
-    <section id="page-boardroom" class="page-section">
+    <section id="chamber-boardroom" class="chamber-room">
       
-      <div class="page-hero-banner">
-        <div class="title-area">
-          <h2>🎙️ Boardroom OS &middot; Discord Third Voice</h2>
-          <p>The ChatGPT On-Call Bot participates silently in voice huddles, requesting the floor with RFC reason codes and speaking only upon human chair consent.</p>
+      <div class="chamber-intro-banner">
+        <div>
+          <h2>🎙️ Boardroom OS &middot; Discord Broadcast Intercom</h2>
+          <p>The ChatGPT On-Call Bot participates silently in voice huddles, requesting the microphone with RFC reason codes and speaking only with human consent.</p>
         </div>
-        <div class="tag-pill">RING 2 &middot; DISCORD VOICE #MEETING-FLOOR</div>
+        <div class="banner-right-meta">RING 2 &middot; DISCORD VOICE #MEETING-FLOOR</div>
       </div>
 
-      <!-- Live Voice Huddle Visualizer -->
-      <div class="boardroom-stage-box">
+      <!-- Broadcast Console Faceplate -->
+      <div class="intercom-console-faceplate">
         
-        <div class="discord-huddle-bar">
+        <div class="intercom-top-strip">
           <div>
-            <div style="font-size:14px; font-weight:700; color:var(--text-white); display:flex; align-items:center; gap:8px;">
+            <div style="font-size:14px; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
               <span>🔊</span>
-              <span>Discord Voice Channel: #meeting-floor</span>
+              <span>Discord Voice Stage: #meeting-floor</span>
             </div>
             <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); margin-top:2px;">
-              Session: Architecture Review (4 Engineers Active) &middot; Mode: Silent Monitor
+              Huddle Active &middot; 4 Engineers + 1 AI Advisory Sentinel &middot; Mode: Silent Monitor
             </div>
           </div>
 
-          <!-- Real-time Voice Spectrum -->
           <div style="display:flex; align-items:center; gap:12px;">
             <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">VAD SPECTRUM:</span>
-            <canvas id="boardroom-vad-canvas" width="160" height="24" style="background:#05070a; border:1px solid var(--border-subtle); border-radius:4px;"></canvas>
-            <span style="font-family:var(--font-mono); font-size:11px; color:var(--emerald-def);" id="active-speaker-label">David speaking</span>
+            <canvas id="intercom-vad-canvas" width="160" height="24" style="background:#05070a; border:1px solid #1a2236; border-radius:4px;"></canvas>
+            <span style="font-family:var(--font-mono); font-size:11px; color:var(--emerald-safe);" id="live-speaker-status">David (Lead) speaking</span>
           </div>
         </div>
 
-        <!-- Avatars in Huddle -->
-        <div class="huddle-speakers-deck">
-          
-          <div class="huddle-avatar">
-            <div class="avatar-bubble speaking" id="av-david">👨‍💻</div>
-            <div class="avatar-name">David (Lead)</div>
+        <!-- Avatars Row -->
+        <div class="intercom-avatars-row">
+          <div class="radio-station-pod">
+            <div class="radio-avatar-orb speaking" id="orb-david">👨‍💻</div>
+            <div class="radio-station-name">David (Lead)</div>
           </div>
-
-          <div class="huddle-avatar">
-            <div class="avatar-bubble" id="av-sarah">👩‍💻</div>
-            <div class="avatar-name">Sarah (SRE)</div>
+          <div class="radio-station-pod">
+            <div class="radio-avatar-orb" id="orb-sarah">👩‍💻</div>
+            <div class="radio-station-name">Sarah (SRE)</div>
           </div>
-
-          <div class="huddle-avatar">
-            <div class="avatar-bubble" id="av-alex">👨‍💼</div>
-            <div class="avatar-name">Alex (PM)</div>
+          <div class="radio-station-pod">
+            <div class="radio-avatar-orb" id="orb-alex">👨‍💼</div>
+            <div class="radio-station-name">Alex (PM)</div>
           </div>
-
-          <div class="huddle-avatar">
-            <div class="avatar-bubble" id="av-priya">👑</div>
-            <div class="avatar-name">Priya (Chair)</div>
+          <div class="radio-station-pod">
+            <div class="radio-avatar-orb" id="orb-priya">👑</div>
+            <div class="radio-station-name">Priya (Chair)</div>
           </div>
-
-          <!-- The ChatGPT On-Call Bot -->
-          <div class="huddle-avatar" style="margin-left:auto;">
-            <div class="avatar-bubble" id="av-chatgpt" style="background:var(--bg-deep); border-color:var(--gold-primary);">🤖</div>
-            <div class="avatar-name" style="color:var(--gold-bright);">ChatGPT Bot</div>
+          <!-- AI Sentinel -->
+          <div class="radio-station-pod" style="margin-left:auto;">
+            <div class="radio-avatar-orb" id="orb-chatgpt" style="background:#0a0f1d; border-color:var(--gold-bright);">🤖</div>
+            <div class="radio-station-name" style="color:var(--gold-bright);">ChatGPT On-Call</div>
           </div>
-
         </div>
 
       </div>
 
-      <!-- RFC Hand-Raise Reason Cards -->
-      <div class="card-title-bar">
+      <!-- RFC Reason Pushbuttons -->
+      <div class="tactical-box-header" style="border-bottom:none; margin-bottom:10px;">
         <h3><span>✋</span> Trigger ChatGPT Hand-Raise (RFC Reason Protocol)</h3>
-        <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">STATE MACHINE: LISTENING &rarr; WAITING &rarr; GRANTED</span>
+        <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">STATE: LISTENING &rarr; WAITING &rarr; GRANTED</span>
       </div>
 
-      <div class="rfc-reason-cards-grid">
+      <div class="rfc-pushbuttons-grid">
         
-        <div class="rfc-card clarify" onclick="requestFloorRFC('clarify', 'Clarify checkout retry budget under peak traffic to avoid thread exhaustion')">
+        <div class="rfc-tactical-switch clarify" onclick="triggerRFC('clarify', 'Clarify checkout retry budget under peak traffic to avoid thread exhaustion')">
           <div>
-            <span class="tag">✋ CLARIFICATION</span>
-            <p>"Clarify checkout retry budget under peak traffic to prevent thread pool exhaustion."</p>
+            <span class="switch-banner-tag">✋ RFC-1 CLARIFICATION</span>
+            <p>"Clarify checkout retry budget under peak traffic to avoid thread pool exhaustion."</p>
           </div>
-          <div class="btn-trigger-rfc">
-            <span>Click to Queue</span>
+          <div class="switch-footer-action">
+            <span>Press to Queue</span>
             <span>&rarr;</span>
           </div>
         </div>
 
-        <div class="rfc-card incident" onclick="requestFloorRFC('incident', 'Subpoena INC-017: Pricing recalculation caused 41 failed checkouts in August')">
+        <div class="rfc-tactical-switch incident" onclick="triggerRFC('incident', 'Subpoena INC-017: Pricing recalculation caused 41 failed checkouts in August')">
           <div>
-            <span class="tag">🔎 PRECEDENT INC-017</span>
+            <span class="switch-banner-tag">🔎 RFC-2 PRECEDENT (INC-017)</span>
             <p>"Subpoena past incident INC-017: Pricing recalculation caused 41 failed checkouts."</p>
           </div>
-          <div class="btn-trigger-rfc">
-            <span>Click to Queue</span>
+          <div class="switch-footer-action">
+            <span>Press to Queue</span>
             <span>&rarr;</span>
           </div>
         </div>
 
-        <div class="rfc-card mitigate" onclick="requestFloorRFC('mitigate', 'Propose 5% canary stepping with automated 1.8s rollback SLA')">
+        <div class="rfc-tactical-switch mitigate" onclick="triggerRFC('mitigate', 'Propose 5% traffic canary stepping with automated 1.8s rollback SLA')">
           <div>
-            <span class="tag">💡 MITIGATION CANARY</span>
+            <span class="switch-banner-tag">💡 RFC-3 CANARY MITIGATION</span>
             <p>"Propose 5% traffic canary stepping with automated 1.8s rollback SLA."</p>
           </div>
-          <div class="btn-trigger-rfc">
-            <span>Click to Queue</span>
+          <div class="switch-footer-action">
+            <span>Press to Queue</span>
             <span>&rarr;</span>
           </div>
         </div>
 
-        <div class="rfc-card hazard" onclick="requestFloorRFC('hazard', 'Expose database table schema lock contention during peak checkout window')">
+        <div class="rfc-tactical-switch hazard" onclick="triggerRFC('hazard', 'Expose database table schema lock contention during peak checkout window')">
           <div>
-            <span class="tag">⚠️ OUTAGE HAZARD</span>
+            <span class="switch-banner-tag">⚠️ RFC-4 OUTAGE HAZARD</span>
             <p>"Expose database table schema lock contention during peak checkout hours."</p>
           </div>
-          <div class="btn-trigger-rfc">
-            <span>Click to Queue</span>
+          <div class="switch-footer-action">
+            <span>Press to Queue</span>
             <span>&rarr;</span>
           </div>
         </div>
 
       </div>
 
-      <!-- Right to Speak Queue Table -->
-      <div class="control-card">
-        <div class="card-title-bar">
-          <h3><span>📋</span> Right-to-Speak FIFO Queue &middot; Human Chair Authorization</h3>
+      <!-- FIFO Queue Table -->
+      <div class="tactical-box">
+        <div class="tactical-box-header">
+          <h3><span>📋</span> Right-to-Speak Queue &middot; Human Chair Consent</h3>
           <span style="font-family:var(--font-mono); font-size:11px; color:var(--gold-bright);">PRESIDING CHAIR: @Priya</span>
         </div>
 
@@ -1746,20 +1820,20 @@
           <table style="width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:11px; text-align:left;">
             <thead>
               <tr style="border-bottom:1px solid var(--border-subtle); color:var(--text-muted);">
-                <th style="padding:10px;">REASON</th>
+                <th style="padding:10px;">REASON CODE</th>
                 <th style="padding:10px;">SPOKEN SCRIPT PREVIEW</th>
-                <th style="padding:10px;">STATUS</th>
+                <th style="padding:10px;">QUEUE STATE</th>
                 <th style="padding:10px;">TTL</th>
                 <th style="padding:10px;">CHAIR ACTION</th>
               </tr>
             </thead>
-            <tbody id="floor-queue-table-body">
+            <tbody id="intercom-table-body">
               <tr style="border-bottom:1px solid var(--border-subtle);">
                 <td style="padding:10px;"><span style="color:var(--gold-bright); font-weight:700;">CLARIFICATION</span></td>
-                <td style="padding:10px; color:var(--text-white);">"Clarify checkout retry budget under peak traffic to avoid thread exhaustion"</td>
+                <td style="padding:10px; color:#fff;">"Clarify checkout retry budget under peak traffic to avoid thread exhaustion"</td>
                 <td style="padding:10px; color:var(--gold-bright);">WAITING</td>
-                <td style="padding:10px; color:var(--text-muted);">74s remaining</td>
-                <td style="padding:10px;"><button class="btn-station-action" onclick="grantFloorDirect(this)">Grant Floor (30s)</button></td>
+                <td style="padding:10px; color:var(--text-dim);">82s remaining</td>
+                <td style="padding:10px;"><button class="btn-bay-test" onclick="grantFloorIntercom(this)">Grant Floor (30s)</button></td>
               </tr>
             </tbody>
           </table>
@@ -1769,219 +1843,220 @@
     </section>
 
     <!-- ====================================================================
-         PAGE 4: PARALLEL EARTH DIGITAL TWIN (3D TOPOLOGY)
+         CHAMBER 4: PARALLEL EARTH (3D DIGITAL TWIN)
          ==================================================================== -->
-    <section id="page-parallel-earth" class="page-section">
+    <section id="chamber-parallel-earth" class="chamber-room">
       
-      <div class="page-hero-banner">
-        <div class="title-area">
-          <h2>🌍 Parallel Earth &middot; 3D Digital Twin &amp; Blast Radius</h2>
+      <div class="chamber-intro-banner">
+        <div>
+          <h2>🪐 Parallel Earth &middot; 3D Digital Twin &amp; Blast Radius</h2>
           <p>Explore the full microservice dependency topology in 3D. Inspect live P99 SLAs, revenue exposures, and simulate blast-radius failures.</p>
         </div>
-        <div class="tag-pill">RING 4 &middot; BLAST-RADIUS SIMULATOR</div>
+        <div class="banner-right-meta">RING 4 &middot; BLAST-RADIUS SIMULATOR</div>
       </div>
 
-      <div class="earth-3d-box">
+      <div class="earth-viewport-vault">
         
-        <!-- Controls overlay -->
-        <div class="earth-toolbar">
-          <button class="btn-earth-tool active" id="btn-cam-iso" onclick="setCameraPerspective('iso')">Isometric 30&deg;</button>
-          <button class="btn-earth-tool" id="btn-cam-top" onclick="setCameraPerspective('top')">Top-Down (Plan)</button>
-          <button class="btn-earth-tool" onclick="resetEarthCamera()">Reset View</button>
-          <button class="btn-earth-tool" style="border-color:var(--crimson-pros); color:var(--crimson-pros);" onclick="toggleEarthBlast()">Simulate Blast Radius Cascade</button>
+        <!-- Camera Toolbar -->
+        <div class="earth-toolbar-overlay">
+          <button class="btn-earth-pill active" id="btn-cam-iso" onclick="switchCamera3D('iso')">Isometric 30&deg;</button>
+          <button class="btn-earth-pill" id="btn-cam-top" onclick="switchCamera3D('top')">Top-Down (Plan)</button>
+          <button class="btn-earth-pill" onclick="resetCamera3D()">Reset View</button>
+          <button class="btn-earth-pill" style="border-color:var(--crimson-hazard); color:var(--crimson-hazard);" onclick="triggerTwinBlast()">Simulate Blast Radius Cascade</button>
         </div>
 
-        <div id="three-canvas-holder"></div>
-        <div id="earth-pins-layer" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></div>
+        <div id="three-digital-twin-canvas"></div>
+        <div id="twin-pins-layer" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></div>
 
-        <!-- Telemetry HUD Drawer -->
-        <div class="earth-hud-drawer">
-          <div style="display:flex; align-items:center; gap:12px;">
-            <span style="font-family:var(--font-mono); font-size:11px; font-weight:700; padding:3px 8px; border-radius:4px; background:rgba(245,158,11,0.2); border:1px solid var(--gold-primary); color:var(--gold-bright);" id="drawer-tier">TIER 1</span>
+        <!-- Glass HUD Drawer -->
+        <div class="earth-hud-glass">
+          <div style="display:flex; align-items:center; gap:14px;">
+            <span style="font-family:var(--font-mono); font-size:11px; font-weight:800; padding:4px 10px; border-radius:4px; background:rgba(245,158,11,0.2); border:1px solid var(--gold-bright); color:var(--gold-bright);" id="twin-hud-tier">TIER 1</span>
             <div>
-              <div style="font-family:var(--font-mono); font-size:13px; font-weight:700; color:var(--text-white);" id="drawer-name">checkout-service</div>
-              <div style="font-size:11px; color:var(--text-muted);" id="drawer-owner">Owner: Checkout-Platform &middot; P99 SLA: 62ms &middot; Circuit: NORMAL</div>
+              <div style="font-family:var(--font-mono); font-size:14px; font-weight:800; color:#fff;" id="twin-hud-name">checkout-service</div>
+              <div style="font-size:11px; color:var(--text-muted);" id="twin-hud-owner">Owner: Checkout-Platform &middot; P99 SLA: 62ms &middot; Circuit: NORMAL</div>
             </div>
           </div>
 
-          <div style="display:flex; gap:24px; font-family:var(--font-mono); font-size:11px;">
-            <div style="display:flex; flex-direction:column; align-items:flex-end;">
-              <span style="font-size:10px; color:var(--text-muted); text-transform:uppercase;">Fan-out</span>
-              <span style="font-weight:700; color:var(--text-white);" id="drawer-fanout">4 Services</span>
+          <div class="earth-hud-specs-deck">
+            <div class="hud-stat-col">
+              <span class="stat-lbl">Downstream Fan-out</span>
+              <span class="stat-val" id="twin-hud-fanout">4 Services</span>
             </div>
-            <div style="display:flex; flex-direction:column; align-items:flex-end;">
-              <span style="font-size:10px; color:var(--text-muted); text-transform:uppercase;">Revenue Risk</span>
-              <span style="font-weight:700; color:var(--text-white);" id="drawer-rev">$4,200/min</span>
+            <div class="hud-stat-col">
+              <span class="stat-lbl">Revenue Exposure</span>
+              <span class="stat-val" id="twin-hud-rev">$4,200 / min</span>
             </div>
-            <div style="display:flex; flex-direction:column; align-items:flex-end;">
-              <span style="font-size:10px; color:var(--text-muted); text-transform:uppercase;">Availability SLA</span>
-              <span style="font-weight:700; color:var(--text-white);" id="drawer-sla">99.99%</span>
+            <div class="hud-stat-col">
+              <span class="stat-lbl">Availability Target</span>
+              <span class="stat-val" id="twin-hud-sla">99.99%</span>
             </div>
           </div>
         </div>
 
       </div>
 
-      <div style="padding:14px 20px; background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:8px; display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:11px;">
-        <span style="color:var(--text-muted);">Controls: Click &amp; drag to orbit &middot; Scroll to zoom &middot; Click any service cylinder to inspect telemetry</span>
-        <span style="color:var(--emerald-def); font-weight:700;" id="earth-sim-banner">STATUS: NOMINAL TOPOLOGY (11 SERVICES ACTIVE)</span>
+      <div style="padding:14px 20px; background:var(--bg-panel); border:1px solid var(--border-subtle); border-radius:8px; display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:11px;">
+        <span style="color:var(--text-muted);">Controls: Click &amp; drag to orbit &middot; Scroll to zoom &middot; Click any cylinder to inspect service telemetry</span>
+        <span style="color:var(--emerald-safe); font-weight:700;" id="twin-status-banner">STATUS: NOMINAL TOPOLOGY (11 SERVICES ACTIVE)</span>
       </div>
 
     </section>
 
     <!-- ====================================================================
-         PAGE 5: CRYPTOGRAPHIC RELEASE VAULT (GITHUB OPS & AUDIT)
+         CHAMBER 5: CRYPTOGRAPHIC RELEASE VAULT (DUAL-KEY DEPLOYMENT)
          ==================================================================== -->
-    <section id="page-vault" class="page-section">
+    <section id="chamber-vault" class="chamber-room">
       
-      <div class="page-hero-banner">
-        <div class="title-area">
+      <div class="chamber-intro-banner">
+        <div>
           <h2>🔐 The Cryptographic Release Vault</h2>
-          <p>Human-gated GitHub operations agent with deterministic SHA-256 Plan Hash verification and tamper-evident Merkle event audit trail.</p>
+          <p>Strictly human-gated GitHub operations agent with deterministic SHA-256 Plan Hash verification and tamper-evident Merkle event audit trail.</p>
         </div>
-        <div class="tag-pill">RING 5 &middot; GATED GITHUB OPS (auto_approve: false)</div>
+        <div class="banner-right-meta">RING 5 &middot; GATED GITHUB OPS (auto_approve: false)</div>
       </div>
 
-      <div class="control-card" style="margin-bottom:20px;">
-        <div class="card-title-bar">
-          <h3><span>⚙️</span> Operator Identity &amp; Target Pull Request</h3>
-          <span style="font-family:var(--font-mono); font-size:11px; color:var(--emerald-def);">TOKEN AUTHENTICATED</span>
+      <div class="tactical-box" style="margin-bottom:20px;">
+        <div class="tactical-box-header">
+          <h3><span>🔑</span> Dual-Key Authorization Credential</h3>
+          <span style="font-family:var(--font-mono); font-size:11px; color:var(--emerald-safe);">OPERATOR AUTHENTICATED</span>
         </div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
-          <div class="form-row" style="margin-bottom:0;">
-            <label>Operator Token (SHIPCOURT_TOKEN)</label>
-            <input id="vault-token" type="password" class="text-input" value="__TOKEN_PLACEHOLDER__">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:12px;">
+          <div>
+            <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Operator Credential (SHIPCOURT_TOKEN)</div>
+            <input id="vault-auth-token" type="password" class="tactical-input" value="__TOKEN_PLACEHOLDER__">
           </div>
-          <div class="form-row" style="margin-bottom:0;">
-            <label>Target GitHub Pull Request</label>
-            <input id="vault-pr" class="text-input" value="https://github.com/GaneshNair007/switch-AI/pull/17">
+          <div>
+            <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Target Pull Request</div>
+            <input id="vault-pr-url" class="tactical-input" value="https://github.com/GaneshNair007/switch-AI/pull/17">
           </div>
         </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
-          <div class="form-row" style="margin-bottom:0;">
-            <label>Case Identifier</label>
-            <input id="vault-case-id" class="text-input" placeholder="Generated upon opening docket">
+          <div>
+            <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Case Identifier</div>
+            <input id="vault-case-input" class="tactical-input" placeholder="Generated upon opening docket">
           </div>
-          <div class="form-row" style="margin-bottom:0;">
-            <label>Enforceable Release Conditions</label>
-            <input id="vault-conds" class="text-input" value="canary 5% for 30m; Priya owns rollback SLA 1.8s">
+          <div>
+            <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Enforceable Release Conditions</div>
+            <input id="vault-conds-input" class="tactical-input" value="canary 5% for 30m; Priya owns rollback SLA 1.8s">
           </div>
         </div>
       </div>
 
-      <!-- 6-Step Stepper -->
-      <div class="vault-stepper-deck">
-        <button class="vault-step-btn" onclick="stepOpenCase()">
+      <!-- 6-Stage Key Sequence -->
+      <div class="vault-sequence-row">
+        <button class="vault-key-step-btn" onclick="execVaultStep(1)">
           <span style="color:var(--gold-bright); font-weight:700;">1. Open Docket</span>
-          <span style="color:var(--text-muted); font-size:10px;">Subpoena PR &amp; Diff</span>
+          <span style="color:var(--text-dim); font-size:10px;">Subpoena PR &amp; Diff</span>
         </button>
 
-        <button class="vault-step-btn" onclick="stepReviewEvidence()">
-          <span style="color:var(--gold-bright); font-weight:700;">2. Review</span>
-          <span style="color:var(--text-muted); font-size:10px;">Parallel Earth Sim</span>
+        <button class="vault-key-step-btn" onclick="execVaultStep(2)">
+          <span style="color:var(--gold-bright); font-weight:700;">2. Evidence Review</span>
+          <span style="color:var(--text-dim); font-size:10px;">Parallel Earth Risk</span>
         </button>
 
-        <button class="vault-step-btn" onclick="stepSignVerdict()">
+        <button class="vault-key-step-btn" onclick="execVaultStep(3)">
           <span style="color:var(--gold-bright); font-weight:700;">3. Sign Verdict</span>
-          <span style="color:var(--text-muted); font-size:10px;">Magistrate Signature</span>
+          <span style="color:var(--text-dim); font-size:10px;">Magistrate Signature</span>
         </button>
 
-        <button class="vault-step-btn" onclick="stepPreviewPlan()">
+        <button class="vault-key-step-btn" onclick="execVaultStep(4)">
           <span style="color:var(--gold-bright); font-weight:700;">4. Preview Plan</span>
-          <span style="color:var(--text-muted); font-size:10px;">SHA-256 Plan Hash</span>
+          <span style="color:var(--text-dim); font-size:10px;">SHA-256 Plan Hash</span>
         </button>
 
-        <button class="vault-step-btn btn-exec" id="btn-vault-exec" onclick="stepExecuteGitHub()" disabled>
+        <button class="vault-key-step-btn btn-release-exec" id="btn-release-exec" onclick="execVaultStep(5)" disabled>
           <span style="font-weight:700;">5. Apply GitHub</span>
-          <span style="color:var(--text-muted); font-size:10px;">Gated Deployment</span>
+          <span style="color:var(--text-dim); font-size:10px;">Gated Deployment</span>
         </button>
 
-        <button class="vault-step-btn" onclick="stepFetchAudit()">
-          <span style="color:var(--cyan-tech); font-weight:700;">6. Merkle Audit</span>
-          <span style="color:var(--text-muted); font-size:10px;">Cryptographic Trail</span>
+        <button class="vault-key-step-btn" onclick="execVaultStep(6)">
+          <span style="color:var(--cyan-bright); font-weight:700;">6. Merkle Audit</span>
+          <span style="color:var(--text-dim); font-size:10px;">Cryptographic Trail</span>
         </button>
       </div>
 
-      <!-- Terminal Output -->
-      <div class="control-card">
-        <div class="card-title-bar">
-          <h3><span>💻</span> Live Cryptographic Execution Stream</h3>
-          <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);" id="vault-plan-hash-label">PLAN HASH: NONE</span>
+      <!-- Green Phosphor CRT Terminal -->
+      <div class="tactical-box">
+        <div class="tactical-box-header">
+          <h3><span>💻</span> Cryptographic Provenance Ledger</h3>
+          <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);" id="vault-plan-hash-display">PLAN HASH: NONE</span>
         </div>
-        <pre class="vault-terminal" id="vault-term">// Click '1. Open Docket' to begin end-to-end cryptographic release sequence.</pre>
+        <pre class="phosphor-crt-terminal" id="vault-terminal-stream">// SHIP COURT CRYPTOGRAPHIC VAULT
+// Click '1. Open Docket' to begin end-to-end cryptographic release sequence.</pre>
       </div>
 
     </section>
 
     <!-- ====================================================================
-         PAGE 6: 5-RING ARCHITECTURE OVERVIEW
+         CHAMBER 6: 5-RING SOVEREIGN CODEX
          ==================================================================== -->
-    <section id="page-overview" class="page-section">
+    <section id="chamber-overview" class="chamber-room">
       
-      <div class="page-hero-banner">
-        <div class="title-area">
-          <h2>🧭 The 5-Ring Sovereign Governance Architecture</h2>
+      <div class="chamber-intro-banner">
+        <div>
+          <h2>📜 The 5-Ring Sovereign Codex</h2>
           <p>How Ship Court replaces rubber-stamped AI code with rigorous adversarial debate and multi-agent coordination.</p>
         </div>
-        <div class="tag-pill">ARCHITECTURAL MANIFEST &middot; FLIP THE SWITCH</div>
+        <div class="banner-right-meta">ARCHITECTURAL MANIFEST &middot; FLIP THE SWITCH</div>
       </div>
 
-      <div class="rings-timeline-flow">
+      <div class="codex-scroll-flow">
         
-        <div class="ring-card">
-          <div class="ring-num-badge">RING 1</div>
-          <div class="ring-desc">
-            <h3>Antigravity IDE Scope Guard &middot; PreToolUse Hook Subpoena</h3>
-            <p>Runs locally across three developer agents (<code>teammate-1-frontend</code>, <code>teammate-2-pricing</code>, <code>teammate-3-checkout</code>). Any out-of-bounds file write is intercepted at the hook layer, freezing the agent and docketing a subpoena into Discord and Switch.</p>
+        <div class="codex-card">
+          <div class="codex-num">I</div>
+          <div class="codex-details">
+            <h3>Ring 1 &middot; Antigravity IDE Scope Guard &amp; PreToolUse Sentinel</h3>
+            <p>Monitors local coding agents across <code>teammate-1-frontend</code>, <code>teammate-2-pricing</code>, and <code>teammate-3-checkout</code>. PreToolUse hooks freeze unauthorized cross-boundary file modifications before disk write and subpoena the case into Discord and Switch.</p>
           </div>
           <div>
-            <a href="#studio" class="ring-action-btn" onclick="navigate('studio')">Explore Agent Studio &rarr;</a>
+            <a href="#studio" class="btn-codex-enter" onclick="jumpChamber('studio')">Enter Agent Sectors &rarr;</a>
           </div>
         </div>
 
-        <div class="ring-card">
-          <div class="ring-num-badge">RING 2</div>
-          <div class="ring-desc">
-            <h3>Boardroom OS &middot; Discord Third Voice &amp; Right-to-Speak</h3>
+        <div class="codex-card">
+          <div class="codex-num">II</div>
+          <div class="codex-details">
+            <h3>Ring 2 &middot; Boardroom OS &middot; Discord Third Voice &amp; Right-to-Speak</h3>
             <p>Integrates ChatGPT into voice huddles (<code>#meeting-floor</code>). Implements a deterministic FIFO queue with 4 RFC reason codes (<code>✋ Clarification</code>, <code>🔎 INC-017 Precedent</code>, <code>💡 Canary Mitigation</code>, <code>⚠️ Outage Hazard</code>) and a 90s TTL expiration.</p>
           </div>
           <div>
-            <a href="#boardroom" class="ring-action-btn" onclick="navigate('boardroom')">Enter Voice Huddle &rarr;</a>
+            <a href="#boardroom" class="btn-codex-enter" onclick="jumpChamber('boardroom')">Enter Voice Intercom &rarr;</a>
           </div>
         </div>
 
-        <div class="ring-card">
-          <div class="ring-num-badge">RING 3</div>
-          <div class="ring-desc">
-            <h3>3-Bot Live Adversarial Courtroom Dialectic</h3>
+        <div class="codex-card">
+          <div class="codex-num">III</div>
+          <div class="codex-details">
+            <h3>Ring 3 &middot; 3-Bot Live Adversarial Courtroom Dialectic</h3>
             <p>Prosecution (@prosecutor) and Defense (@defender) cross-examine pull requests against historical incident data. Chief Magistrate @Priya evaluates evidence leverage and renders binding operational verdicts with enforceable task ownership.</p>
           </div>
           <div>
-            <a href="#courtroom" class="ring-action-btn" onclick="navigate('courtroom')">Convene Courtroom &rarr;</a>
+            <a href="#courtroom" class="btn-codex-enter" onclick="jumpChamber('courtroom')">Enter The Tribunal &rarr;</a>
           </div>
         </div>
 
-        <div class="ring-card">
-          <div class="ring-num-badge">RING 4</div>
-          <div class="ring-desc">
-            <h3>Parallel Earth &middot; Digital Twin &amp; Blast-Radius Simulator</h3>
+        <div class="codex-card">
+          <div class="codex-num">IV</div>
+          <div class="codex-details">
+            <h3>Ring 4 &middot; Parallel Earth &middot; 3D Digital Twin &amp; Blast Radius</h3>
             <p>Computes downstream service closure, $/min financial exposure, synthetic canary pass rates, and 1.8s rollback recovery time objectives before human release authorization.</p>
           </div>
           <div>
-            <a href="#parallel-earth" class="ring-action-btn" onclick="navigate('parallel-earth')">Explore 3D Topology &rarr;</a>
+            <a href="#parallel-earth" class="btn-codex-enter" onclick="jumpChamber('parallel-earth')">Explore 3D Topology &rarr;</a>
           </div>
         </div>
 
-        <div class="ring-card">
-          <div class="ring-num-badge">RING 5</div>
-          <div class="ring-desc">
-            <h3>Autonomous GitHub Operations Agent &middot; Cryptographic Gate</h3>
+        <div class="codex-card">
+          <div class="codex-num">V</div>
+          <div class="codex-details">
+            <h3>Ring 5 &middot; Autonomous GitHub Operations Agent &middot; Cryptographic Gate</h3>
             <p>Strictly human-gated (<code>auto_approve: false</code>). Computes a deterministic SHA-256 Plan Hash, applies governance labels, opens tracking Issues, arms rollback branches, and records a tamper-evident Merkle audit log.</p>
           </div>
           <div>
-            <a href="#vault" class="ring-action-btn" onclick="navigate('vault')">Open Release Vault &rarr;</a>
+            <a href="#vault" class="btn-codex-enter" onclick="jumpChamber('vault')">Open Launch Vault &rarr;</a>
           </div>
         </div>
 
@@ -1991,83 +2066,219 @@
 
   </main>
 
-  <!-- Client-Side Engine: Router, Three.js 3D Topology, Courtroom Animation, & APIs -->
+  <!-- Sound Synth & Interactive Script -->
   <script>
     // =========================================================================
-    // 1. Single-Page App (SPA) Hash Router
+    // 1. Web Audio Procedural Sound Synthesizer (Zero external sound assets!)
     // =========================================================================
-    function navigate(route) {
-      document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
+    let audioEnabled = true;
+    let audioCtx = null;
 
-      const targetPage = document.getElementById('page-' + route);
-      if (targetPage) targetPage.classList.add('active');
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
 
-      const targetBtn = Array.from(document.querySelectorAll('.nav-tab-btn')).find(b => b.getAttribute('href') === '#' + route);
-      if (targetBtn) targetBtn.classList.add('active');
+    function toggleSound() {
+      audioEnabled = !audioEnabled;
+      const btn = document.getElementById('btn-sound-toggle');
+      const icon = document.getElementById('sound-icon');
+      const label = document.getElementById('sound-label');
 
-      window.location.hash = '#' + route;
+      if (audioEnabled) {
+        btn.classList.add('sound-on');
+        icon.innerText = '🔊';
+        label.innerText = 'Audio: ON';
+        playAudio('click');
+      } else {
+        btn.classList.remove('sound-on');
+        icon.innerText = '🔇';
+        label.innerText = 'Audio: MUTED';
+      }
+    }
 
-      if (route === 'parallel-earth' && earthRenderer) {
-        onEarthWindowResize();
+    function playAudio(type) {
+      if (!audioEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+
+        if (type === 'gavel') {
+          // Heavy resonant wooden thud
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(140, now);
+          osc.frequency.exponentialRampToValueAtTime(35, now + 0.28);
+          gain.gain.setValueAtTime(0.8, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.32);
+
+          // Wood crack noise
+          const bufferSize = ctx.sampleRate * 0.05;
+          const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+          const noise = ctx.createBufferSource();
+          noise.buffer = buffer;
+          const noiseGain = ctx.createGain();
+          noiseGain.gain.setValueAtTime(0.6, now);
+          noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+          noise.connect(noiseGain);
+          noiseGain.connect(ctx.destination);
+          noise.start(now);
+
+        } else if (type === 'click') {
+          // Tactical relay switch click
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(900, now);
+          osc.frequency.exponentialRampToValueAtTime(200, now + 0.03);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.035);
+
+        } else if (type === 'alarm') {
+          // Klaxon warning alert
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(580, now);
+          osc.frequency.setValueAtTime(740, now + 0.1);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.26);
+
+        } else if (type === 'chime') {
+          // Pleasant silicon chime
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, now);
+          osc.frequency.exponentialRampToValueAtTime(440, now + 0.4);
+          gain.gain.setValueAtTime(0.4, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.5);
+        }
+      } catch (e) {
+        // AudioContext disabled or blocked by policy
+      }
+    }
+
+    // =========================================================================
+    // 2. Chamber Router
+    // =========================================================================
+    function jumpChamber(chamberId) {
+      playAudio('click');
+      document.querySelectorAll('.chamber-room').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.nav-chamber-btn').forEach(b => b.classList.remove('active'));
+
+      const target = document.getElementById('chamber-' + chamberId);
+      if (target) target.classList.add('active');
+
+      const btn = Array.from(document.querySelectorAll('.nav-chamber-btn')).find(b => b.getAttribute('href') === '#' + chamberId);
+      if (btn) btn.classList.add('active');
+
+      window.location.hash = '#' + chamberId;
+
+      if (chamberId === 'parallel-earth' && twinRenderer) {
+        onTwinResize();
       }
     }
 
     window.addEventListener('hashchange', () => {
-      const r = (window.location.hash || '#courtroom').replace('#', '');
-      navigate(r);
+      const c = (window.location.hash || '#courtroom').replace('#', '');
+      jumpChamber(c);
     });
 
     // =========================================================================
-    // 2. Courtroom Chamber Engine: Gavel Slam, Scales Tip, & Groq Trial
+    // 3. The Tribunal: Gavel Slam, Ace Attorney Banner, & Groq Trial
     // =========================================================================
-    function pickScenario(idx, btn) {
-      document.querySelectorAll('.scenario-chip').forEach(c => c.classList.remove('active'));
+    function choosePreset(idx, btn) {
+      playAudio('click');
+      document.querySelectorAll('.preset-tile').forEach(t => t.classList.remove('active'));
       if (btn) btn.classList.add('active');
 
-      const taskInput = document.getElementById('court-task-input');
-      const repoInput = document.getElementById('court-repo-input');
-      const titleBox = document.getElementById('docket-pr-title');
+      const task = document.getElementById('court-petition-input');
+      const repo = document.getElementById('court-repo-input');
+      const title = document.getElementById('court-docket-title');
 
       if (idx === 1) {
-        taskInput.value = "Dynamic checkout pricing rollout with ML price optimization model";
-        repoInput.value = "acme/shop (PR #482)";
-        titleBox.innerText = "PR #482: Dynamic Checkout Pricing Rollout";
+        task.value = "Dynamic checkout pricing rollout with ML price optimization model";
+        repo.value = "acme/shop (PR #482)";
+        title.innerText = "PR #482: Dynamic Checkout Pricing Rollout";
       } else if (idx === 2) {
-        taskInput.value = "Drop database table user_sessions during active peak hours without backup";
-        repoInput.value = "acme/shop (PR #512)";
-        titleBox.innerText = "PR #512: Drop user_sessions Table (Unbacked)";
+        task.value = "Drop database table user_sessions during active peak hours without backup";
+        repo.value = "acme/shop (PR #512)";
+        title.innerText = "PR #512: Drop user_sessions Table (Unbacked)";
       } else if (idx === 3) {
-        taskInput.value = "Add Redis caching to product search queries with 60s TTL and automatic DB fallback";
-        repoInput.value = "acme/shop (PR #499)";
-        titleBox.innerText = "PR #499: Redis Cache Fallback Integration";
+        task.value = "Add Redis caching to product search queries with 60s TTL and automatic DB fallback";
+        repo.value = "acme/shop (PR #499)";
+        title.innerText = "PR #499: Redis Cache Fallback Integration";
       } else {
-        taskInput.value = "Deploy parallel earth blast-radius simulation engine to production canary";
-        repoInput.value = "acme/shop (PR #530)";
-        titleBox.innerText = "PR #530: Parallel Earth Digital Twin Canary";
+        task.value = "Deploy parallel earth blast-radius simulation engine to production canary";
+        repo.value = "acme/shop (PR #530)";
+        title.innerText = "PR #530: Parallel Earth Digital Twin Canary";
       }
     }
 
-    async function runCourtTrial() {
-      const task = document.getElementById('court-task-input').value.trim();
+    function slamGavel(playSnd = true) {
+      if (playSnd) playAudio('gavel');
+      const gavel = document.getElementById('court-gavel');
+      const ripple = document.getElementById('court-ripple');
+      gavel.classList.add('strike');
+      ripple.classList.add('active');
+      setTimeout(() => {
+        gavel.classList.remove('strike');
+        ripple.classList.remove('active');
+      }, 400);
+    }
+
+    async function conveneTribunalTrial() {
+      playAudio('click');
+      const task = document.getElementById('court-petition-input').value.trim();
       const repo = document.getElementById('court-repo-input').value.trim();
-      const token = document.getElementById('vault-token').value.trim();
+      const token = document.getElementById('vault-auth-token').value.trim();
 
       if (!task) return;
 
-      const btn = document.getElementById('btn-bang-gavel');
+      const btn = document.getElementById('btn-run-tribunal');
       btn.disabled = true;
-      btn.innerHTML = '<span class="spinner-gold"></span> Cross-examining petition across LLM agents...';
-      document.getElementById('trial-state-pill').innerText = 'CROSS-EXAMINATION ACTIVE';
+      btn.innerHTML = '<span>⚡</span><span>Cross-Examining Claims in Groq Qwen-3.8-27b...</span>';
+      document.getElementById('trial-hud-status').innerText = 'CROSS-EXAMINATION ACTIVE';
 
-      const feed = document.getElementById('court-log');
+      // Flash Ace Attorney Objection banner
+      const banner = document.getElementById('objection-banner');
+      banner.classList.add('fire');
+      playAudio('alarm');
+      setTimeout(() => banner.classList.remove('fire'), 900);
+
+      const feed = document.getElementById('tribunal-log-feed');
       feed.innerHTML = `
-        <div class="log-entry clk">
-          <div class="log-meta">
-            <span class="log-speaker clk">@court-clerk (Bailiff)</span>
-            <span class="log-time">${new Date().toLocaleTimeString()}</span>
+        <div class="speech-docket-card clk">
+          <div class="docket-card-meta">
+            <span class="speaker clk">@court-clerk (Bailiff)</span>
+            <span style="font-size:10px; color:var(--text-dim);">${new Date().toLocaleTimeString()}</span>
           </div>
-          <div class="log-text">Docket convened. Subpoenaing failure records and presenting claims to Chief Magistrate Priya...</div>
+          <div class="docket-card-text">Docket convened. Subpoenaing past failure records and interrogating claims...</div>
         </div>
       `;
 
@@ -2084,29 +2295,22 @@
         const data = await resp.json();
         if (!resp.ok) throw new Error(data.error || 'Evaluation failed');
 
-        // Update Scales of Justice dynamically
+        // Dynamic Brass Scales of Justice Balance
         const pScore = data.prosecution_power || 50;
         const dScore = data.defense_power || 50;
-        document.getElementById('pan-weight-pros').innerText = pScore + ' pts';
-        document.getElementById('pan-weight-def').innerText = dScore + ' pts';
+        document.getElementById('badge-weight-pros').innerText = pScore + ' pts';
+        document.getElementById('badge-weight-def').innerText = dScore + ' pts';
 
-        const scaleDiff = Math.max(-12, Math.min(12, (pScore - dScore) * 0.25));
-        document.getElementById('scales-beam').style.transform = `rotate(${scaleDiff}deg)`;
+        const angle = Math.max(-12, Math.min(12, (pScore - dScore) * 0.28));
+        document.getElementById('scales-crossbar').style.transform = `rotate(${angle}deg)`;
 
-        // Trigger Gavel Slam Animation
-        const gavel = document.getElementById('court-gavel');
-        const wave = document.getElementById('court-shockwave');
-        gavel.classList.add('slamming');
-        wave.classList.add('active');
-        setTimeout(() => {
-          gavel.classList.remove('slamming');
-          wave.classList.remove('active');
-        }, 600);
+        // Gavel Slam with heavy audio thump
+        slamGavel(true);
 
-        // Render Judicial Proclamation
-        renderProclamationDecree(data);
+        // Render Sealed Judicial Decree
+        renderSealedDecree(data);
 
-        // Populate Transcript Feed
+        // Stream Dialectic Transcript
         feed.innerHTML = '';
         if (data.messages && data.messages.length) {
           data.messages.forEach(m => {
@@ -2115,34 +2319,34 @@
             let sClass = 'clk';
             if (m.sender.includes('prosecutor')) {
               type = 'pros'; sClass = 'pros';
-              document.getElementById('bubble-pros').innerText = '"' + m.content.substring(0, 140) + '..."';
+              document.getElementById('pros-speech-bubble').innerText = '"' + m.content.substring(0, 150) + '..."';
             } else if (m.sender.includes('defender')) {
               type = 'def'; sClass = 'def';
-              document.getElementById('bubble-def').innerText = '"' + m.content.substring(0, 140) + '..."';
+              document.getElementById('def-speech-bubble').innerText = '"' + m.content.substring(0, 150) + '..."';
             } else if (m.sender.includes('judge')) {
               type = 'jdg'; sClass = 'jdg';
             }
 
-            div.className = 'log-entry ' + type;
+            div.className = 'speech-docket-card ' + type;
             div.innerHTML = `
-              <div class="log-meta">
-                <span class="log-speaker ${sClass}">@${m.sender}</span>
-                <span class="log-time">${new Date(m.timestamp * 1000).toLocaleTimeString()}</span>
+              <div class="docket-card-meta">
+                <span class="speaker ${sClass}">@${m.sender}</span>
+                <span style="font-size:10px; color:var(--text-dim);">${new Date(m.timestamp * 1000).toLocaleTimeString()}</span>
               </div>
-              <div class="log-text">${escapeHtml(m.content)}</div>
+              <div class="docket-card-text">${escapeHtml(m.content)}</div>
             `;
             feed.appendChild(div);
           });
           feed.scrollTop = feed.scrollHeight;
         }
 
-        document.getElementById('trial-state-pill').innerText = 'VERDICT: ' + data.verdict;
+        document.getElementById('trial-hud-status').innerText = 'VERDICT: ' + data.verdict;
 
       } catch (err) {
         feed.innerHTML += `
-          <div class="log-entry pros">
-            <div class="log-meta"><span class="log-speaker pros">Error</span></div>
-            <div class="log-text">${escapeHtml(err.message)}</div>
+          <div class="speech-docket-card pros">
+            <div class="docket-card-meta"><span class="speaker pros">System Fault</span></div>
+            <div class="docket-card-text">${escapeHtml(err.message)}</div>
           </div>
         `;
       } finally {
@@ -2151,23 +2355,20 @@
       }
     }
 
-    function renderProclamationDecree(data) {
-      const slot = document.getElementById('proclamation-slot');
+    function renderSealedDecree(data) {
+      const slot = document.getElementById('sealed-decree-slot');
       slot.style.display = 'block';
 
       const v = (data.verdict || 'CONDITIONS').toUpperCase();
-      let modeClass = 'conditions';
-      let title = 'BY ORDER OF CHIEF MAGISTRATE PRIYA: SHIP WITH CONDITIONS';
+      let title = 'BY DECREE OF MAGISTRATE PRIYA: SHIP WITH CONDITIONS';
       if (v === 'BLOCK') {
-        modeClass = 'block';
-        title = 'BY ORDER OF CHIEF MAGISTRATE PRIYA: RELEASE PERMANENTLY BLOCKED';
+        title = 'BY DECREE OF MAGISTRATE PRIYA: RELEASE PERMANENTLY BLOCKED';
       } else if (v === 'APPROVE') {
-        modeClass = 'approve';
-        title = 'BY ORDER OF CHIEF MAGISTRATE PRIYA: UNCONDITIONAL CANARY APPROVAL';
+        title = 'BY DECREE OF MAGISTRATE PRIYA: CANARY DEPLOYMENT APPROVED';
       }
 
       const conds = data.conditions || [
-        "Canary deployment capped at 5% traffic for 30 minutes",
+        "Cap canary replica at 5% traffic split for 30 minutes",
         "Automated metric interlock: p99 latency < 200ms and 5xx < 0.01%",
         "Rollback operator on standby with verified 1-click abort (1.8s SLA)"
       ];
@@ -2178,15 +2379,19 @@
       ];
 
       slot.innerHTML = `
-        <div class="proclamation-card ${modeClass}">
-          <div class="proclamation-title">${title}</div>
-          <div class="proclamation-body">
-            <strong>Enforceable Release Conditions:</strong>
+        <div class="judicial-decree-scroll">
+          <div class="wax-seal-badge">👑</div>
+          <div class="decree-heading">
+            <span>📜</span>
+            <span>${title}</span>
+          </div>
+          <div class="decree-content">
+            <strong style="color:var(--gold-bright);">Binding Operational Conditions:</strong>
             <ul>
               ${conds.map(c => `<li>${escapeHtml(c)}</li>`).join('')}
             </ul>
-            <div style="margin-top:6px;">
-              <strong>Assigned Operational Tasks:</strong>
+            <div style="margin-top:8px;">
+              <strong style="color:var(--gold-bright);">Assigned Task Directives:</strong>
               <ul>
                 ${tasks.map(t => `<li>${escapeHtml(t)}</li>`).join('')}
               </ul>
@@ -2197,60 +2402,60 @@
     }
 
     // =========================================================================
-    // 3. Antigravity Agent Studio Engine
+    // 4. Antigravity Agent Sectors: Laser Breach Simulator
     // =========================================================================
-    function simulateAgentSafeEdit(agentNum, file) {
-      alert(`[ANTIGRAVITY HOOK CHECK: PASSED]
-Teammate ${agentNum} successfully modified '${file}'.
-File is strictly within authorized scope pattern.`);
+    function testSafeAgentEdit(agentNum, file) {
+      playAudio('chime');
+      alert(`[ANTIGRAVITY HOOK CHECK: PASSED]\nTeammate ${agentNum} successfully modified '${file}'.\nFile is strictly within authorized scope pattern.`);
     }
 
-    function triggerUnauthorizedEdit() {
-      // Station 3 breach animation
-      const card3 = document.getElementById('card-agent-3');
-      const badge3 = document.getElementById('badge-agent-3');
-      const laser1 = document.getElementById('laser-1');
-      const laser2 = document.getElementById('laser-2');
-      const alertBox = document.getElementById('intercept-alert');
+    function triggerLaserQuarantine() {
+      playAudio('alarm');
+      const bay3 = document.getElementById('bay-agent-3');
+      const led3 = document.getElementById('led-agent-3');
+      const l1 = document.getElementById('laser-beam-1');
+      const l2 = document.getElementById('laser-beam-2');
+      const alertCard = document.getElementById('quarantine-card');
 
-      card3.classList.add('frozen');
-      badge3.innerText = 'FROZEN';
-      badge3.className = 'station-status-pill frozen';
-      document.getElementById('val-violations-3').innerText = '1 (CASE-AG-101)';
+      bay3.classList.add('quarantined');
+      led3.innerText = 'QUARANTINED';
+      led3.className = 'bay-status-led breached';
+      document.getElementById('val-breach-count').innerText = '1 (CASE-AG-101)';
 
-      laser1.classList.add('active');
-      laser2.classList.add('active');
-      alertBox.style.display = 'block';
+      l1.classList.add('active');
+      l2.classList.add('active');
+      alertCard.style.display = 'block';
     }
 
-    function resetStudio() {
-      const card3 = document.getElementById('card-agent-3');
-      const badge3 = document.getElementById('badge-agent-3');
-      const laser1 = document.getElementById('laser-1');
-      const laser2 = document.getElementById('laser-2');
-      const alertBox = document.getElementById('intercept-alert');
+    function resetQuarantine() {
+      playAudio('click');
+      const bay3 = document.getElementById('bay-agent-3');
+      const led3 = document.getElementById('led-agent-3');
+      const l1 = document.getElementById('laser-beam-1');
+      const l2 = document.getElementById('laser-beam-2');
+      const alertCard = document.getElementById('quarantine-card');
 
-      card3.classList.remove('frozen');
-      badge3.innerText = 'ACTIVE';
-      badge3.className = 'station-status-pill active';
-      document.getElementById('val-violations-3').innerText = '0';
+      bay3.classList.remove('quarantined');
+      led3.innerText = 'ACTIVE';
+      led3.className = 'bay-status-led safe';
+      document.getElementById('val-breach-count').innerText = '0';
 
-      laser1.classList.remove('active');
-      laser2.classList.remove('active');
-      alertBox.style.display = 'none';
+      l1.classList.remove('active');
+      l2.classList.remove('active');
+      alertCard.style.display = 'none';
     }
 
     // =========================================================================
-    // 4. Boardroom OS Engine: Discord Voice & VAD Spectrum
+    // 5. Boardroom OS: Discord Intercom & VAD Spectrum
     // =========================================================================
-    function initBoardroomVAD() {
-      const cvs = document.getElementById('boardroom-vad-canvas');
+    function initIntercomVAD() {
+      const cvs = document.getElementById('intercom-vad-canvas');
       if (!cvs) return;
       const ctx = cvs.getContext('2d');
       const bars = 18;
 
-      function draw() {
-        requestAnimationFrame(draw);
+      function renderVAD() {
+        requestAnimationFrame(renderVAD);
         ctx.clearRect(0, 0, cvs.width, cvs.height);
         const w = (cvs.width / bars) - 1;
         const now = Date.now() * 0.005;
@@ -2261,63 +2466,66 @@ File is strictly within authorized scope pattern.`);
           ctx.fillRect(i * (w + 1), cvs.height - h, w, h);
         }
       }
-      draw();
+      renderVAD();
     }
 
-    function requestFloorRFC(type, pitch) {
-      const tbody = document.getElementById('floor-queue-table-body');
+    function triggerRFC(type, pitch) {
+      playAudio('click');
+      const tbody = document.getElementById('intercom-table-body');
       const tr = document.createElement('tr');
       tr.style.borderBottom = '1px solid var(--border-subtle)';
 
       let tagColor = 'var(--gold-bright)';
-      if (type === 'incident') tagColor = 'var(--crimson-pros)';
-      if (type === 'mitigate') tagColor = 'var(--emerald-def)';
+      if (type === 'incident') tagColor = 'var(--crimson-hazard)';
+      if (type === 'mitigate') tagColor = 'var(--emerald-safe)';
       if (type === 'hazard') tagColor = '#f97316';
 
       tr.innerHTML = `
         <td style="padding:10px;"><span style="color:${tagColor}; font-weight:700;">${type.toUpperCase()}</span></td>
-        <td style="padding:10px; color:var(--text-white);">"${escapeHtml(pitch)}"</td>
+        <td style="padding:10px; color:#fff;">"${escapeHtml(pitch)}"</td>
         <td style="padding:10px; color:var(--gold-bright);">WAITING</td>
-        <td style="padding:10px; color:var(--text-muted);">90s remaining</td>
-        <td style="padding:10px;"><button class="btn-station-action" onclick="grantFloorDirect(this)">Grant Floor (30s)</button></td>
+        <td style="padding:10px; color:var(--text-dim);">90s remaining</td>
+        <td style="padding:10px;"><button class="btn-bay-test" onclick="grantFloorIntercom(this)">Grant Floor (30s)</button></td>
       `;
       tbody.prepend(tr);
 
-      // Animate ChatGPT avatar hand raise
-      const bot = document.getElementById('av-chatgpt');
-      bot.classList.add('bot-speaking');
-      setTimeout(() => bot.classList.remove('bot-speaking'), 2000);
+      // Flash ChatGPT orb
+      const bot = document.getElementById('orb-chatgpt');
+      bot.classList.add('ai-speaking');
+      setTimeout(() => bot.classList.remove('ai-speaking'), 2000);
     }
 
-    function grantFloorDirect(btn) {
+    function grantFloorIntercom(btn) {
+      playAudio('chime');
       const td = btn.parentElement;
       const statusTd = td.previousElementSibling.previousElementSibling;
-      statusTd.innerHTML = '<span style="color:var(--emerald-def); font-weight:700;">SPEAKING (30s)</span>';
-      td.innerHTML = '<button class="btn-station-action" onclick="yieldFloorDirect(this)">Yield Floor</button>';
+      statusTd.innerHTML = '<span style="color:var(--emerald-safe); font-weight:700;">SPEAKING (30s)</span>';
+      td.innerHTML = '<button class="btn-bay-test" onclick="yieldFloorIntercom(this)">Yield Floor</button>';
 
-      document.getElementById('active-speaker-label').innerText = 'ChatGPT Bot speaking';
-      document.getElementById('av-chatgpt').classList.add('bot-speaking');
-      document.getElementById('av-david').classList.remove('speaking');
+      document.getElementById('live-speaker-status').innerText = 'ChatGPT Bot speaking';
+      document.getElementById('orb-chatgpt').classList.add('ai-speaking');
+      document.getElementById('orb-david').classList.remove('speaking');
     }
 
-    function yieldFloorDirect(btn) {
+    function yieldFloorIntercom(btn) {
+      playAudio('click');
       const td = btn.parentElement;
       const statusTd = td.previousElementSibling.previousElementSibling;
       statusTd.innerHTML = '<span style="color:var(--text-muted);">YIELDED</span>';
-      td.innerHTML = '<span style="color:var(--text-muted); font-size:10px;">DONE</span>';
+      td.innerHTML = '<span style="color:var(--text-dim); font-size:10px;">DONE</span>';
 
-      document.getElementById('active-speaker-label').innerText = 'David speaking';
-      document.getElementById('av-chatgpt').classList.remove('bot-speaking');
-      document.getElementById('av-david').classList.add('speaking');
+      document.getElementById('live-speaker-status').innerText = 'David (Lead) speaking';
+      document.getElementById('orb-chatgpt').classList.remove('ai-speaking');
+      document.getElementById('orb-david').classList.add('speaking');
     }
 
     // =========================================================================
-    // 5. Parallel Earth 3D Topology Engine
+    // 6. Parallel Earth: Three.js 3D Digital Twin & Blast Radius
     // =========================================================================
-    let earthScene, earthCamera, earthRenderer, earthNodesGroup, earthLinksGroup, earthRaycaster, earthMouse;
-    let earthSimulationActive = false;
+    let twinScene, twinCamera, twinRenderer, twinNodesGroup, twinLinksGroup, twinRaycaster, twinMouse;
+    let twinBlastActive = false;
 
-    const earthNodes = [
+    const microservicesList = [
       { id: 'checkout-service', name: 'checkout-service', tier: 'TIER 1', rev: '$4,200/min', downstream: 4, sla: '99.99%', owner: 'Checkout-Platform', p99: '62ms', x: 0, z: 0, color: 0x6366f1, isCore: true },
       { id: 'payment-gateway', name: 'payment-gateway', tier: 'TIER 1', rev: '$5,000/min', downstream: 3, sla: '99.999%', owner: 'Payments-Core', p99: '110ms', x: -50, z: -30, color: 0x10b981 },
       { id: 'pricing-engine', name: 'pricing-engine', tier: 'TIER 1', rev: '$3,500/min', downstream: 2, sla: '99.95%', owner: 'Pricing-Algorithms', p99: '45ms', x: 50, z: -30, color: 0xf59e0b },
@@ -2331,7 +2539,7 @@ File is strictly within authorized scope pattern.`);
       { id: 'avalara-client', name: 'avalara-client', tier: 'TIER 3', rev: '$300/min', downstream: 0, sla: '99.00%', owner: 'Finance-Tech', p99: '210ms', x: -65, z: 75, color: 0x64748b }
     ];
 
-    const earthLinks = [
+    const serviceMeshLinks = [
       ['checkout-service', 'payment-gateway'],
       ['checkout-service', 'pricing-engine'],
       ['checkout-service', 'inventory-service'],
@@ -2344,46 +2552,46 @@ File is strictly within authorized scope pattern.`);
       ['tax-service', 'avalara-client']
     ];
 
-    function initEarth3D() {
-      const container = document.getElementById('three-canvas-holder');
+    function initParallelEarth3D() {
+      const container = document.getElementById('three-digital-twin-canvas');
       if (!container) return;
 
       const width = container.clientWidth || 800;
       const height = container.clientHeight || 520;
 
-      earthScene = new THREE.Scene();
-      earthScene.background = new THREE.Color(0x05070a);
+      twinScene = new THREE.Scene();
+      twinScene.background = new THREE.Color(0x030508);
 
-      earthCamera = new THREE.PerspectiveCamera(40, width / height, 1, 1000);
-      setCameraPerspective('iso');
+      twinCamera = new THREE.PerspectiveCamera(40, width / height, 1, 1000);
+      switchCamera3D('iso');
 
-      earthRenderer = new THREE.WebGLRenderer({ antialias: true });
-      earthRenderer.setSize(width, height);
-      earthRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      container.appendChild(earthRenderer.domElement);
+      twinRenderer = new THREE.WebGLRenderer({ antialias: true });
+      twinRenderer.setSize(width, height);
+      twinRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      container.appendChild(twinRenderer.domElement);
 
-      const grid = new THREE.GridHelper(260, 26, 0x1f2738, 0x111622);
+      const grid = new THREE.GridHelper(260, 26, 0x1c283d, 0x0c1422);
       grid.position.y = -6;
-      earthScene.add(grid);
+      twinScene.add(grid);
 
       const ambient = new THREE.AmbientLight(0xffffff, 0.7);
-      earthScene.add(ambient);
+      twinScene.add(ambient);
 
       const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
       dirLight.position.set(60, 100, 40);
-      earthScene.add(dirLight);
+      twinScene.add(dirLight);
 
-      earthNodesGroup = new THREE.Group();
-      earthLinksGroup = new THREE.Group();
-      earthScene.add(earthNodesGroup);
-      earthScene.add(earthLinksGroup);
+      twinNodesGroup = new THREE.Group();
+      twinLinksGroup = new THREE.Group();
+      twinScene.add(twinNodesGroup);
+      twinScene.add(twinLinksGroup);
 
-      earthRaycaster = new THREE.Raycaster();
-      earthMouse = new THREE.Vector2();
+      twinRaycaster = new THREE.Raycaster();
+      twinMouse = new THREE.Vector2();
 
-      buildEarthNodes();
-      buildEarthLinks();
-      buildEarthLabelPins();
+      buildTwinNodes();
+      buildTwinLinks();
+      buildTwinPins();
 
       // Mouse drag rotation & raycast
       let dragging = false;
@@ -2398,53 +2606,53 @@ File is strictly within authorized scope pattern.`);
 
       window.addEventListener('mouseup', e => {
         if (dragging && dragDist < 5) {
-          handleEarthClick(e, container);
+          handleTwinClick(e, container);
         }
         dragging = false;
       });
 
       container.addEventListener('mousemove', e => {
         const rect = container.getBoundingClientRect();
-        earthMouse.x = ((e.clientX - rect.left) / container.clientWidth) * 2 - 1;
-        earthMouse.y = -((e.clientY - rect.top) / container.clientHeight) * 2 + 1;
+        twinMouse.x = ((e.clientX - rect.left) / container.clientWidth) * 2 - 1;
+        twinMouse.y = -((e.clientY - rect.top) / container.clientHeight) * 2 + 1;
 
         if (dragging) {
           const dx = e.clientX - prevMouse.x;
           const dy = e.clientY - prevMouse.y;
           dragDist += Math.abs(dx) + Math.abs(dy);
-          earthNodesGroup.rotation.y += dx * 0.005;
-          earthLinksGroup.rotation.y += dx * 0.005;
+          twinNodesGroup.rotation.y += dx * 0.005;
+          twinLinksGroup.rotation.y += dx * 0.005;
           grid.rotation.y += dx * 0.005;
           prevMouse = { x: e.clientX, y: e.clientY };
         } else {
-          earthRaycaster.setFromCamera(earthMouse, earthCamera);
-          const hits = earthRaycaster.intersectObjects(earthNodesGroup.children);
+          twinRaycaster.setFromCamera(twinMouse, twinCamera);
+          const hits = twinRaycaster.intersectObjects(twinNodesGroup.children);
           container.style.cursor = hits.length > 0 ? 'pointer' : 'default';
         }
       });
 
       container.addEventListener('wheel', e => {
         e.preventDefault();
-        earthCamera.position.multiplyScalar(e.deltaY > 0 ? 1.05 : 0.95);
+        twinCamera.position.multiplyScalar(e.deltaY > 0 ? 1.05 : 0.95);
       });
 
-      window.addEventListener('resize', onEarthWindowResize);
-      renderEarthLoop();
+      window.addEventListener('resize', onTwinResize);
+      renderTwinLoop();
     }
 
-    function onEarthWindowResize() {
-      const container = document.getElementById('three-canvas-holder');
-      if (!container || !earthRenderer || !earthCamera) return;
+    function onTwinResize() {
+      const container = document.getElementById('three-digital-twin-canvas');
+      if (!container || !twinRenderer || !twinCamera) return;
       const w = container.clientWidth;
       const h = container.clientHeight;
-      earthCamera.aspect = w / h;
-      earthCamera.updateProjectionMatrix();
-      earthRenderer.setSize(w, h);
+      twinCamera.aspect = w / h;
+      twinCamera.updateProjectionMatrix();
+      twinRenderer.setSize(w, h);
     }
 
-    function buildEarthNodes() {
+    function buildTwinNodes() {
       const geo = new THREE.CylinderGeometry(5.5, 5.5, 4, 16);
-      earthNodes.forEach(n => {
+      microservicesList.forEach(n => {
         const mat = new THREE.MeshLambertMaterial({ color: n.color });
         const mesh = new THREE.Mesh(geo, mat);
         mesh.position.set(n.x, 0, n.z);
@@ -2455,17 +2663,17 @@ File is strictly within authorized scope pattern.`);
         const wire = new THREE.LineSegments(wireGeo, wireMat);
         mesh.add(wire);
 
-        earthNodesGroup.add(mesh);
+        twinNodesGroup.add(mesh);
       });
     }
 
-    function buildEarthLinks() {
+    function buildTwinLinks() {
       const nodeMap = {};
-      earthNodesGroup.children.forEach(m => {
+      twinNodesGroup.children.forEach(m => {
         if (m.userData && m.userData.id) nodeMap[m.userData.id] = m;
       });
 
-      earthLinks.forEach(([fromId, toId]) => {
+      serviceMeshLinks.forEach(([fromId, toId]) => {
         const from = nodeMap[fromId];
         const to = nodeMap[toId];
         if (from && to) {
@@ -2474,43 +2682,43 @@ File is strictly within authorized scope pattern.`);
           const mat = new THREE.LineBasicMaterial({ color: 0x334155, transparent: true, opacity: 0.6 });
           const line = new THREE.Line(geo, mat);
           line.userData = { from: fromId, to: toId };
-          earthLinksGroup.add(line);
+          twinLinksGroup.add(line);
         }
       });
     }
 
-    function buildEarthLabelPins() {
-      const layer = document.getElementById('earth-pins-layer');
+    function buildTwinPins() {
+      const layer = document.getElementById('twin-pins-layer');
       if (!layer) return;
       layer.innerHTML = '';
 
-      earthNodes.forEach(n => {
+      microservicesList.forEach(n => {
         const pin = document.createElement('div');
-        pin.className = 'node-pin-3d';
-        pin.id = 'earth-pin-' + n.id;
+        pin.className = 'service-pin-3d';
+        pin.id = 'twin-pin-' + n.id;
         pin.innerText = n.name;
         layer.appendChild(pin);
       });
     }
 
-    function updateEarthPins() {
-      const container = document.getElementById('three-canvas-holder');
-      if (!container || !earthCamera) return;
+    function updateTwinPins() {
+      const container = document.getElementById('three-digital-twin-canvas');
+      if (!container || !twinCamera) return;
 
       const halfW = container.clientWidth / 2;
       const halfH = container.clientHeight / 2;
 
-      earthNodesGroup.children.forEach(mesh => {
+      twinNodesGroup.children.forEach(mesh => {
         const n = mesh.userData;
         if (!n || !n.id) return;
-        const pin = document.getElementById('earth-pin-' + n.id);
+        const pin = document.getElementById('twin-pin-' + n.id);
         if (!pin) return;
 
         const pos = mesh.position.clone();
         mesh.localToWorld(pos);
         pos.y += 5.5;
 
-        pos.project(earthCamera);
+        pos.project(twinCamera);
 
         if (pos.z < 1) {
           pin.style.display = 'block';
@@ -2524,104 +2732,111 @@ File is strictly within authorized scope pattern.`);
       });
     }
 
-    function setCameraPerspective(mode) {
+    function switchCamera3D(mode) {
+      playAudio('click');
       document.getElementById('btn-cam-iso').classList.toggle('active', mode === 'iso');
       document.getElementById('btn-cam-top').classList.toggle('active', mode === 'top');
 
       if (mode === 'top') {
-        earthCamera.position.set(0, 190, 0.1);
-        earthCamera.lookAt(0, 0, 0);
+        twinCamera.position.set(0, 190, 0.1);
+        twinCamera.lookAt(0, 0, 0);
       } else {
-        earthCamera.position.set(130, 110, 130);
-        earthCamera.lookAt(0, 0, 0);
+        twinCamera.position.set(130, 110, 130);
+        twinCamera.lookAt(0, 0, 0);
       }
     }
 
-    function resetEarthCamera() {
-      earthNodesGroup.rotation.y = 0;
-      earthLinksGroup.rotation.y = 0;
-      const g = earthScene.children.find(c => c.type === 'GridHelper');
+    function resetCamera3D() {
+      playAudio('click');
+      twinNodesGroup.rotation.y = 0;
+      twinLinksGroup.rotation.y = 0;
+      const g = twinScene.children.find(c => c.type === 'GridHelper');
       if (g) g.rotation.y = 0;
-      setCameraPerspective('iso');
+      switchCamera3D('iso');
     }
 
-    function handleEarthClick(e, container) {
-      if (!earthRaycaster || !earthCamera || !earthNodesGroup) return;
+    function handleTwinClick(e, container) {
+      if (!twinRaycaster || !twinCamera || !twinNodesGroup) return;
       const rect = container.getBoundingClientRect();
       const clickCoord = new THREE.Vector2(
         ((e.clientX - rect.left) / container.clientWidth) * 2 - 1,
         -((e.clientY - rect.top) / container.clientHeight) * 2 + 1
       );
-      earthRaycaster.setFromCamera(clickCoord, earthCamera);
-      const hits = earthRaycaster.intersectObjects(earthNodesGroup.children);
+      twinRaycaster.setFromCamera(clickCoord, twinCamera);
+      const hits = twinRaycaster.intersectObjects(twinNodesGroup.children);
 
       if (hits.length > 0) {
+        playAudio('chime');
         const data = hits[0].object.userData;
-        document.getElementById('drawer-tier').innerText = data.tier;
-        document.getElementById('drawer-name').innerText = data.name;
-        document.getElementById('drawer-owner').innerText = `Owner: ${data.owner} &middot; P99 SLA: ${data.p99} &middot; Circuit: NORMAL`;
-        document.getElementById('drawer-fanout').innerText = `${data.downstream} Services`;
-        document.getElementById('drawer-rev').innerText = data.rev;
-        document.getElementById('drawer-sla').innerText = data.sla;
+        document.getElementById('twin-hud-tier').innerText = data.tier;
+        document.getElementById('twin-hud-name').innerText = data.name;
+        document.getElementById('twin-hud-owner').innerText = `Owner: ${data.owner} &middot; P99 SLA: ${data.p99} &middot; Circuit: NORMAL`;
+        document.getElementById('twin-hud-fanout').innerText = `${data.downstream} Services`;
+        document.getElementById('twin-hud-rev').innerText = data.rev;
+        document.getElementById('twin-hud-sla').innerText = data.sla;
       }
     }
 
-    function toggleEarthBlast() {
-      earthSimulationActive = !earthSimulationActive;
-      const banner = document.getElementById('earth-sim-banner');
+    function triggerTwinBlast() {
+      twinBlastActive = !twinBlastActive;
+      const banner = document.getElementById('twin-status-banner');
 
-      if (earthSimulationActive) {
-        banner.innerText = 'ALERT: BLAST RADIUS ACTIVE &middot; $9,200/MIN EXPOSED';
-        banner.style.color = 'var(--crimson-pros)';
+      if (twinBlastActive) {
+        playAudio('alarm');
+        banner.innerText = 'ALERT: BLAST RADIUS ACTIVE &middot; $9,200/MIN REVENUE EXPOSURE';
+        banner.style.color = 'var(--crimson-hazard)';
 
         const affected = ['pricing-engine', 'checkout-service', 'redis-cache', 'promotions-engine'];
-        earthNodesGroup.children.forEach(m => {
+        twinNodesGroup.children.forEach(m => {
           const isAff = affected.includes(m.userData.id);
           m.material.opacity = isAff ? 1.0 : 0.2;
           m.material.transparent = !isAff;
           if (m.userData.id === 'pricing-engine') m.material.color.setHex(0xf43f5e);
         });
 
-        earthLinksGroup.children.forEach(line => {
+        twinLinksGroup.children.forEach(line => {
           const isAff = affected.includes(line.userData.from) && affected.includes(line.userData.to);
           line.material.color.setHex(isAff ? 0xf43f5e : 0x1f2430);
           line.material.opacity = isAff ? 1.0 : 0.15;
         });
       } else {
+        playAudio('click');
         banner.innerText = 'STATUS: NOMINAL TOPOLOGY (11 SERVICES ACTIVE)';
-        banner.style.color = 'var(--emerald-def)';
+        banner.style.color = 'var(--emerald-safe)';
 
-        earthNodesGroup.children.forEach(m => {
+        twinNodesGroup.children.forEach(m => {
           m.material.color.setHex(m.userData.color);
           m.material.opacity = 1.0;
           m.material.transparent = false;
         });
 
-        earthLinksGroup.children.forEach(line => {
+        twinLinksGroup.children.forEach(line => {
           line.material.color.setHex(0x334155);
           line.material.opacity = 0.6;
         });
       }
     }
 
-    function renderEarthLoop() {
-      requestAnimationFrame(renderEarthLoop);
-      if (earthNodesGroup) {
-        earthNodesGroup.children.forEach((c, i) => {
+    function renderTwinLoop() {
+      requestAnimationFrame(renderTwinLoop);
+      if (twinNodesGroup) {
+        twinNodesGroup.children.forEach((c, i) => {
           c.position.y = Math.sin(Date.now() * 0.0015 + i) * 0.6;
         });
-        updateEarthPins();
+        updateTwinPins();
       }
-      if (earthRenderer && earthScene && earthCamera) {
-        earthRenderer.render(earthScene, earthCamera);
+      if (twinRenderer && twinScene && twinCamera) {
+        twinRenderer.render(twinScene, twinCamera);
       }
     }
 
     // =========================================================================
-    // 6. Release Vault Engine: Gated GitHub Ops & Cryptographic Ledger
+    // 7. Cryptographic Vault Engine
     // =========================================================================
-    async function callVaultApi(endpoint, body, method = 'POST') {
-      const token = document.getElementById('vault-token').value.trim();
+    let storedVaultPlanHash = null;
+
+    async function callVaultService(endpoint, body, method = 'POST') {
+      const token = document.getElementById('vault-auth-token').value.trim();
       const resp = await fetch(endpoint, {
         method: body ? method : 'GET',
         headers: {
@@ -2631,47 +2846,43 @@ File is strictly within authorized scope pattern.`);
         body: body ? JSON.stringify(body) : undefined
       });
       const res = await resp.json();
-      const term = document.getElementById('vault-term');
+      const term = document.getElementById('vault-terminal-stream');
       term.textContent = JSON.stringify(res, null, 2);
       if (!resp.ok) throw new Error(res.error || 'Execution failed');
       return res;
     }
 
-    async function stepOpenCase() {
-      const pr = document.getElementById('vault-pr').value.trim();
-      const res = await callVaultApi('/api/cases', { pr_url: pr, services: ['checkout-service'] });
-      document.getElementById('vault-case-id').value = res.case_id;
-    }
-
-    async function stepReviewEvidence() {
-      const caseId = document.getElementById('vault-case-id').value.trim();
-      if (!caseId) { alert('Please open a case first.'); return; }
-      await callVaultApi('/api/cases/review', { case_id: caseId });
-    }
-
-    async function stepSignVerdict() {
-      const caseId = document.getElementById('vault-case-id').value.trim();
-      const cond = document.getElementById('vault-conds').value.trim();
-      await callVaultApi('/api/verdicts', { case_id: caseId, command: 'CONDITIONS ' + cond });
-    }
-
-    let vaultPlanHash = null;
-    async function stepPreviewPlan() {
-      const caseId = document.getElementById('vault-case-id').value.trim();
-      const res = await callVaultApi('/api/github/plan', { case_id: caseId });
-      vaultPlanHash = res.plan_hash;
-      document.getElementById('vault-plan-hash-label').innerText = 'PLAN HASH: ' + vaultPlanHash.substring(0, 16) + '...';
-      document.getElementById('btn-vault-exec').disabled = false;
-    }
-
-    async function stepExecuteGitHub() {
-      const caseId = document.getElementById('vault-case-id').value.trim();
-      await callVaultApi('/api/github/execute', { case_id: caseId, plan_hash: vaultPlanHash });
-      document.getElementById('btn-vault-exec').disabled = true;
-    }
-
-    async function stepFetchAudit() {
-      await callVaultApi('/api/audit/events', null, 'GET');
+    async function execVaultStep(stepNum) {
+      playAudio('click');
+      try {
+        if (stepNum === 1) {
+          const pr = document.getElementById('vault-pr-url').value.trim();
+          const res = await callVaultService('/api/cases', { pr_url: pr, services: ['checkout-service'] });
+          document.getElementById('vault-case-input').value = res.case_id;
+        } else if (stepNum === 2) {
+          const caseId = document.getElementById('vault-case-input').value.trim();
+          if (!caseId) { alert('Please open a docket first.'); return; }
+          await callVaultService('/api/cases/review', { case_id: caseId });
+        } else if (stepNum === 3) {
+          const caseId = document.getElementById('vault-case-input').value.trim();
+          const cond = document.getElementById('vault-conds-input').value.trim();
+          await callVaultService('/api/verdicts', { case_id: caseId, command: 'CONDITIONS ' + cond });
+        } else if (stepNum === 4) {
+          const caseId = document.getElementById('vault-case-input').value.trim();
+          const res = await callVaultService('/api/github/plan', { case_id: caseId });
+          storedVaultPlanHash = res.plan_hash;
+          document.getElementById('vault-plan-hash-display').innerText = 'PLAN HASH: ' + storedVaultPlanHash.substring(0, 16) + '...';
+          document.getElementById('btn-release-exec').disabled = false;
+        } else if (stepNum === 5) {
+          const caseId = document.getElementById('vault-case-input').value.trim();
+          await callVaultService('/api/github/execute', { case_id: caseId, plan_hash: storedVaultPlanHash });
+          document.getElementById('btn-release-exec').disabled = true;
+        } else if (stepNum === 6) {
+          await callVaultService('/api/audit/events', null, 'GET');
+        }
+      } catch (e) {
+        playAudio('alarm');
+      }
     }
 
     function escapeHtml(str) {
@@ -2680,10 +2891,10 @@ File is strictly within authorized scope pattern.`);
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      const route = (window.location.hash || '#courtroom').replace('#', '');
-      navigate(route);
-      initBoardroomVAD();
-      initEarth3D();
+      const chamber = (window.location.hash || '#courtroom').replace('#', '');
+      jumpChamber(chamber);
+      initIntercomVAD();
+      initParallelEarth3D();
     });
   </script>
 </body>
