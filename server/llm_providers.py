@@ -77,7 +77,7 @@ class LLMProviderManager:
             return {"error": "GROQ_API_KEY not configured"}
 
         url = "https://api.groq.com/openai/v1/chat/completions"
-        payload = json.dumps({
+        parameters = {
             "model": self.groq_model,
             "messages": [
                 {"role": "system", "content": system_prompt},
@@ -85,7 +85,11 @@ class LLMProviderManager:
             ],
             "max_tokens": max_tokens,
             "temperature": 0.2
-        }).encode("utf-8")
+        }
+        if self.groq_model.startswith('openai/gpt-oss-'):
+            parameters.update(reasoning_effort='low', include_reasoning=False,
+                              max_tokens=max(2048, max_tokens))
+        payload = json.dumps(parameters).encode("utf-8")
 
         req = urllib.request.Request(url, data=payload, headers={
             "Authorization": f"Bearer {self.groq_key}",

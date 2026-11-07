@@ -557,3 +557,51 @@ HTML_DASHBOARD = """<!DOCTYPE html>
 </body>
 </html>
 """
+
+
+# Workflow controls share the HTTP service with the command-line client.
+HTML_DASHBOARD = HTML_DASHBOARD.replace('</body>', r"""
+<section style="max-width:1000px;margin:40px auto;padding:24px;border:1px solid #475569;border-radius:12px;background:#0f172a;color:#f8fafc">
+<h2>Release workflow</h2>
+<p>Review evidence, record your decision, then approve the exact GitHub changes.</p>
+<label>Access credential <input id="wf-token" type="password" autocomplete="off" placeholder="Provisioned access credential"></label>
+<div style="margin:16px 0"><label>Pull request <input id="wf-pr" size="50" placeholder="https://github.com/owner/repo/pull/123"></label>
+<label>Services <input id="wf-services" value="checkout-service"></label>
+<button id="wf-open">Open case</button></div>
+<label>Case <input id="wf-case" size="45"></label>
+<button id="wf-review">Run evidence review</button>
+<div style="margin:16px 0"><label>Human verdict <select id="wf-verdict"><option>BLOCK</option><option>CONDITIONS</option><option>APPROVE</option></select></label>
+<input id="wf-reason" size="50" placeholder="Reason or semicolon-separated conditions">
+<button id="wf-decide">Record my verdict</button></div>
+<button id="wf-plan">Preview GitHub changes</button>
+<button id="wf-execute" disabled>Approve displayed GitHub changes</button>
+<button id="wf-audit">View audit trail</button>
+<pre id="wf-result" style="white-space:pre-wrap;max-height:650px;overflow:auto" aria-live="polite"></pre>
+</section>
+<script>
+(() => {
+ const el = id => document.getElementById('wf-' + id);
+ let planHash = null, plannedCase = null;
+ const invalidate = () => {planHash = null; plannedCase = null; el('execute').disabled = true;};
+ el('case').addEventListener('input', invalidate);
+ async function call(route, body) {
+   const response = await fetch(route, {method:body ? 'POST':'GET', headers:{'Content-Type':'application/json','Authorization':'Bearer ' + el('token').value}, body:body ? JSON.stringify(body):undefined});
+   const result = await response.json();
+   el('result').textContent = JSON.stringify(result, null, 2);
+   if (!response.ok) throw new Error(result.error || 'Request failed');
+   return result;
+ }
+ const action = (id, fn) => el(id).onclick = async () => {el(id).disabled=true; try {await fn();} catch(error) {el('result').textContent=error.message;} finally {el(id).disabled = id === 'execute' ? !planHash : false;}};
+ action('open', async () => {invalidate(); const result=await call('/api/cases',{pr_url:el('pr').value,services:el('services').value.split(',').map(s=>s.trim())}); el('case').value=result.case_id;});
+ action('review', () => call('/api/cases/review',{case_id:el('case').value}));
+ action('decide', async () => {invalidate(); await call('/api/verdicts',{case_id:el('case').value,command:el('verdict').value + ' ' + el('reason').value});});
+ action('plan', async () => {const result=await call('/api/github/plan',{case_id:el('case').value}); planHash=result.plan_hash; plannedCase=el('case').value; el('execute').disabled=false;});
+ action('execute', async () => {if (!planHash || plannedCase!==el('case').value) throw new Error('Preview the current case first'); await call('/api/github/execute',{case_id:plannedCase,plan_hash:planHash}); invalidate();});
+ action('audit', () => call('/api/audit/events'));
+ // Existing live debate controls use the same in-memory credential.
+ const nativeFetch = window.fetch.bind(window);
+ window.fetch = (input, options={}) => {if(typeof input==='string' && input.startsWith('/api/') && options.method==='POST') options={...options,headers:{...options.headers,Authorization:'Bearer '+el('token').value}}; return nativeFetch(input,options);};
+})();
+</script>
+</body>
+""")

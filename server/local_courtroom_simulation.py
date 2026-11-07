@@ -101,7 +101,7 @@ def run_live_demonstration():
     print(f"[{last_msg.sender}]:\n  {last_msg.content}\n")
 
     print("=" * 78)
-    print("STAGE 3: AUTHORIZED HUMAN RELEASE JUDGE ISSUES VERDICT")
+    print("STAGE 3: SPOOFED DISPLAY-NAME VERDICT IS REJECTED")
     print("=" * 78 + "\n")
 
     judge_cmd = "@court-clerk verdict CONDITIONS canary 5%; add checkout mismatch alert; Priya owns rollback"
@@ -125,7 +125,7 @@ def run_live_demonstration():
     print("[Command] !decisions:")
     print(room.handle_command("!decisions", "developer"))
     print("\n" + "=" * 78)
-    print("[SUCCESS] LOCAL SIMULATION COMPLETE - ALL INVARIANTS VERIFIED")
+    print("[LOCAL SIMULATION] Complete. No authenticated verdict or native Switch activity occurred.")
     print("=" * 78)
 
 if __name__ == "__main__":

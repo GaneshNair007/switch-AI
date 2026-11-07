@@ -31,17 +31,61 @@ llm_manager = LLMProviderManager()
 class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
     room = None
     mgr = None
+    workflow = None
+    discord = None
 
     def _set_headers(self, status=200, content_type="application/json"):
         self.send_response(status)
         self.send_header("Content-Type", content_type)
-        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("X-Content-Type-Options", "nosniff")
         self.end_headers()
 
     def do_HEAD(self):
         self._set_headers(200, "text/html; charset=utf-8")
 
+    def _json_response(self, status, payload):
+        from .store import encode
+        self._set_headers(status)
+        self.wfile.write(json.dumps(payload, default=encode).encode('utf-8'))
+
     def do_GET(self):
+        if self.path.startswith('/api/v1/agents/') or self.path.startswith('/api/v1/approvals/'):
+            try:
+                principal = self.workflow.authorization.authenticate(self.headers.get('Authorization'))
+                if self.path.startswith('/api/v1/agents/') and self.path.endswith('/assignment'):
+                    result = self.workflow.scope.assignment(self.path.split('/')[-2], principal)
+                elif self.path.startswith('/api/v1/approvals/'):
+                    result = self.workflow.scope.status(self.path.split('/')[-1], principal)
+                else:
+                    raise KeyError('Unknown route')
+                self._json_response(200, result)
+            except PermissionError:
+                self._json_response(403, {'error': 'Scoped hook identity required'})
+            except KeyError:
+                self._json_response(404, {'error': 'Not found'})
+            return
+        if self.path in ('/api/cases', '/api/audit/events', '/api/floor/requests', '/api/readiness'):
+            try:
+                if not self.workflow:
+                    raise RuntimeError('Workflow not initialized')
+                principal = self.workflow.authorization.authenticate(self.headers.get('Authorization'))
+                self.workflow.authorization.require(principal, role='operator')
+                if self.path == '/api/cases':
+                    result = list(self.workflow.cases.values())
+                elif self.path == '/api/audit/events':
+                    result = self.workflow.store.events()
+                elif self.path == '/api/floor/requests':
+                    result = list(self.workflow.floor_controller.requests.values())
+                else:
+                    result = {'github_configured': bool(os.getenv('GITHUB_TOKEN')), 'groq_configured': bool(os.getenv('GROQ_API_KEY')),
+                              'switch_configured': bool(json.loads(os.getenv('SWITCH_CLIENTS', '[]'))), 'discord_configured': bool(os.getenv('DISCORD_PUBLIC_KEY')),
+                              'live_integrations_verified': False}
+                self._json_response(200, result)
+            except PermissionError:
+                self._json_response(403, {'error': 'Authentication and operator role required'})
+            except Exception as exc:
+                self._json_response(400, {'error': str(exc)})
+            return
         if self.path in ("/", "/dashboard", "/ui"):
             self._set_headers(200, "text/html; charset=utf-8")
             self.wfile.write(HTML_DASHBOARD.encode("utf-8"))
@@ -96,12 +140,126 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({"error": "Not Found"}).encode("utf-8"))
 
     def do_POST(self):
-        content_length = int(self.headers.get("Content-Length", 0))
-        post_data = self.rfile.read(content_length) if content_length > 0 else b"{}"
         try:
-            body = json.loads(post_data.decode("utf-8")) if post_data else {}
-        except Exception:
-            body = {}
+            content_length = int(self.headers.get('Content-Length', 0))
+            if not 0 <= content_length <= 1048576:
+                self._json_response(413, {'error': 'Request too large'})
+                return
+            post_data = self.rfile.read(content_length) if content_length else b'{}'
+            body = json.loads(post_data)
+            if not isinstance(body, dict):
+                raise ValueError('JSON object required')
+        except (ValueError, UnicodeDecodeError):
+            self._json_response(400, {'error': 'Invalid JSON request'})
+            return
+        if self.path == '/discord/interactions':
+            if not self.discord:
+                self._json_response(503, {'error': 'Discord application is not configured'})
+                return
+            try:
+                result = self.discord.handle(post_data, self.headers.get('X-Signature-Ed25519', ''), self.headers.get('X-Signature-Timestamp', ''))
+                self._json_response(200, result)
+            except PermissionError:
+                self._json_response(401, {'error': 'Invalid Discord identity or signature'})
+            except (ValueError, KeyError, TypeError):
+                self._json_response(400, {'error': 'Invalid interaction'})
+            return
+        routes = ('/api/cases', '/api/cases/review', '/api/verdicts', '/api/github/plan', '/api/github/execute',
+                  '/api/v1/approvals', '/api/scope/assignments', '/api/scope/decide', '/api/voice/action', '/api/research', '/api/simulations', '/api/staging/measure', '/api/cases/attach', '/api/meetings/start', '/api/meetings/consent', '/api/meetings/transcript', '/api/meetings/decision', '/api/meetings/end', '/api/meetings/tasks', '/api/meetings/tasks/update',
+                  '/api/floor/requests', '/api/floor/grants', '/api/floor/release', '/api/floor/dismiss', '/api/v1/violations')
+        if self.path in routes:
+            try:
+                if not self.workflow:
+                    raise RuntimeError('Workflow not initialized')
+                principal = self.workflow.authorization.authenticate(self.headers.get('Authorization'))
+                service = self.workflow
+                if self.path == '/api/cases':
+                    result = service.open_case(body['pr_url'], body['services'], principal)
+                elif self.path == '/api/v1/approvals':
+                    result = service.scope.request(body, principal)
+                elif self.path == '/api/scope/assignments':
+                    result = service.scope.set_assignment(body, principal)
+                elif self.path == '/api/scope/decide':
+                    result = service.scope.decide(body['request_id'], body['approve'], principal)
+                elif self.path == '/api/voice/action':
+                    from .voice_bridge import VoiceBridge
+                    result = VoiceBridge(service, os.getenv('DISCORD_GUILD_ID', ''), json.loads(os.getenv('DISCORD_MEMBERS', '{}'))).handle(principal, body)
+                elif self.path == '/api/research':
+                    result = service.research.verify(body['claim'], body['urls'], principal, body['correlation_id'])
+                elif self.path == '/api/simulations':
+                    service.authorization.require(principal, role='operator')
+                    result = service.parallel_earth.run_simulation(service.cases[body['case_id']],
+                        estimated_downtime_minutes=body.get('downtime_minutes', 15),
+                        synthetic_requests=body.get('requests', 1000), failure_probability=body.get('failure_probability', .01), seed=body.get('seed', 0))
+                    service.store.put('simulation', body['case_id'], result)
+                elif self.path == '/api/staging/measure':
+                    service.authorization.require(principal, scope='staging:measure')
+                    endpoint = os.getenv('SHIPCOURT_STAGING_URL')
+                    if not endpoint:
+                        raise ValueError('No staging endpoint configured by the operator')
+                    from .staging import measure_staging
+                    result = measure_staging(endpoint, body.get('samples', 10))
+                    service.store.event('staging.measured', body.get('case_id', 'staging'), principal.subject, result)
+                elif self.path == '/api/cases/attach':
+                    result = service.attach_pull_request(body['case_id'], body['pr_url'], body['services'], principal)
+                elif self.path == '/api/meetings/start':
+                    result = service.meetings.start(body['title'], principal, body.get('mode', 'Professional Colleague'))
+                elif self.path == '/api/meetings/consent':
+                    if type(body['enabled']) is not bool:
+                        raise ValueError('Consent must be a boolean')
+                    result = service.meetings.consent(body['meeting_id'], principal, body['enabled'])
+                elif self.path == '/api/meetings/transcript':
+                    result = service.meetings.transcript(body['meeting_id'], body['text'], principal, body['event_id'])
+                elif self.path == '/api/meetings/decision':
+                    result = service.meetings.decision(body['meeting_id'], body['text'], principal, body.get('evidence_refs'))
+                elif self.path == '/api/meetings/tasks':
+                    result = service.meetings.assign_task(body['meeting_id'], body['description'], body['owner_id'], principal, body.get('evidence_refs'))
+                elif self.path == '/api/meetings/tasks/update':
+                    result = service.meetings.update_task(body['meeting_id'], body['task_id'], body['status'], principal)
+                elif self.path == '/api/meetings/end':
+                    result = service.meetings.end(body['meeting_id'], principal)
+                elif self.path == '/api/cases/review':
+                    result = service.review(body['case_id'], principal)
+                elif self.path == '/api/verdicts':
+                    result = {'release_brief': service.decide(body['case_id'], body['command'], principal)}
+                elif self.path == '/api/github/plan':
+                    import hashlib
+                    plan = service.github_plan(body['case_id'], principal)
+                    result = {'plan': plan, 'plan_hash': hashlib.sha256(json.dumps(plan, sort_keys=True).encode()).hexdigest()}
+                elif self.path == '/api/github/execute':
+                    result = service.execute_github(body['case_id'], principal, body['plan_hash'])
+                elif self.path == '/api/v1/violations':
+                    result = service.ingest_violation(body, principal)
+                elif self.path == '/api/floor/requests':
+                    service.authorization.require(principal, role='operator')
+                    if "now" in body:
+                        raise ValueError("Client-controlled timestamps are not allowed")
+                    result = service.floor_controller.raise_hand(**body)
+                elif self.path == '/api/floor/grants':
+                    result = service.floor_controller.grant_floor(body['request_id'], principal)
+                else:
+                    req = service.floor_controller.requests[body['request_id']]
+                    service.authorization.require(principal, scope=f'meeting:{req.meeting_id}:floor')
+                    if self.path == '/api/floor/release':
+                        service.floor_controller.release(req.request_id)
+                    else:
+                        service.floor_controller.dismiss(req.request_id, principal, interrupt=body.get('interrupt', False))
+                    result = {'state': req.state.value}
+                self._json_response(200, result)
+            except PermissionError:
+                self._json_response(403, {'error': 'Authenticated identity with required role and scope required'})
+            except (ValueError, KeyError, TypeError) as exc:
+                self._json_response(400, {'error': str(exc)})
+            except Exception as exc:
+                self._json_response(502, {'error': type(exc).__name__, 'detail': 'Operation failed; inspect local audit and service configuration'})
+            return
+        # All legacy mutation/cost-incurring routes require a provisioned operator.
+        try:
+            principal = self.mgr.authorization.authenticate(self.headers.get('Authorization'))
+            self.mgr.authorization.require(principal, role='operator')
+        except PermissionError:
+            self._json_response(403, {'error': 'Authenticated operator required'})
+            return
 
         if self.path == "/api/debate":
             task_desc = str(body.get("task", "")).strip()
@@ -139,7 +297,8 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
             judge = body.get("judge", "Priya")
             is_human = body.get("is_human", True)
             try:
-                brief = self.mgr.record_verdict(case_id, command, judge=judge, is_human=is_human)
+                principal = self.mgr.authorization.authenticate(self.headers.get("Authorization"))
+                brief = self.mgr.record_verdict(case_id, command, principal=principal)
                 self._set_headers(200)
                 self.wfile.write(json.dumps({"case_id": case_id, "release_brief": brief}).encode("utf-8"))
             except PermissionError as pe:
@@ -149,9 +308,9 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
                 self._set_headers(400)
                 self.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
         elif self.path == "/webhook":
-            sender = body.get("user_name", body.get("sender", "developer"))
+            sender = principal.subject
             text = body.get("text", body.get("content", ""))
-            self.room.post_message(sender, text)
+            self.room.post_message(sender, text, principal=principal)
             last_msg = self.room.messages[-1].content if self.room.messages else "ok"
             self._set_headers(200)
             self.wfile.write(json.dumps({"reply": last_msg}).encode("utf-8"))
@@ -170,7 +329,25 @@ class ShipCourtServer(ThreadingHTTPServer):
 
 def start_server(host="127.0.0.1", port=8080):
     room = setup_live_courtroom()
-    mgr = CaseManager()
+    from .unified_pipeline import UnifiedBoardroomCourtPipeline
+    state_path = Path(os.getenv('SHIPCOURT_STATE_PATH', '.runtime/shipcourt.sqlite3'))
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    workflow = UnifiedBoardroomCourtPipeline(db_path=state_path)
+    mgr = workflow.manager
+    room = workflow.room
+    if os.getenv('DISCORD_PUBLIC_KEY'):
+        from .discord_interactions import DiscordInteractions
+        ShipCourtHTTPHandler.discord = DiscordInteractions(workflow, os.environ['DISCORD_PUBLIC_KEY'],
+            os.environ['DISCORD_APPLICATION_ID'], os.environ['DISCORD_GUILD_ID'], json.loads(os.getenv('DISCORD_MEMBERS', '{}')))
+    if os.getenv('DISCORD_BOT_TOKEN'):
+        from .discord_gateway import start_discord_gateway
+        workflow.discord_gateway = start_discord_gateway(workflow, os.environ['DISCORD_BOT_TOKEN'],
+            os.environ['DISCORD_GUILD_ID'], json.loads(os.getenv('DISCORD_MEMBERS', '{}')))
+    if os.getenv('SWITCH_CLIENTS'):
+        from .switch_worker import start_workers
+        workflow.switch_workers = start_workers(workflow, json.loads(os.environ['SWITCH_CLIENTS']),
+                                                json.loads(os.getenv('SWITCH_PARTICIPANTS', '{}')))
+    ShipCourtHTTPHandler.workflow = workflow
     ShipCourtHTTPHandler.room = room
     ShipCourtHTTPHandler.mgr = mgr
     httpd = ShipCourtServer((host, port), ShipCourtHTTPHandler)
@@ -233,19 +410,9 @@ def run_demo():
     judge_cmd = "@court-clerk verdict CONDITIONS add pricing-mismatch alert; canary 5%; Priya owns rollback"
     print(f"    Priya: {judge_cmd}\n")
 
-    brief = manager.record_verdict(case.case_id, judge_cmd, judge="Priya", is_human=True)
-    
-    print("[9] Court Clerk:")
-    print("    Verdict recorded: SHIP WITH CONDITIONS.")
-    print("    Tasks created:")
-    for idx, task in enumerate(case.tasks, start=1):
-        print(f"    {idx}. {task.description} - owner: {task.owner}")
-    print("\n" + "=" * 70)
-    print("FINAL RELEASE BRIEF ARTIFACT:")
-    print("=" * 70)
-    print(brief)
-    print("=" * 70)
-    print("\nCase status:", case.state.value)
+    print("Simulation stops at AWAITING_VERDICT; use the authenticated workflow for a binding decision.")
+    return
+
 
 def run_interactive_courtroom(initial_task=None):
     from .models import ObjectionSeverity
@@ -361,7 +528,8 @@ def run_interactive_courtroom(initial_task=None):
         user_cmd = "@clerk conditions: add monitoring alert; canary 5%; Priya owns rollback"
 
     print(f"\n[RECORDING VERDICT]: {user_cmd}\n")
-    brief = manager.record_verdict(case.case_id, user_cmd, judge="Priya", is_human=True)
+    principal = manager.authorization.authenticate("Bearer " + os.getenv("SHIPCOURT_TOKEN", ""))
+    brief = manager.record_verdict(case.case_id, user_cmd, principal=principal)
 
     print("=" * 75)
     print("FINAL SIGNED RELEASE BRIEF ARTIFACT:")
@@ -372,19 +540,13 @@ def run_interactive_courtroom(initial_task=None):
     print(f"Switch Tasks Created: {len(case.tasks)}")
     for i, t in enumerate(case.tasks, 1):
         print(f"  Task {i}: {t.description} (Owner: {t.owner})")
-    print("\n[COURT ADJOURNED] Verdict recorded into immutable Switch state.")
+    print("\n[COURT ADJOURNED] Authenticated verdict recorded in the local procedural case.")
 
 def run_courtroom(mode: str):
     if mode == "live":
-        if not os.getenv("SWITCH_API_TOKEN"):
-            raise RuntimeError(
-                "LIVE MODE REQUIRES SWITCH_API_TOKEN.\n"
-                "Refusing to run simulated courtroom in live mode.\n"
-                "Set $env:SWITCH_API_TOKEN and ensure Switch Console / bridge is running."
-            )
-        from .switch_native_runner import SwitchNativeCourtroom
-        runner = SwitchNativeCourtroom()
-        return runner.run_case()
+        if not json.loads(os.getenv('SWITCH_CLIENTS', '[]')):
+            raise RuntimeError('LIVE MODE REQUIRES SWITCH_CLIENTS with registered agent IDs and credential environment names')
+        return start_server()
     elif mode == "simulation":
         from .local_courtroom_simulation import run_live_demonstration
         return run_live_demonstration()

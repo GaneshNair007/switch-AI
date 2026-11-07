@@ -1,3 +1,5 @@
+> Historical planning/sample evidence. Current verified behavior and limitations are documented in [docs/VERIFICATION.md](docs/VERIFICATION.md). Do not treat sample transcripts as live proof.
+
 # MASTER ARCHITECTURAL & EXECUTION MANIFEST: SHIP COURT × BOARDROOM OS × ANTIGRAVITY × PARALLEL EARTH
 
 **Repository:** GaneshNair007/switch-AI (Branch: `arjit`)

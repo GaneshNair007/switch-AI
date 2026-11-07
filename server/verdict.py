@@ -23,7 +23,7 @@ class VerdictParser:
 
         # Check for natural commands
         # 1. APPROVE variants: APPROVE, APPROVED, SHIP, YES
-        if re.match(r"^(APPROVE|APPROVED|SHIP|YES)\b", cmd, re.IGNORECASE):
+        if re.fullmatch(r"(APPROVE|APPROVED|SHIP|YES)[.!]?", cmd, re.IGNORECASE):
             return Verdict(judge=judge_name, type=VerdictType.APPROVE)
 
         # 2. BLOCK variants: BLOCK, BLOCKED, REJECT, REJECTED, NO
@@ -72,6 +72,8 @@ class VerdictParser:
                     desc = f"Configure {clause.strip()} rollout"
 
                 conditions.append(Condition(id=f"COND-{idx}", description=desc, owner=owner))
+            if not conditions:
+                raise ValueError('Conditional verdict requires at least one explicit condition')
             return Verdict(judge=judge_name, type=VerdictType.CONDITIONS, conditions=conditions)
         else:
             raise ValueError(

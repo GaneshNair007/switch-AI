@@ -6,6 +6,7 @@ from __future__ import annotations
 import json, time, uuid
 from dataclasses import dataclass, field
 from typing import Dict, List, Any, Optional, Callable
+from .authorization import default_authorization
 from .models import Task, Verdict, VerdictType, CaseState
 
 @dataclass
@@ -26,9 +27,11 @@ class RoomMessage:
     content: str
     timestamp: float = field(default_factory=time.time)
     role: Optional[str] = None
+    principal: Any = None
 
 class SwitchRoom:
-    def __init__(self, room_name: str = "ship-court", bridge: str = "mattermost"):
+    def __init__(self, room_name: str = "ship-court", bridge: str = "mattermost", authorization=None):
+        self.authorization = authorization or default_authorization()
         self.room_name = room_name
         self.bridge = bridge
         self.sessions: Dict[str, AgentSession] = {}
@@ -61,12 +64,13 @@ class SwitchRoom:
         """Subscribe an agent or webhook to room broadcast events."""
         self.message_listeners.append(listener)
 
-    def post_message(self, sender: str, content: str, sender_role: Optional[str] = None) -> RoomMessage:
+    def post_message(self, sender: str, content: str, sender_role: Optional[str] = None, principal=None) -> RoomMessage:
         """Broadcast a message into the Switch room."""
         msg = RoomMessage(
             id=str(uuid.uuid4())[:8],
             sender=sender,
             content=content,
+            principal=principal,
             role=sender_role
         )
         self.messages.append(msg)
@@ -126,39 +130,19 @@ class SwitchRoom:
         """Update the exclusive human approver role assignment."""
         self.exclusive_roles["approver"] = approver_name.strip()
 
-    def enforce_human_verdict_gate(self, sender: str) -> bool:
-        """Verify that the sender holds the exclusive approver role.
-        Rejects AI agents, bots, and unauthorized senders.
-        Normalizes handles (e.g. '@Priya' -> 'priya').
-        """
-        if not sender:
-            return False
-        sender_clean = sender.lstrip("@").strip().lower()
-        approver = self.exclusive_roles.get("approver", "Priya")
-        approver_clean = approver.lstrip("@").strip().lower()
-
-        # Explicitly reject AI agents, bot sessions, and registered aliases
-        bot_names = set(k.lower() for k in self.sessions.keys()) | \
-                    set(a.lower() for a in self.aliases.keys()) | \
-                    set(v.lower() for v in self.aliases.values()) | \
-                    {"system", "bot", "ai", "switch-bot", "agent"}
-        if sender_clean in bot_names or any(sender_clean.startswith(prefix) for prefix in ("court-", "bot-", "agent-")):
-            print(f"[Gate Check] Sender '{sender}' is an AI agent/bot; human approval required under Switch law.")
+    def enforce_human_verdict_gate(self, sender, scope=None) -> bool:
+        """Only opaque authenticated sessions can authorize protected actions."""
+        try:
+            self.authorization.require(sender, scope=scope)
+            return True
+        except PermissionError:
             return False
 
-        # Check if sender matches the designated approver
-        if sender_clean == approver_clean or approver_clean in sender_clean or sender_clean in approver_clean:
-            return True
-
-        # Recognized human judge / admin aliases
-        if sender_clean in {"judge", "human-judge", "release-judge", "approver", "developer", "admin"}:
-            return True
-
-        print(f"[Gate Check] Sender '{sender}' did not match exclusive approver '{approver}'.")
-        return False
-
-    def record_decision(self, case_id: str, verdict: Verdict):
+    def record_decision(self, case_id: str, verdict: Verdict, principal=None):
         """Persist structured decision into Switch storage."""
+        self.authorization.require(principal, scope=f"case:{case_id}:verdict")
+        if verdict.judge != principal.subject:
+            raise PermissionError("Verdict identity must match authenticated actor")
         record = {
             "case_id": case_id,
             "judge": verdict.judge,

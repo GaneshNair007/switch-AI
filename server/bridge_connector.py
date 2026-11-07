@@ -1,6 +1,8 @@
 from __future__ import annotations
 import json
 import urllib.request
+import urllib.error
+import time
 from typing import Any, Callable, Dict, List, Optional, Tuple
 from .switch_room import SwitchRoom
 
@@ -32,6 +34,7 @@ class ChatBridgeConnector:
         self.platform = platform
         self.transport = transport
         self.sent_payloads: List[Dict[str, Any]] = []
+        self.delivery_results = []
 
     def _is_discord_webhook(self) -> bool:
         if self.platform.lower() == "discord":
@@ -82,7 +85,7 @@ class ChatBridgeConnector:
             payload: Dict[str, Any] = {
                 "content": text,
                 "username": profile["username"],
-                "text": text,
+                "allowed_mentions": {"parse": []},
             }
             if embed_title or embed_fields:
                 embed: Dict[str, Any] = {
@@ -114,6 +117,7 @@ class ChatBridgeConnector:
         )
         self.sent_payloads.append(payload)
         if not self.webhook_url:
+            self.delivery_results.append({"status": "NOT_CONFIGURED", "retryable": False})
             return False
         data = json.dumps(payload).encode("utf-8")
         req = urllib.request.Request(
@@ -122,11 +126,26 @@ class ChatBridgeConnector:
             headers={"Content-Type": "application/json", "User-Agent": "Switch-ShipCourt/2.0"},
             method="POST",
         )
-        try:
-            if self.transport is not None:
-                status, _ = self.transport(req)
-                return 200 <= status < 300
-            with urllib.request.urlopen(req, timeout=5.0) as resp:
-                return 200 <= resp.status < 300
-        except Exception:
-            return False
+        for attempt in range(3):
+            try:
+                if self.transport is not None:
+                    status, _ = self.transport(req)
+                else:
+                    with urllib.request.urlopen(req, timeout=5.0) as resp:
+                        status = resp.status
+                if 200 <= status < 300:
+                    self.delivery_results.append({"status": "DELIVERED", "http_status": status, "attempts": attempt + 1})
+                    return True
+                retryable = status == 429 or status >= 500
+            except urllib.error.HTTPError as exc:
+                status = exc.code
+                retryable = status == 429 or status >= 500
+            except (urllib.error.URLError, TimeoutError, OSError):
+                # Unknown delivery outcome: do not automatically duplicate a message.
+                self.delivery_results.append({"status": "UNKNOWN", "retryable": True, "attempts": attempt + 1})
+                return False
+            if not retryable or attempt == 2:
+                self.delivery_results.append({"status": "FAILED", "http_status": status, "retryable": retryable, "attempts": attempt + 1})
+                return False
+            time.sleep(0.25 * (2 ** attempt))
+        return False

@@ -2,97 +2,126 @@ version: 1
 params:
   team:
     type: string
-    pattern: "[a-z][a-z0-9-]*"
-    description: "Unique team prefix to prevent naming collisions"
+    pattern: '[a-z][a-z0-9-]*'
+    description: Unique team prefix to prevent naming collisions
   repository:
     type: string
-    default: "GaneshNair007/switch-AI"
-    description: "GitHub target repository in owner/repo format"
+    default: GaneshNair007/switch-AI
+    description: GitHub target repository in owner/repo format
   provider:
     type: provider
-    default: [claude, codex, opencode]
+    default:
+    - claude
+    - codex
+    - opencode
   bridge:
     type: bridge
-    default: [$first]
-    options: [discord, mattermost, slack, teams]
+    default:
+    - $first
   host_server:
-    type: string
-    default: "local"
+    type: location
+    default: local
   local_machine:
-    type: string
-    default: "local"
-
+    type: location
+    default: local
+  directory:
+    type: directory
+    default: '{$agents_dir}/{agent}'
+    description: Dedicated agent working directory
 agents:
-  - name: "{team}-court-clerk"
-    addressing: anyone
-    location: "{host_server}"
-    instructions: "Open deployment cases, enforce 4-round trial order, and log every verdict."
-  - name: "{team}-incident-historian"
-    addressing: owner-agents
-    location: "{host_server}"
-    instructions: "Cross-examine incoming PRs and Antigravity diffs against incidents.json."
-  - name: "{team}-prosecutor"
-    addressing: owner-agents
-    location: "{host_server}"
-    instructions: "Hunt for blocking blast-radius risks and cross-teammate scope collisions."
-  - name: "{team}-defender"
-    addressing: owner-agents
-    location: "{local_machine}"
-    instructions: "Present concrete test evidence, circuit-breaker safeguards, and mitigations."
-  - name: "{team}-rollback-engineer"
-    addressing: owner-agents
-    location: "{host_server}"
-    auto_approve: false
-    instructions: "Formulate and verify deterministic rollback commands before verdict."
-  - name: "{team}-antigravity-guard"
-    addressing: anyone
-    location: "{local_machine}"
-    instructions: "Monitor PreToolUse hooks across teammates and issue Auto-Subpoenas on collisions."
-  - name: "{team}-third-voice"
-    addressing: anyone
-    location: "{host_server}"
-    instructions: "Operate under FloorRequestProtocol in #meeting-floor; raise hand before speaking."
-  - name: "{team}-parallel-earth"
-    addressing: owner-agents
-    location: "{host_server}"
-    instructions: "Run downstream service closure graphs, canary probes, and blast-radius simulations."
-  - name: "{team}-github-ops"
-    addressing: owner-agents
-    location: "{local_machine}"
-    auto_approve: false
-    connections:
-      - service: github
-        access: write
-        repos: ["{repository}"]
-    instructions: "Post Courtroom & Parallel Earth reviews, apply labels, and arm rollback branches after human sign-off."
-
+- name: '{team}-court-clerk'
+  addressing: anyone
+  location: '{host_server}'
+  instructions: Open deployment cases, enforce 4-round trial order, and log every
+    verdict.
+  provider: '{provider}'
+  directory: '{directory}'
+- name: '{team}-incident-historian'
+  addressing: owner-agents
+  location: '{host_server}'
+  instructions: Cross-examine incoming PRs and Antigravity diffs against incidents.json.
+  provider: '{provider}'
+  directory: '{directory}'
+- name: '{team}-prosecutor'
+  addressing: owner-agents
+  location: '{host_server}'
+  instructions: Hunt for blocking blast-radius risks and cross-teammate scope collisions.
+  provider: '{provider}'
+  directory: '{directory}'
+- name: '{team}-defender'
+  addressing: owner-agents
+  location: '{local_machine}'
+  instructions: Present concrete test evidence, circuit-breaker safeguards, and mitigations.
+  provider: '{provider}'
+  directory: '{directory}'
+- name: '{team}-rollback-engineer'
+  addressing: owner-agents
+  location: '{host_server}'
+  auto_approve: false
+  instructions: Formulate and verify deterministic rollback commands before verdict.
+  provider: '{provider}'
+  directory: '{directory}'
+- name: '{team}-antigravity-guard'
+  addressing: anyone
+  location: '{local_machine}'
+  instructions: Monitor PreToolUse hooks across teammates and issue Auto-Subpoenas
+    on collisions.
+  provider: '{provider}'
+  directory: '{directory}'
+- name: '{team}-third-voice'
+  addressing: anyone
+  location: '{host_server}'
+  instructions: 'Operate under FloorRequestProtocol in #meeting-floor; raise hand
+    before speaking.'
+  provider: '{provider}'
+  directory: '{directory}'
+- name: '{team}-parallel-earth'
+  addressing: owner-agents
+  location: '{host_server}'
+  instructions: Run downstream service closure graphs, canary probes, and blast-radius
+    simulations.
+  provider: '{provider}'
+  directory: '{directory}'
+- name: '{team}-github-ops'
+  addressing: owner-agents
+  location: '{local_machine}'
+  auto_approve: false
+  instructions: Post Courtroom & Parallel Earth reviews, apply labels, and arm rollback
+    branches after human sign-off.
+  provider: '{provider}'
+  directory: '{directory}'
 room:
-  name: "{team}-ship-court"
-  bridge: "{bridge}"
+  name: '{team}-ship-court'
+  description: "Release governance for {repository}"
+  bridge: '{bridge}'
   agents:
-    - "{team}-court-clerk"
-    - "{team}-incident-historian"
-    - "{team}-prosecutor"
-    - "{team}-defender"
-    - "{team}-rollback-engineer"
-    - "{team}-antigravity-guard"
-    - "{team}-third-voice"
-    - "{team}-parallel-earth"
-    - "{team}-github-ops"
-  users: ["{$creator}"]
+  - '{team}-court-clerk'
+  - '{team}-incident-historian'
+  - '{team}-prosecutor'
+  - '{team}-defender'
+  - '{team}-rollback-engineer'
+  - '{team}-antigravity-guard'
+  - '{team}-third-voice'
+  - '{team}-parallel-earth'
+  - '{team}-github-ops'
+  users:
+  - '{$creator}'
   aliases:
-    "{team}-court-clerk": clerk
-    "{team}-incident-historian": historian
-    "{team}-prosecutor": prosecutor
-    "{team}-defender": defender
-    "{team}-rollback-engineer": rollback
-    "{team}-antigravity-guard": antigravity-guard
-    "{team}-third-voice": third-voice
-    "{team}-parallel-earth": parallel-earth
-    "{team}-github-ops": github-ops
+    '{team}-court-clerk': clerk
+    '{team}-incident-historian': historian
+    '{team}-prosecutor': prosecutor
+    '{team}-defender': defender
+    '{team}-rollback-engineer': rollback
+    '{team}-antigravity-guard': antigravity-guard
+    '{team}-third-voice': third-voice
+    '{team}-parallel-earth': parallel-earth
+    '{team}-github-ops': github-ops
   roles:
-    - name: approver
-      exclusive: true
-      instructions: "Grant meeting floor requests and issue binding courtroom verdicts: APPROVE, BLOCK, or CONDITIONS."
-  kickoff: |
-    @clerk, @antigravity-guard, @third-voice, @prosecutor, @defender, @parallel-earth, @github-ops: State your operational boundary in one line.
+  - name: approver
+    exclusive: true
+    instructions: 'Grant meeting floor requests and issue binding courtroom verdicts:
+      APPROVE, BLOCK, or CONDITIONS.'
+kickoff: '@clerk, @antigravity-guard, @third-voice, @prosecutor, @defender, @parallel-earth,
+  @github-ops: State your operational boundary in one line.
+
+  '

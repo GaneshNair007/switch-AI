@@ -158,28 +158,8 @@ class GoogleOpalWorkflowBridge:
         execution_log.append({"step": "node_4_defense", "status": "COMPLETED", "defenses": len(case.defenses)})
         execution_log.append({"step": "node_5_rollback", "status": "COMPLETED", "target": case.rollback_plan.target_version if case.rollback_plan else "v2.13.2"})
 
-        # Step 6: Human Gate
-        verdict_cmd = f"@court-clerk verdict CONDITIONS canary {canary_percent}%; add checkout mismatch alert; Priya owns rollback"
-        verdict_str = self.manager.record_verdict(
-            case_id=case.case_id,
-            command=verdict_cmd,
-            judge=judge_name,
-            is_human=True,
-        )
-        execution_log.append({"step": "node_6_human_gate", "status": "COMPLETED", "approver": judge_name})
-
-        # Step 7: Publication
-        brief = case.release_brief or verdict_str
-        execution_log.append({"step": "node_7_brief", "status": "COMPLETED", "brief_length": len(brief)})
-        self.room.post_message("court-clerk", f"[OPAL PUBLISH] Signed Release Brief published to #{self.room.room_name}")
-
-        return {
-            "workflow_id": self.manifest.workflow_id,
-            "status": "SUCCESS",
-            "case_id": case.case_id,
-            "verdict": case.verdict.type.value if case.verdict else "CONDITIONS",
-            "execution_steps": execution_log,
-            "brief_published": bool(brief),
-            "switch_room": f"#{self.room.room_name}",
-        }
-
+        execution_log.append({"step": "node_6_human_gate", "status": "AWAITING_AUTHENTICATED_HUMAN"})
+        return {"workflow_id": self.manifest.workflow_id, "status": "AWAITING_AUTHENTICATED_HUMAN",
+                "case_id": case.case_id, "verdict": None, "execution_steps": execution_log,
+                "brief_published": False, "switch_room": f"#{self.room.room_name}",
+                "mode": "LOCAL_PROCEDURAL_SIMULATION"}

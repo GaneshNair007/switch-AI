@@ -7,6 +7,20 @@ from server.agent_runners import (
     DefenderAgent, RollbackEngineerAgent
 )
 from server.models import VerdictType
+import hashlib
+from server.authorization import default_authorization
+
+@pytest.fixture
+def human():
+    auth = default_authorization()
+    token = 'test-room-human-token-at-least-32-characters'
+    identity = {'id': 'test-human-id', 'token_sha256': hashlib.sha256(token.encode()).hexdigest(), 'roles': ['approver'], 'scopes': ['*']}
+    auth.identities.append(identity)
+    principal = auth.authenticate('Bearer ' + token)
+    yield principal
+    auth.revoke(principal)
+    auth.identities.remove(identity)
+
 
 def test_session_registration_and_status():
     room = SwitchRoom("test-court")
@@ -18,16 +32,17 @@ def test_session_registration_and_status():
     assert "@clerk" in status_out
     assert "host_server" in status_out
 
-def test_exclusive_approver_gate():
+def test_exclusive_approver_gate(human):
     room = SwitchRoom("test-court")
     # Agents must never be permitted to approve
     assert room.enforce_human_verdict_gate("prosecutor") is False
     assert room.enforce_human_verdict_gate("court-clerk") is False
     assert room.enforce_human_verdict_gate("random_user") is False
     # Human judge Priya holds exclusive role
-    assert room.enforce_human_verdict_gate("Priya") is True
+    assert room.enforce_human_verdict_gate("Priya") is False
+    assert room.enforce_human_verdict_gate(human) is True
 
-def test_live_agent_broadcast_workflow():
+def test_live_agent_broadcast_workflow(human):
     room = SwitchRoom("test-court")
     mgr = CaseManager()
 
@@ -57,7 +72,7 @@ def test_live_agent_broadcast_workflow():
     assert "SECURITY VIOLATION" in room.messages[-1].content
 
     # Human Release Judge issues CONDITIONS
-    room.post_message("Priya", "@court-clerk verdict CONDITIONS canary 5%; add checkout mismatch alert; Priya owns rollback")
+    room.post_message("Priya", "@court-clerk verdict CONDITIONS canary 5%; add checkout mismatch alert; Priya owns rollback", principal=human)
     assert clerk.current_case.verdict.type == VerdictType.CONDITIONS
     assert len(room.tasks) == 3
     assert len(room.decisions) == 1
@@ -65,16 +80,16 @@ def test_live_agent_broadcast_workflow():
 
 def test_gate_with_handles_and_aliases():
     room = SwitchRoom("test-court")
-    assert room.enforce_human_verdict_gate("@Priya") is True
-    assert room.enforce_human_verdict_gate("priya") is True
-    assert room.enforce_human_verdict_gate("Priya Nair") is True
-    assert room.enforce_human_verdict_gate("judge") is True
-    assert room.enforce_human_verdict_gate("human-judge") is True
+    assert room.enforce_human_verdict_gate("@Priya") is False
+    assert room.enforce_human_verdict_gate("priya") is False
+    assert room.enforce_human_verdict_gate("Priya Nair") is False
+    assert room.enforce_human_verdict_gate("judge") is False
+    assert room.enforce_human_verdict_gate("human-judge") is False
     assert room.enforce_human_verdict_gate("@clerk") is False
     assert room.enforce_human_verdict_gate("@rollback") is False
     assert room.enforce_human_verdict_gate("bot-service") is False
 
-def test_natural_verdict_in_room_workflow():
+def test_natural_verdict_in_room_workflow(human):
     room = SwitchRoom("test-court")
     mgr = CaseManager()
     clerk = CourtClerkAgent(room, mgr)
@@ -98,7 +113,7 @@ def test_natural_verdict_in_room_workflow():
     assert len(invitation) > 0
 
     # Human sends flexible natural verdict command with @handle
-    room.post_message("@Priya", "@clerk conditions: add pricing-mismatch alert; canary 5%; Priya owns rollback")
+    room.post_message("@Priya", "@clerk conditions: add pricing-mismatch alert; canary 5%; Priya owns rollback", principal=human)
 
     # Verify verdict acknowledged and recorded
     assert clerk.current_case.verdict is not None

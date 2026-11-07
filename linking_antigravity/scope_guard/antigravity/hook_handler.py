@@ -40,23 +40,24 @@ def process_hook_input(
 
     # Determine workspace root from hook payload if available
     workspace_paths = input_data.get("workspacePaths", [])
-    root = workspace_paths[0] if workspace_paths else (workspace_root or os.getcwd())
+    root = workspace_root or os.environ.get("SHIPCOURT_WORKSPACE_ROOT") or os.getcwd()
 
     # Initialize client and storage
     cache_dir = os.path.join(root, ".scope_guard")
     events_dir = os.path.join(cache_dir, "events")
 
     # 1. Load active assignment
-    coord_client = CoordinatorClient(base_url=coordinator_url) if coordinator_url else None
-    assign_client = AssignmentClient(agent_id="current", coordinator_client=coord_client, cache_dir=cache_dir)
+    coordinator_url = coordinator_url or os.environ.get("SHIPCOURT_COORDINATOR_URL")
+    coord_client = CoordinatorClient(base_url=coordinator_url, auth_token=os.environ.get("SHIPCOURT_HOOK_TOKEN")) if coordinator_url else None
+    assign_client = AssignmentClient(agent_id=os.environ.get("SHIPCOURT_AGENT_ID", "current"), coordinator_client=coord_client, cache_dir=cache_dir)
     
     try:
         assignment = assign_client.get_active_assignment()
     except FileNotFoundError:
         # If no assignment has been set up, allow with warning or fail safe
         return {
-            "decision": "allow",
-            "reason": "Scope Guard: No active assignment configured. Allowing tool execution.",
+            "decision": "deny",
+            "reason": "Scope Guard: No active assignment configured. Human provisioning required.",
         }
 
     # 2. Build Policy Engine
@@ -121,7 +122,7 @@ def main() -> None:
         raw_input = sys.stdin.read()
         if not raw_input.strip():
             # Empty input, allow
-            print(json.dumps({"decision": "allow"}))
+            print(json.dumps({"decision": "deny", "reason": "Missing tool event"}))
             return
 
         payload = json.loads(raw_input)
