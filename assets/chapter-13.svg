@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="62" viewBox="0 0 1200 62" font-family="Inter,'Segoe UI',-apple-system,'Helvetica Neue',Arial,sans-serif">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0e1f"/><stop offset="1" stop-color="#1a1040"/></linearGradient>
+<linearGradient id="brand" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1200" y2="0"><stop offset="0" stop-color="#a78bfa"/><stop offset=".5" stop-color="#22d3ee"/><stop offset="1" stop-color="#4ade80"/></linearGradient>
+<linearGradient id="hot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1200" y2="0"><stop offset="0" stop-color="#fb7185"/><stop offset="1" stop-color="#fbbf24"/></linearGradient>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>
+
+</defs>
+<rect width="1200" height="62" rx="22" fill="url(#bg)"/><rect x="1" y="1" width="1198" height="60" rx="21" fill="none" stroke="#fff" stroke-opacity=".09"/>
+<rect x="14" y="12" width="62" height="38" rx="11" fill="#fbbf24"/><text x="45" y="38" font-size="20" fill="#0a0e1f" font-weight="900" text-anchor="middle" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace" >13</text>
+<text x="94" y="38" font-size="19" fill="#e8eaff" font-weight="700" text-anchor="start" font-family="'SF Mono','Fira Code',Menlo,Consolas,'DejaVu Sans Mono',monospace" textLength="365" letter-spacing="1">CHAPTER 13  //  THE SCORECARD</text>
+<path id="p" d="M483 31H1176" stroke="#fbbf24" stroke-opacity=".55" stroke-width="2" stroke-dasharray="4 8"><animate attributeName="stroke-dashoffset" values="0;-24" dur="1.2s" repeatCount="indefinite"/></path>
+<circle r="5" fill="#fbbf24" filter="url(#glow)"><animateMotion dur="4s" repeatCount="indefinite" path="M483 31H1176"/></circle>
+</svg>
