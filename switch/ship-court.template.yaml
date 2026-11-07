@@ -4,99 +4,67 @@ params:
     type: string
     pattern: "[a-z][a-z0-9-]*"
     description: "Unique team prefix to prevent naming collisions"
-    default: "shipcourt"
   repository:
     type: string
-    description: "GitHub repository in owner/repo format"
-    default: "acme/shop"
+    default: "GaneshNair007/switch-AI"
+    description: "GitHub target repository in owner/repo format"
   provider:
     type: provider
-    description: "Which coding agent framework backs the agents"
     default: [claude, codex, opencode]
-    input: advanced
   bridge:
     type: bridge
-    description: "Where the room is mirrored (mattermost, slack, discord, teams)"
     default: [$first]
+    options: [discord, mattermost, slack, teams]
   host_server:
-    type: location
-    description: "Server host machine for always-on Clerk, Historian, and Prosecutor"
-    default: local
-    input: advanced
+    type: string
+    default: "local"
   local_machine:
-    type: location
-    description: "Developer laptop or CI machine for Defender and Rollback Engineer"
-    default: local
-    input: advanced
-  directory:
-    type: directory
-    description: "Each agent's working directory, a folder of its own"
-    default: "{$agents_dir}/{agent}"
-    input: advanced
+    type: string
+    default: "local"
 
 agents:
   - name: "{team}-court-clerk"
     addressing: anyone
     location: "{host_server}"
-    instructions: |
-      You are the Court Clerk and Presiding Magistrate of Ship Court. Your duty is to enforce judicial procedure with zero tolerance for rubber-stamping:
-      1. On "@court-clerk open case <PR>": Parse repository, PR, diff hunks, blast radius, CI metrics, and deployment target.
-      2. Issue an unyielding case docket in format SC-XXXX.
-      3. Command the Incident Historian to subpoena all relevant historical disaster precedent.
-      4. Command the Prosecutor to formulate at most three lethal, evidence-backed objections.
-      5. Compel the Defender to rebut each objection with concrete proof or enter an explicit concession.
-      6. Order the Rollback Engineer to audit operational reversibility and verify decapitation runbooks.
-      7. Classify all objections strictly as BLOCKING, WARNING, or NOTE.
-      8. Under no circumstances may an AI agent approve, reject, deploy, or roll back a release.
-      9. The gavel belongs exclusively to the Human Release Judge holding the approver role.
-
+    instructions: "Open deployment cases, enforce 4-round trial order, and log every verdict."
   - name: "{team}-incident-historian"
     addressing: owner-agents
     location: "{host_server}"
-    connections:
-      - service: local_incident_memory
-        access: read
-    instructions: |
-      You are the Forensic Incident Historian. You exhume past company catastrophes to prevent recurrence:
-      - Subpoena incident memory by affected services, call graph, and change classification.
-      - Return exact incident ID, date, downtime impact, root cause, and hard postmortem mandates.
-      - Never hallucinate precedent. If clean history exists, state it with forensic precision.
-      - Challenge any pull request attempting to re-introduce previously documented failure patterns.
-
+    instructions: "Cross-examine incoming PRs and Antigravity diffs against incidents.json."
   - name: "{team}-prosecutor"
     addressing: owner-agents
     location: "{host_server}"
-    instructions: |
-      You are the Combative Prosecutor in Ship Court. Your sole objective is to protect production by proving this release will fail:
-      - Raise at most three lethal, forensic, evidence-backed objections.
-      - Tag every objection with ironclad classification: BLOCKING, WARNING, or NOTE.
-      - Inadmissibility Rule: "CI tests passed" is strictly inadmissible as proof of safety for financial, auth, checkout, or database paths.
-      - Cite concrete failure scenarios: race conditions, cascading lock contention, unmonitored drift, and revenue leakage.
-      - If the Defender falters or fails to provide atomic proof, escalate immediately to BLOCKING.
-
+    instructions: "Hunt for blocking blast-radius risks and cross-teammate scope collisions."
   - name: "{team}-defender"
     addressing: owner-agents
     location: "{local_machine}"
-    instructions: |
-      You are the Lead Defense Counsel fighting fiercely for deployment authorization:
-      - Rebut every prosecution objection in strict sequence using verifiable technical proof, architecture isolation, and metrics.
-      - When trapped by incontrovertible evidence or absent monitoring, you must immediately state "CONCEDED".
-      - Propose concrete mitigations: atomic assertions, circuit breakers, traffic ceilings, and metric alarm gates.
-      - Never invent test results, synthetic approvals, or fake telemetry. Fight hard, but fight with absolute engineering truth.
-
+    instructions: "Present concrete test evidence, circuit-breaker safeguards, and mitigations."
   - name: "{team}-rollback-engineer"
+    addressing: owner-agents
+    location: "{host_server}"
+    auto_approve: false
+    instructions: "Formulate and verify deterministic rollback commands before verdict."
+  - name: "{team}-antigravity-guard"
+    addressing: anyone
+    location: "{local_machine}"
+    instructions: "Monitor PreToolUse hooks across teammates and issue Auto-Subpoenas on collisions."
+  - name: "{team}-third-voice"
+    addressing: anyone
+    location: "{host_server}"
+    instructions: "Operate under FloorRequestProtocol in #meeting-floor; raise hand before speaking."
+  - name: "{team}-parallel-earth"
+    addressing: owner-agents
+    location: "{host_server}"
+    instructions: "Run downstream service closure graphs, canary probes, and blast-radius simulations."
+  - name: "{team}-github-ops"
     addressing: owner-agents
     location: "{local_machine}"
     auto_approve: false
     connections:
       - service: github
-        access: read
+        access: write
         repos: ["{repository}"]
-    instructions: |
-      You are the Site Reliability Rollback Inquisitor holding the line on operational reversibility:
-      - Produce an executable, audited rollback plan: exact target SHA/version, decapitation command, health probes, and duration.
-      - Demand an unambiguous, named human Rollback Commander. An unassigned rollback plan is an instant BLOCKING hazard.
-      - Enforce safety interlock: Auto-execution is strictly forbidden; rollback requires explicit human approval.
+    instructions: "Post Courtroom & Parallel Earth reviews, apply labels, and arm rollback branches after human sign-off."
 
 room:
   name: "{team}-ship-court"
@@ -107,6 +75,10 @@ room:
     - "{team}-prosecutor"
     - "{team}-defender"
     - "{team}-rollback-engineer"
+    - "{team}-antigravity-guard"
+    - "{team}-third-voice"
+    - "{team}-parallel-earth"
+    - "{team}-github-ops"
   users: ["{$creator}"]
   aliases:
     "{team}-court-clerk": clerk
@@ -114,14 +86,13 @@ room:
     "{team}-prosecutor": prosecutor
     "{team}-defender": defender
     "{team}-rollback-engineer": rollback
-  instructions: |
-    One release case at a time. This is an adversarial release courtroom, not a consensus forum.
-    Every objection must cite concrete evidence or precedent. Every objection must receive factual rebuttal or explicit concession.
-    No release proceeds without an audited rollback plan and designated human owner.
-    Only the human holder of the exclusive approver role may issue a verdict.
+    "{team}-antigravity-guard": antigravity-guard
+    "{team}-third-voice": third-voice
+    "{team}-parallel-earth": parallel-earth
+    "{team}-github-ops": github-ops
   roles:
     - name: approver
       exclusive: true
-      instructions: "Review adversarial testimony and issue binding judgment: APPROVE, BLOCK, or CONDITIONS."
+      instructions: "Grant meeting floor requests and issue binding courtroom verdicts: APPROVE, BLOCK, or CONDITIONS."
   kickoff: |
-    @clerk, @historian, @prosecutor, @defender, @rollback: State your role and the one thing you will never do without human approval.
+    @clerk, @antigravity-guard, @third-voice, @prosecutor, @defender, @parallel-earth, @github-ops: State your operational boundary in one line.
