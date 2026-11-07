@@ -176,24 +176,6 @@ HTML_DASHBOARD = """<!DOCTYPE html>
     .meter-defense { background: var(--defense); transition: width 0.5s; }
     .meter-labels { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; }
     
-    .verdict-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 14px;
-    }
-    .btn-verdict {
-      flex: 1;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
-    }
-    .btn-approve { background: #059669; color: #fff; }
-    .btn-block { background: #dc2626; color: #fff; }
-    .btn-conditions { background: #d97706; color: #fff; }
-    
     #loading { display: none; text-align: center; padding: 20px; color: var(--accent); font-weight: 600; }
     .spinner {
       display: inline-block;
@@ -227,7 +209,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
           <span class="badge badge-live">LIVE LLM BOT</span>
         </div>
         <div class="key-code">Groq Key 1: gsk_PTu...ctzK</div>
-        <div class="key-role">Model: <strong>qwen / gpt-oss / allam</strong><br>Function: Deep forensic attack, exposes schema locks, race conditions, blast radiuses.</div>
+        <div class="key-role">Model: <strong>qwen/qwen3.8-27b</strong><br>Function: Deep forensic attack, exposes schema locks, race conditions, blast radiuses.</div>
       </div>
       <div class="key-card">
         <div class="key-header">
@@ -235,7 +217,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
           <span class="badge badge-live">LIVE LLM BOT</span>
         </div>
         <div class="key-code">Groq Key 2: gsk_QY7...el3W</div>
-        <div class="key-role">Model: <strong>qwen / gpt-oss / allam</strong><br>Function: Combative technical rebuttal, cites mitigations, rollback kill-switches.</div>
+        <div class="key-role">Model: <strong>qwen/qwen3.8-27b</strong><br>Function: Combative technical rebuttal, cites mitigations, rollback kill-switches.</div>
       </div>
       <div class="key-card">
         <div class="key-header">
@@ -243,7 +225,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
           <span class="badge badge-live">LIVE LLM BOT</span>
         </div>
         <div class="key-code">Groq Key 3: gsk_gep...VC3Q</div>
-        <div class="key-role">Model: <strong>qwen / gpt-oss / allam</strong><br>Function: Objectively scores Prosecution vs Defense power, renders binding verdict.</div>
+        <div class="key-role">Model: <strong>qwen/qwen3.8-27b</strong><br>Function: Objectively scores Prosecution vs Defense power, renders binding verdict with explicit conditions.</div>
       </div>
     </div>
 
@@ -287,7 +269,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         </div>
 
         <div style="margin-top: 20px; padding: 12px; background: #1f2937; border-radius: 8px; font-size: 12px; color: var(--muted);">
-          <strong>Governance Invariant:</strong> AI courtroom agents cross-examine evidence and compute leverage power scores, but CANNOT self-approve deployments. Only @Priya holds binding signature authority.
+          <strong>Governance Invariant:</strong> AI courtroom agents cross-examine evidence and compute leverage power scores, but CANNOT self-approve deployments. Only human gatekeeper (@Priya) holds binding signature authority.
         </div>
       </div>
 
@@ -309,6 +291,9 @@ HTML_DASHBOARD = """<!DOCTYPE html>
           <p id="rationale-text" style="font-size: 12px; color: #d1d5db; margin-top: 6px;"></p>
         </div>
 
+        <!-- Dedicated Conditions / Verdict Card -->
+        <div id="verdict-box" style="display:none; margin-bottom: 16px;"></div>
+
         <!-- Transcript -->
         <div class="transcript" id="transcript">
           <div class="msg msg-clerk">
@@ -316,7 +301,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
               <span style="color:#60a5fa;">@court-clerk (Bailiff)</span>
               <span>STANDBY</span>
             </div>
-            <div class="msg-content">Welcome to Ship Court. Select a preset or type a deployment petition and click 'Convene Courtroom & Run Trial' to put any code change on trial before the 5 AI courtroom agents.</div>
+            <div class="msg-content">Welcome to Ship Court. Select a preset or type a deployment petition and click 'Convene Courtroom & Run Trial' to put any code change on trial before the AI courtroom agents.</div>
           </div>
         </div>
       </div>
@@ -338,10 +323,12 @@ HTML_DASHBOARD = """<!DOCTYPE html>
     async function runTrial() {
       const task = document.getElementById('task_desc').value;
       const judge = document.getElementById('judge_name').value;
+      const repo = document.getElementById('repo_target').value;
       const btn = document.getElementById('btn-run');
       const loader = document.getElementById('loading');
       const transcript = document.getElementById('transcript');
       const powerBox = document.getElementById('power-box');
+      const verdictBox = document.getElementById('verdict-box');
 
       btn.disabled = true;
       btn.style.opacity = '0.5';
@@ -351,7 +338,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         const resp = await fetch('/api/debate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ task, judge, repo: 'acme/shop' })
+          body: JSON.stringify({ task, judge, repo })
         });
         const data = await resp.json();
 
@@ -369,6 +356,74 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         document.getElementById('def-label').innerText = 'Defense: ' + dScore + ' pts (' + dPct + '%)';
         document.getElementById('winner-label').innerText = 'RULING: ' + data.priority;
         document.getElementById('rationale-text').innerText = 'Dominant Side: ' + data.winner + '. Verdict: ' + data.verdict;
+
+        // Populate Conditions Box
+        verdictBox.style.display = 'block';
+        let conditionsHtml = '';
+        if (data.conditions && data.conditions.length > 0) {
+          conditionsHtml = data.conditions.map((c, idx) => `
+            <li style="margin-bottom: 8px; display: flex; align-items: flex-start; gap: 8px;">
+              <span style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #d97706; border-radius: 4px; padding: 2px 6px; font-size: 11px; font-weight: 700; white-space: nowrap;">REQ ${idx + 1}</span>
+              <span style="color: #f3f4f6; font-size: 13px;">${escapeHtml(c)}</span>
+            </li>
+          `).join('');
+        }
+
+        if (data.verdict === 'CONDITIONS') {
+          verdictBox.innerHTML = `
+            <div style="background: #1e1b10; border: 2px solid #d97706; border-radius: 10px; padding: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="color: #fbbf24; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 6px;">
+                  ⚡ MANDATORY OPERATIONAL CONDITIONS FOR ROLLOUT
+                </span>
+                <span class="badge badge-gold">CONDITIONS BINDING</span>
+              </div>
+              <p style="font-size: 12px; color: #d1d5db; margin-bottom: 12px;">
+                The Court ruled that deployment may proceed <strong>ONLY</strong> if the following mandatory operational guardrails are satisfied and signed by human gatekeeper <strong>@${escapeHtml(judge)}</strong>:
+              </p>
+              <ul style="list-style: none; padding-left: 0; margin-bottom: 14px;">
+                ${conditionsHtml}
+              </ul>
+              <div style="background: rgba(217, 119, 6, 0.15); border: 1px dashed #d97706; border-radius: 6px; padding: 10px; font-size: 11px; color: #fbbf24;">
+                ⚖️ <strong>Exclusive Authority Lock:</strong> AI agents cannot self-ship. Only @${escapeHtml(judge)} can authorize canary traffic ramp.
+              </div>
+            </div>
+          `;
+        } else if (data.verdict === 'BLOCK') {
+          verdictBox.innerHTML = `
+            <div style="background: #200d0d; border: 2px solid #ef4444; border-radius: 10px; padding: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="color: #ef4444; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 6px;">
+                  🚫 DEPLOYMENT STRICTLY BLOCKED BY SHIP COURT
+                </span>
+                <span class="badge" style="background:#7f1d1d; color:#fca5a5; border:1px solid #b91c1c;">BLOCK RULING</span>
+              </div>
+              <p style="font-size: 12px; color: #fca5a5; margin-bottom: 12px;">
+                Catastrophic or unmitigated risks identified during cross-examination. Deployment is blocked under penalty of governance violation.
+              </p>
+              <ul style="list-style: none; padding-left: 0;">
+                ${conditionsHtml}
+              </ul>
+            </div>
+          `;
+        } else {
+          verdictBox.innerHTML = `
+            <div style="background: #062b1e; border: 2px solid #10b981; border-radius: 10px; padding: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="color: #34d399; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 6px;">
+                  ✅ DEPLOYMENT APPROVED BY SHIP COURT
+                </span>
+                <span class="badge badge-live">APPROVED</span>
+              </div>
+              <p style="font-size: 12px; color: #a7f3d0; margin-bottom: 10px;">
+                The Defense decisively mitigated all prosecutor objections. Standard rollout approved.
+              </p>
+              <ul style="list-style: none; padding-left: 0;">
+                ${conditionsHtml}
+              </ul>
+            </div>
+          `;
+        }
 
         // Populate Transcript
         transcript.innerHTML = '';
@@ -404,7 +459,8 @@ HTML_DASHBOARD = """<!DOCTYPE html>
     }
 
     function escapeHtml(str) {
-      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
   </script>
 </body>
