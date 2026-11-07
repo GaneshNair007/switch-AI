@@ -417,9 +417,22 @@ HTML_DASHBOARD = """<!DOCTYPE html>
           conditionsHtml = '<li style="color: #9ca3af; font-size: 12px;">No explicit operational conditions required by the Judge.</li>';
         }
 
-        const effectiveJudge = data.judge || judge || 'Release-Judge';
+        let tasksHtml = '';
+        if (data.tasks && data.tasks.length > 0) {
+          tasksHtml = `
+            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
+              <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #9ca3af; letter-spacing: 0.5px;">📋 Assigned Court Action Items:</span>
+              <ul style="list-style: disc; padding-left: 20px; margin-top: 6px;">
+                ${data.tasks.map(t => `<li style="font-size: 12px; color: #e5e7eb; margin-bottom: 4px;">${escapeHtml(t)}</li>`).join('')}
+              </ul>
+            </div>
+          `;
+        }
 
-        if (data.verdict === 'CONDITIONS') {
+        const effectiveJudge = data.judge || judge || 'Release-Judge';
+        const vNorm = (data.verdict || '').toUpperCase();
+
+        if (vNorm.includes('COND')) {
           verdictBox.innerHTML = `
             <div style="background: #1e1b10; border: 2px solid #d97706; border-radius: 10px; padding: 16px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -434,12 +447,13 @@ HTML_DASHBOARD = """<!DOCTYPE html>
               <ul style="list-style: none; padding-left: 0; margin-bottom: 14px;">
                 ${conditionsHtml}
               </ul>
-              <div style="background: rgba(217, 119, 6, 0.15); border: 1px dashed #d97706; border-radius: 6px; padding: 10px; font-size: 11px; color: #fbbf24;">
+              ${tasksHtml}
+              <div style="margin-top: 12px; background: rgba(217, 119, 6, 0.15); border: 1px dashed #d97706; border-radius: 6px; padding: 10px; font-size: 11px; color: #fbbf24;">
                 ⚖️ <strong>Exclusive Authority Lock:</strong> AI agents cannot self-ship. Only @${escapeHtml(effectiveJudge)} can authorize canary traffic ramp.
               </div>
             </div>
           `;
-        } else if (data.verdict === 'BLOCK') {
+        } else if (vNorm.includes('BLOCK') || vNorm.includes('REJECT') || vNorm.includes('DENI') || vNorm.includes('DENY')) {
           verdictBox.innerHTML = `
             <div style="background: #200d0d; border: 2px solid #ef4444; border-radius: 10px; padding: 16px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -454,9 +468,10 @@ HTML_DASHBOARD = """<!DOCTYPE html>
               <ul style="list-style: none; padding-left: 0;">
                 ${conditionsHtml}
               </ul>
+              ${tasksHtml}
             </div>
           `;
-        } else {
+        } else if (vNorm.includes('APPROV') || vNorm.includes('PASS') || vNorm.includes('SHIP')) {
           verdictBox.innerHTML = `
             <div style="background: #062b1e; border: 2px solid #10b981; border-radius: 10px; padding: 16px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -471,6 +486,25 @@ HTML_DASHBOARD = """<!DOCTYPE html>
               <ul style="list-style: none; padding-left: 0;">
                 ${conditionsHtml}
               </ul>
+              ${tasksHtml}
+            </div>
+          `;
+        } else {
+          verdictBox.innerHTML = `
+            <div style="background: #251b08; border: 2px solid #eab308; border-radius: 10px; padding: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="color: #facc15; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 6px;">
+                  ⚠️ ARBITRATION REQUIRED / INCONCLUSIVE
+                </span>
+                <span class="badge badge-gold">${escapeHtml(data.verdict || 'UNKNOWN')}</span>
+              </div>
+              <p style="font-size: 12px; color: #fef08a; margin-bottom: 10px;">
+                The courtroom debate requires direct human magistrate arbitration.
+              </p>
+              <ul style="list-style: none; padding-left: 0;">
+                ${conditionsHtml}
+              </ul>
+              ${tasksHtml}
             </div>
           `;
         }

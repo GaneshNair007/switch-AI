@@ -176,11 +176,27 @@ class LiveCourtroomDebateEngine:
 
         m_winner = re.search(r"WINNER:\s*([A-Za-z]+)", judge_output, re.IGNORECASE)
         if m_winner:
-            winner = m_winner.group(1).upper()
+            raw_w = m_winner.group(1).upper()
+            if "PROS" in raw_w:
+                winner = "PROSECUTION"
+            elif "DEF" in raw_w:
+                winner = "DEFENSE"
+            elif "TIE" in raw_w or "DRAW" in raw_w:
+                winner = "TIE"
+            else:
+                winner = raw_w
 
         m_verdict = re.search(r"VERDICT:\s*([A-Za-z]+)", judge_output, re.IGNORECASE)
         if m_verdict:
-            verdict = m_verdict.group(1).upper()
+            raw_v = m_verdict.group(1).upper()
+            if "BLOCK" in raw_v or "REJECT" in raw_v or "DENI" in raw_v or "DENY" in raw_v:
+                verdict = "BLOCK"
+            elif "COND" in raw_v:
+                verdict = "CONDITIONS"
+            elif "APPROV" in raw_v or "PASS" in raw_v or "SHIP" in raw_v:
+                verdict = "APPROVE"
+            else:
+                verdict = raw_v
 
         # Extract conditions strictly from Judge output (zero synthetic/hardcoded conditions)
         conditions: List[str] = []
