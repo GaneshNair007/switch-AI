@@ -1,0 +1,1824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ship Court — Autonomous Adversarial Release Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    :root {
+      --bg-base: #08090d;
+      --bg-surface: #0e1118;
+      --bg-card: #131722;
+      --bg-hover: #1a2030;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.16);
+      --border-accent: #6366f1;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --color-pros: #f43f5e;
+      --color-def: #10b981;
+      --color-warn: #f59e0b;
+      --color-brand: #6366f1;
+      --color-cyan: #0ea5e9;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg-base); }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Enterprise Navigation Header */
+    header.console-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-badge {
+      width: 28px;
+      height: 28px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+
+    .brand-title {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title .main-name {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text-primary);
+      letter-spacing: -0.2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-title .sub-name {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .header-telemetry {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .telemetry-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .telemetry-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    .telemetry-dot.green { background: var(--color-def); }
+    .telemetry-dot.amber { background: var(--color-warn); }
+    .telemetry-dot.blue { background: var(--color-brand); }
+
+    /* Navigation Tabs */
+    nav.console-tabs {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 0 24px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .tab-btn {
+      padding: 10px 16px;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .tab-btn.active {
+      color: var(--text-primary);
+      border-bottom-color: var(--color-brand);
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    .tab-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+    }
+
+    /* Main Container */
+    main.console-main {
+      flex: 1;
+      padding: 20px 24px;
+      max-width: 1720px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Cockpit Split Grid */
+    .cockpit-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    @media (min-width: 1200px) {
+      .cockpit-grid {
+        grid-template-columns: 1.15fr 0.85fr;
+      }
+    }
+
+    /* Panels & Containers */
+    .panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+    }
+
+    .panel-header-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .panel-header h2 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.1px;
+    }
+
+    .panel-header .tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      padding: 2px 6px;
+      border-radius: 3px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .panel-content {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 3D Viewport Container */
+    .viewport-box {
+      position: relative;
+      height: 480px;
+      background: #06070a;
+      overflow: hidden;
+    }
+
+    #three-viewport {
+      width: 100%;
+      height: 100%;
+    }
+
+    .viewport-toolbar {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
+
+    .viewport-btn {
+      padding: 5px 10px;
+      background: rgba(14, 17, 24, 0.85);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      transition: all 0.15s;
+    }
+    .viewport-btn:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+    }
+    .viewport-btn.active {
+      color: var(--color-brand);
+      border-color: var(--border-accent);
+      background: rgba(99, 102, 241, 0.15);
+    }
+
+    .viewport-metrics-strip {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 6px 12px;
+      background: rgba(14, 17, 24, 0.85);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+      backdrop-filter: blur(4px);
+      z-index: 10;
+      display: flex;
+      gap: 16px;
+    }
+
+    .viewport-metrics-strip span.metric-val {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* Projected Node Label Pins in 3D */
+    .node-label-pin {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: rgba(14, 17, 24, 0.9);
+      border: 1px solid var(--border-strong);
+      color: var(--text-primary);
+      pointer-events: none;
+      white-space: nowrap;
+      user-select: none;
+      transition: opacity 0.2s;
+      z-index: 5;
+    }
+    .node-label-pin .pin-dot {
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+
+    /* Node Inspection HUD Drawer */
+    .node-hud-card {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+      background: rgba(14, 17, 24, 0.95);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 12px 16px;
+      backdrop-filter: blur(8px);
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .hud-primary {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hud-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 6px;
+      border-radius: 3px;
+      background: rgba(99, 102, 241, 0.2);
+      border: 1px solid var(--border-accent);
+      color: #818cf8;
+    }
+
+    .hud-title {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+    }
+    .hud-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .hud-specs {
+      display: flex;
+      gap: 24px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .hud-spec-item {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .hud-spec-item .lbl {
+      color: var(--text-muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .hud-spec-item .val {
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    /* Adversarial Docket Form Controls */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-field {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 8px 12px;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .input-field:focus {
+      border-color: var(--border-accent);
+    }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .preset-chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 8px 10px;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .preset-chip:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+    }
+    .preset-chip.active {
+      border-color: var(--border-accent);
+      color: var(--text-primary);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .btn-primary {
+      background: var(--color-brand);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 16px;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: #4f46e5;
+    }
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Leverage Gauge */
+    .leverage-gauge-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin: 14px 0;
+    }
+
+    .leverage-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+    .leverage-labels .pros-tag { color: var(--color-pros); font-weight: 600; }
+    .leverage-labels .def-tag { color: var(--color-def); font-weight: 600; }
+
+    .leverage-bar-shell {
+      height: 6px;
+      background: #06070a;
+      border-radius: 3px;
+      overflow: hidden;
+      display: flex;
+    }
+    .bar-pros {
+      background: var(--color-pros);
+      width: 50%;
+      transition: width 0.4s ease;
+    }
+    .bar-def {
+      background: var(--color-def);
+      width: 50%;
+      transition: width 0.4s ease;
+    }
+
+    /* Verdict Gate Card */
+    .verdict-gate-card {
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      border: 1px solid var(--border-subtle);
+      font-size: 12px;
+    }
+    .verdict-gate-card.conditions {
+      background: rgba(245, 158, 11, 0.08);
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+    .verdict-gate-card.block {
+      background: rgba(244, 63, 94, 0.08);
+      border-color: rgba(244, 63, 94, 0.3);
+    }
+    .verdict-gate-card.approve {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .verdict-gate-header {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .verdict-gate-card.conditions .verdict-gate-header { color: var(--color-warn); }
+    .verdict-gate-card.block .verdict-gate-header { color: var(--color-pros); }
+    .verdict-gate-card.approve .verdict-gate-header { color: var(--color-def); }
+
+    .verdict-body {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .verdict-body ul {
+      margin-top: 6px;
+      padding-left: 18px;
+    }
+
+    /* Courtroom Monospace Transcript Feed */
+    .court-transcript-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .court-speech-entry {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 12px;
+    }
+    .court-speech-entry.pros { border-left: 3px solid var(--color-pros); }
+    .court-speech-entry.def { border-left: 3px solid var(--color-def); }
+    .court-speech-entry.jdg { border-left: 3px solid var(--color-warn); }
+    .court-speech-entry.clk { border-left: 3px solid var(--text-muted); }
+
+    .speech-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+    .speech-speaker { font-weight: 600; }
+    .speech-speaker.pros { color: var(--color-pros); }
+    .speech-speaker.def { color: var(--color-def); }
+    .speech-speaker.jdg { color: var(--color-warn); }
+    .speech-speaker.clk { color: var(--text-secondary); }
+    .speech-time { color: var(--text-muted); font-size: 10px; }
+
+    .speech-content {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text-primary);
+      white-space: pre-wrap;
+    }
+
+    /* Table Styles */
+    .table-wrapper {
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-align: left;
+    }
+    table.data-table th {
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    table.data-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+    }
+    table.data-table tr:last-child td { border-bottom: none; }
+
+    .action-btn-sm {
+      padding: 4px 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 3px;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .action-btn-sm:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-strong);
+    }
+
+    /* Pipeline Step Sequence */
+    .pipeline-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      margin: 14px 0;
+    }
+
+    .pipeline-step-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      padding: 10px 12px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .pipeline-step-btn:hover:not(:disabled) {
+      background: var(--bg-hover);
+      border-color: var(--border-strong);
+    }
+    .pipeline-step-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .pipeline-step-btn.execute {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: var(--color-def);
+      color: #34d399;
+    }
+    .pipeline-step-btn.execute:hover:not(:disabled) {
+      background: rgba(16, 185, 129, 0.22);
+    }
+
+    .terminal-box {
+      background: #050608;
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 14px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+      max-height: 280px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+
+    /* Tabbed views hiding */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div class="app-shell">
+    
+    <!-- Top Enterprise Header -->
+    <header class="console-header">
+      <div class="brand-section">
+        <div class="brand-badge">SC</div>
+        <div class="brand-title">
+          <div class="main-name">
+            SHIP COURT
+            <span style="font-size:11px; font-weight:500; color:var(--text-muted); font-family:var(--font-mono);">CONSOLE v0.31</span>
+          </div>
+          <div class="sub-name">Autonomous Adversarial Release Governance &middot; Switch Native #ship-court</div>
+        </div>
+      </div>
+
+      <div class="header-telemetry">
+        <div class="telemetry-pill">
+          <div class="telemetry-dot green"></div>
+          <span>SWITCH CORE v0.31</span>
+        </div>
+        <div class="telemetry-pill">
+          <div class="telemetry-dot green"></div>
+          <span>GROQ QWEN-3.8-27B</span>
+        </div>
+        <div class="telemetry-pill">
+          <div class="telemetry-dot amber"></div>
+          <span>GATEKEEPER: @Priya</span>
+        </div>
+        <div class="telemetry-pill">
+          <div class="telemetry-dot blue"></div>
+          <span>OPERATOR AUTHENTICATED</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Workspace Navigation Bar -->
+    <nav class="console-tabs">
+      <button class="tab-btn active" onclick="switchTab('cockpit')">
+        1. Unified Cockpit
+        <span class="tab-badge">Parallel Earth &middot; Debate</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('boardroom')">
+        2. Boardroom OS
+        <span class="tab-badge">Discord Voice Floor</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('release')">
+        3. Gated GitHub Pipeline
+        <span class="tab-badge">Cryptographic Ledger</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('scope')">
+        4. Antigravity Scope Guard
+        <span class="tab-badge">Ring 1 Monitors</span>
+      </button>
+    </nav>
+
+    <!-- Main Workspace -->
+    <main class="console-main">
+      
+      <!-- ====================================================================
+           TAB 1: UNIFIED COCKPIT (PARALLEL EARTH + LIVE ADVERSARIAL COURTROOM)
+           ==================================================================== -->
+      <div id="tab-cockpit" class="tab-content active">
+        <div class="cockpit-grid">
+          
+          <!-- Left Column: Parallel Earth 3D Microservice Topology -->
+          <section class="panel">
+            <div class="panel-header">
+              <div class="panel-header-title">
+                <h2>Parallel Earth Digital Twin &amp; Microservice Topology</h2>
+                <span class="tag">11 SERVICES ACTIVE</span>
+              </div>
+              <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">
+                CLUSTER: prod-us-east-1
+              </div>
+            </div>
+
+            <div class="viewport-box" id="viewport-box">
+              <div class="viewport-toolbar">
+                <button class="viewport-btn active" id="btn-view-iso" onclick="setViewMode('iso')">Isometric 30&deg;</button>
+                <button class="viewport-btn" id="btn-view-top" onclick="setViewMode('top')">Top-Down (Plan)</button>
+                <button class="viewport-btn" onclick="resetCamera()">Reset View</button>
+                <button class="viewport-btn" style="border-color:var(--color-warn); color:var(--color-warn);" onclick="toggleBlastSimulation()">Simulate Blast Radius</button>
+              </div>
+
+              <div class="viewport-metrics-strip">
+                <div>DOWNSTREAM: <span class="metric-val" id="metric-downstream-count">11 Nodes</span></div>
+                <div>EXPOSURE: <span class="metric-val" id="metric-rev-exposure">$15,200/min</span></div>
+                <div>ROLLBACK SLA: <span class="metric-val">1.8s</span></div>
+              </div>
+
+              <div id="three-viewport"></div>
+              <div id="label-layer" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></div>
+
+              <!-- Interactive Node Inspection HUD Drawer -->
+              <div class="node-hud-card" id="node-hud">
+                <div class="hud-primary">
+                  <span class="hud-tag" id="hud-tier">TIER 1</span>
+                  <div>
+                    <div class="hud-title" id="hud-name">checkout-service</div>
+                    <div class="hud-subtitle" id="hud-owner">Owner: Checkout-Platform &middot; P99: 62ms &middot; Circuit: NORMAL</div>
+                  </div>
+                </div>
+                <div class="hud-specs">
+                  <div class="hud-spec-item">
+                    <span class="lbl">Downstream Fan-out</span>
+                    <span class="val" id="hud-fanout">4 Services</span>
+                  </div>
+                  <div class="hud-spec-item">
+                    <span class="lbl">Revenue Exposure</span>
+                    <span class="val" id="hud-rev">$4,200 / min</span>
+                  </div>
+                  <div class="hud-spec-item">
+                    <span class="lbl">Availability SLA</span>
+                    <span class="val" id="hud-sla">99.99%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="padding:10px 18px; background:var(--bg-card); border-top:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">
+              <div>Drag to orbit &middot; Scroll to zoom &middot; Click service puck to inspect telemetry</div>
+              <div id="sim-status-banner" style="color:var(--color-def); font-weight:600;">STATUS: NOMINAL TOPOLOGY</div>
+            </div>
+          </section>
+
+          <!-- Right Column: Live Adversarial Case Adjudication -->
+          <section class="panel">
+            <div class="panel-header">
+              <div class="panel-header-title">
+                <h2>Adversarial Case Adjudication</h2>
+                <span class="tag" id="court-status-tag">STANDBY</span>
+              </div>
+              <div style="font-family:var(--font-mono); font-size:11px; color:var(--color-warn);">
+                PRESIDING: @Priya (Human)
+              </div>
+            </div>
+
+            <div class="panel-content">
+              <!-- Presets -->
+              <div class="form-group">
+                <label>Production Reference Scenarios</label>
+                <div class="preset-grid">
+                  <button class="preset-chip active" onclick="loadScenario(1, this)">01 &middot; Dynamic Pricing Rollout (High Risk)</button>
+                  <button class="preset-chip" onclick="loadScenario(2, this)">02 &middot; Drop user_sessions Table (Block)</button>
+                  <button class="preset-chip" onclick="loadScenario(3, this)">03 &middot; Redis Read-Through Cache (Approve)</button>
+                  <button class="preset-chip" onclick="loadScenario(4, this)">04 &middot; Digital Twin Blast Engine (Canary)</button>
+                </div>
+              </div>
+
+              <!-- Input Form -->
+              <div class="form-group">
+                <label>Deployment Petition / Pull Request Diff</label>
+                <textarea id="task_input" class="input-field" rows="2" style="resize:vertical;">Dynamic checkout pricing rollout with ML price optimization model</textarea>
+              </div>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label>Repository Target</label>
+                  <input id="repo_input" class="input-field" value="acme/shop (PR #482)">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label>Presiding Magistrate</label>
+                  <input id="judge_input" class="input-field" value="Priya" readonly style="color:var(--color-warn);">
+                </div>
+              </div>
+
+              <button class="btn-primary" id="btn-run-court" onclick="conveneLiveTrial()" style="width:100%; margin-bottom:12px;">
+                Run Adversarial Evaluation
+              </button>
+
+              <!-- Leverage Gauge -->
+              <div class="leverage-gauge-card">
+                <div class="leverage-labels">
+                  <span class="pros-tag" id="gauge-pros-text">Prosecution: 50 pts (50%)</span>
+                  <span class="def-tag" id="gauge-def-text">Defense: 50 pts (50%)</span>
+                </div>
+                <div class="leverage-bar-shell">
+                  <div class="bar-pros" id="gauge-bar-pros"></div>
+                  <div class="bar-def" id="gauge-bar-def"></div>
+                </div>
+              </div>
+
+              <!-- Verdict Gate Slot -->
+              <div id="verdict-gate-slot" style="display:none;"></div>
+
+              <!-- Monospace Dialectic Feed -->
+              <div class="court-transcript-feed" id="court-feed">
+                <div class="court-speech-entry clk">
+                  <div class="speech-meta">
+                    <span class="speech-speaker clk">@court-clerk (Bailiff)</span>
+                    <span class="speech-time">INITIALIZED</span>
+                  </div>
+                  <div class="speech-content">Case SC-0482 docketed. Click 'Run Adversarial Evaluation' to convene unscripted multi-agent cross-examination across Groq Qwen-3.8-27b.</div>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <!-- ====================================================================
+           TAB 2: BOARDROOM OS (DISCORD VOICE THIRD VOICE & RIGHT-TO-SPEAK)
+           ==================================================================== -->
+      <div id="tab-boardroom" class="tab-content">
+        <div style="display:grid; grid-template-columns: 1fr; gap:20px;">
+          
+          <section class="panel">
+            <div class="panel-header">
+              <div class="panel-header-title">
+                <h2>Boardroom OS &middot; Right-to-Speak Floor Controller</h2>
+                <span class="tag">DISCORD VOICE #meeting-floor</span>
+              </div>
+              <div style="font-family:var(--font-mono); font-size:11px; color:var(--color-def);">
+                VAD MONITOR: ACTIVE
+              </div>
+            </div>
+
+            <div class="panel-content">
+              <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:6px; padding:14px 18px; margin-bottom:16px;">
+                <div>
+                  <div style="font-weight:600; font-size:13px; color:var(--text-primary);">Discord Voice Huddle &middot; Architecture Release Review</div>
+                  <div style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">Channel: #meeting-floor &middot; Participants: 4 Engineers Active (David, Sarah, Alex, Priya)</div>
+                </div>
+                <!-- Real-time Voice Activity Detection Audio Spectrum Canvas -->
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">VOICE SPECTRUM:</span>
+                  <canvas id="vad-canvas" width="160" height="24" style="background:#06070a; border:1px solid var(--border-subtle); border-radius:3px;"></canvas>
+                  <span style="font-family:var(--font-mono); font-size:11px; color:var(--color-def);">ACTIVE: David</span>
+                </div>
+              </div>
+
+              <p style="color:var(--text-secondary); font-size:12px; margin-bottom:14px;">
+                The ChatGPT On-Call Bot acts as a non-intrusive meeting participant. It strictly follows the <code>FloorRequestProtocol</code> state machine (<code>listening &rarr; waiting &rarr; granted &rarr; speaking &rarr; yielding</code>). It does not speak over human engineers; it queues a hand-raise with structured RFC reason codes and speaks only when authorized by the human chair.
+              </p>
+
+              <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
+                <button class="action-btn-sm" onclick="queueFloorItem('clarification', 'Clarify checkout retry budget under peak traffic')">+ Hand Raise (Clarification)</button>
+                <button class="action-btn-sm" onclick="queueFloorItem('incident', 'Subpoena past incident INC-017 Pricing Divergence')">+ Precedent (Incident Record)</button>
+                <button class="action-btn-sm" onclick="queueFloorItem('mitigation', 'Propose 5% Canary Traffic Stepping with 1.8s Rollback SLA')">+ Mitigation (Canary Gate)</button>
+                <button class="action-btn-sm" onclick="queueFloorItem('hazard', 'Expose Table Schema Lock Contention during peak hours')">+ Outage Hazard (Blocker)</button>
+              </div>
+
+              <div class="table-wrapper">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width:110px;">Reason Code</th>
+                      <th>Spoken Pitch / Script Preview</th>
+                      <th style="width:130px;">Queue State</th>
+                      <th style="width:120px;">TTL Expiry</th>
+                      <th style="width:140px;">Chair Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="floor-queue-tbody">
+                    <tr>
+                      <td><span style="color:var(--color-warn); font-weight:600;">CLARIFICATION</span></td>
+                      <td>"Clarify checkout retry budget under peak load to prevent thread exhaustion"</td>
+                      <td><span style="color:var(--text-secondary);">WAITING</span></td>
+                      <td><span style="font-family:var(--font-mono); color:var(--text-muted);">68s remaining</span></td>
+                      <td><button class="action-btn-sm" onclick="grantFloorAction(this)">Grant Floor (30s)</button></td>
+                    </tr>
+                    <tr>
+                      <td><span style="color:var(--color-pros); font-weight:600;">PRECEDENT</span></td>
+                      <td>"Subpoena past incident INC-017: Uncached pricing recalculation caused 14m checkout outage"</td>
+                      <td><span style="color:var(--text-secondary);">WAITING</span></td>
+                      <td><span style="font-family:var(--font-mono); color:var(--text-muted);">84s remaining</span></td>
+                      <td><button class="action-btn-sm" onclick="grantFloorAction(this)">Grant Floor (30s)</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <!-- ====================================================================
+           TAB 3: GATED GITHUB PIPELINE & CRYPTOGRAPHIC AUDIT LEDGER
+           ==================================================================== -->
+      <div id="tab-release" class="tab-content">
+        <div style="display:grid; grid-template-columns: 1fr; gap:20px;">
+          
+          <section class="panel">
+            <div class="panel-header">
+              <div class="panel-header-title">
+                <h2>Autonomous GitHub Operations Agent &middot; Cryptographic Release Gate</h2>
+                <span class="tag" style="color:var(--color-def); border-color:var(--color-def);">HUMAN-GATED (auto_approve: false)</span>
+              </div>
+              <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">
+                RING 5 &middot; SHA-256 PLAN HASH
+              </div>
+            </div>
+
+            <div class="panel-content">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label>Operator Credential (SHIPCOURT_TOKEN)</label>
+                  <input id="pipe-token" type="password" class="input-field" value="__TOKEN_PLACEHOLDER__" placeholder="Bearer Token">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label>Target Pull Request</label>
+                  <input id="pipe-pr" class="input-field" value="https://github.com/GaneshNair007/switch-AI/pull/17">
+                </div>
+              </div>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label>Case Identifier</label>
+                  <input id="pipe-case" class="input-field" placeholder="Auto-populated upon opening docket">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label>Enforceable Release Conditions</label>
+                  <input id="pipe-conditions" class="input-field" value="canary 5% for 30m; Priya owns rollback SLA 1.8s">
+                </div>
+              </div>
+
+              <div class="pipeline-grid">
+                <button class="pipeline-step-btn" id="step-open" onclick="runStepOpen()">1. Open Docket</button>
+                <button class="pipeline-step-btn" id="step-review" onclick="runStepReview()">2. Evidence Review</button>
+                <button class="pipeline-step-btn" id="step-verdict" onclick="runStepVerdict()">3. Sign Verdict</button>
+                <button class="pipeline-step-btn" id="step-plan" onclick="runStepPlan()">4. Preview Plan</button>
+                <button class="pipeline-step-btn execute" id="step-exec" onclick="runStepExecute()" disabled>5. Execute GitHub</button>
+                <button class="pipeline-step-btn" id="step-audit" onclick="runStepAudit()">6. Audit Ledger</button>
+              </div>
+
+              <div style="margin-top:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                  <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); text-transform:uppercase;">Audit Trail Stream</span>
+                  <span style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted);" id="pipe-hash-label">PLAN HASH: NONE</span>
+                </div>
+                <pre class="terminal-box" id="pipe-terminal">// Ship Court Audit Stream
+// Click '1. Open Docket' to initiate evidence collection and Parallel Earth simulation.</pre>
+              </div>
+
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <!-- ====================================================================
+           TAB 4: ANTIGRAVITY SCOPE GUARD (RING 1)
+           ==================================================================== -->
+      <div id="tab-scope" class="tab-content">
+        <section class="panel">
+          <div class="panel-header">
+            <div class="panel-header-title">
+              <h2>Antigravity Scope Guard &middot; PreToolUse Hook Subpoena</h2>
+              <span class="tag">RING 1 &middot; THREE TEAMMATES</span>
+            </div>
+            <div style="font-family:var(--font-mono); font-size:11px; color:var(--color-def);">
+              PROTECTION: FAIL-CLOSED
+            </div>
+          </div>
+
+          <div class="panel-content">
+            <p style="color:var(--text-secondary); font-size:12px; margin-bottom:16px;">
+              In multi-agent collaborative engineering, developers run local coding agents (Antigravity) in parallel. When an agent attempts an unauthorized file modification outside its assigned boundary, Ship Court's <code>PreToolUse</code> hook freezes execution and automatically opens a docket in Discord and Switch.
+            </p>
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-bottom:18px;">
+              
+              <div style="background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:6px; padding:14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <span style="font-family:var(--font-mono); font-weight:600; color:var(--text-primary);">teammate-1-frontend</span>
+                  <span style="font-family:var(--font-mono); font-size:10px; color:var(--color-def); background:rgba(16,185,129,0.1); padding:2px 6px; border-radius:3px;">ACTIVE</span>
+                </div>
+                <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); line-height:1.6;">
+                  Authorized Scope: <code>frontend/**</code>, <code>ui/**</code><br>
+                  Active Locks: 0 files<br>
+                  Boundary Violations: 0
+                </div>
+              </div>
+
+              <div style="background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:6px; padding:14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <span style="font-family:var(--font-mono); font-weight:600; color:var(--text-primary);">teammate-2-pricing</span>
+                  <span style="font-family:var(--font-mono); font-size:10px; color:var(--color-def); background:rgba(16,185,129,0.1); padding:2px 6px; border-radius:3px;">ACTIVE</span>
+                </div>
+                <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); line-height:1.6;">
+                  Authorized Scope: <code>services/pricing/**</code>, <code>models/**</code><br>
+                  Active Locks: 2 files<br>
+                  Boundary Violations: 0
+                </div>
+              </div>
+
+              <div style="background:var(--bg-card); border:1px solid rgba(244,63,94,0.3); border-radius:6px; padding:14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <span style="font-family:var(--font-mono); font-weight:600; color:var(--color-pros);">teammate-3-checkout</span>
+                  <span style="font-family:var(--font-mono); font-size:10px; color:var(--color-pros); background:rgba(244,63,94,0.1); padding:2px 6px; border-radius:3px;">FROZEN &middot; CASE-AG-101</span>
+                </div>
+                <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); line-height:1.6;">
+                  Authorized Scope: <code>services/checkout/**</code>, <code>api/v1/**</code><br>
+                  Attempted Edit: <code>services/pricing/engine.py</code><br>
+                  PreToolUse Action: Intercepted &amp; Docketed
+                </div>
+              </div>
+
+            </div>
+
+            <div style="display:flex; gap:10px;">
+              <button class="action-btn-sm" style="color:var(--color-pros); border-color:rgba(244,63,94,0.3);" onclick="simulateBoundaryFreeze()">Simulate Boundary Violation (PreToolUse Hook)</button>
+              <button class="action-btn-sm" onclick="resetBoundaryFreeze()">Reset Agent States</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Client-Side Engine: Three.js Topology, Raycaster, Adjudication, & Pipeline -->
+  <script>
+    // =========================================================================
+    // 1. Tab Navigation
+    // =========================================================================
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+      const targetBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.innerText.toLowerCase().includes(tabId));
+      if (targetBtn) targetBtn.classList.add('active');
+
+      const targetPane = document.getElementById('tab-' + tabId);
+      if (targetPane) targetPane.classList.add('active');
+
+      if (tabId === 'cockpit' && renderer) {
+        onWindowResize();
+      }
+    }
+
+    // =========================================================================
+    // 2. Isometric Three.js Microservice Topology & Interactive Raycaster
+    // =========================================================================
+    let scene, camera, renderer, nodesGroup, linksGroup, raycaster, mouse;
+    let cameraMode = 'iso';
+    let simulationActive = false;
+    let selectedNodeMesh = null;
+
+    const topologyNodes = [
+      { id: 'checkout-service', name: 'checkout-service', tier: 'TIER 1', rev: '$4,200/min', downstream: 4, sla: '99.99%', owner: 'Checkout-Platform', p99: '62ms', x: 0, z: 0, color: 0x6366f1, isCore: true },
+      { id: 'payment-gateway', name: 'payment-gateway', tier: 'TIER 1', rev: '$5,000/min', downstream: 3, sla: '99.999%', owner: 'Payments-Core', p99: '110ms', x: -50, z: -30, color: 0x10b981 },
+      { id: 'pricing-engine', name: 'pricing-engine', tier: 'TIER 1', rev: '$3,500/min', downstream: 2, sla: '99.95%', owner: 'Pricing-Algorithms', p99: '45ms', x: 50, z: -30, color: 0xf59e0b },
+      { id: 'inventory-service', name: 'inventory-service', tier: 'TIER 1', rev: '$2,800/min', downstream: 0, sla: '99.99%', owner: 'Supply-Chain', p99: '35ms', x: 0, z: -65, color: 0x6366f1 },
+      { id: 'tax-service', name: 'tax-service', tier: 'TIER 2', rev: '$1,000/min', downstream: 1, sla: '99.90%', owner: 'Finance-Tech', p99: '80ms', x: -40, z: 40, color: 0x64748b },
+      { id: 'stripe-adapter', name: 'stripe-adapter', tier: 'TIER 1', rev: '$5,000/min', downstream: 0, sla: '99.999%', owner: 'Payments-Core', p99: '180ms', x: -90, z: -50, color: 0x10b981 },
+      { id: 'fraud-detector', name: 'fraud-detector', tier: 'TIER 2', rev: '$1,200/min', downstream: 0, sla: '99.90%', owner: 'Risk-Ops', p99: '95ms', x: -75, z: 0, color: 0x64748b },
+      { id: 'ledger-audit', name: 'ledger-audit', tier: 'TIER 2', rev: '$800/min', downstream: 0, sla: '99.99%', owner: 'Audit-Engineering', p99: '25ms', x: -35, z: -75, color: 0x64748b },
+      { id: 'redis-cache', name: 'redis-cache', tier: 'TIER 2', rev: '$1,500/min', downstream: 0, sla: '99.95%', owner: 'Infra-Data', p99: '4ms', x: 90, z: -20, color: 0xf59e0b },
+      { id: 'promotions-engine', name: 'promotions-engine', tier: 'TIER 3', rev: '$600/min', downstream: 0, sla: '99.50%', owner: 'Growth-Eng', p99: '55ms', x: 75, z: -65, color: 0x64748b },
+      { id: 'avalara-client', name: 'avalara-client', tier: 'TIER 3', rev: '$300/min', downstream: 0, sla: '99.00%', owner: 'Finance-Tech', p99: '210ms', x: -65, z: 75, color: 0x64748b }
+    ];
+
+    const topologyLinks = [
+      ['checkout-service', 'payment-gateway'],
+      ['checkout-service', 'pricing-engine'],
+      ['checkout-service', 'inventory-service'],
+      ['checkout-service', 'tax-service'],
+      ['payment-gateway', 'stripe-adapter'],
+      ['payment-gateway', 'fraud-detector'],
+      ['payment-gateway', 'ledger-audit'],
+      ['pricing-engine', 'redis-cache'],
+      ['pricing-engine', 'promotions-engine'],
+      ['tax-service', 'avalara-client']
+    ];
+
+    function initTopologyScene() {
+      const container = document.getElementById('three-viewport');
+      if (!container) return;
+
+      const width = container.clientWidth || 800;
+      const height = container.clientHeight || 480;
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x06070a);
+
+      camera = new THREE.PerspectiveCamera(40, width / height, 1, 1000);
+      setCameraIsometric();
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      container.appendChild(renderer.domElement);
+
+      const grid = new THREE.GridHelper(260, 26, 0x1a2030, 0x10131d);
+      grid.position.y = -6;
+      scene.add(grid);
+
+      const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+      scene.add(ambient);
+
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
+      dirLight.position.set(60, 100, 40);
+      scene.add(dirLight);
+
+      nodesGroup = new THREE.Group();
+      linksGroup = new THREE.Group();
+      scene.add(nodesGroup);
+      scene.add(linksGroup);
+
+      raycaster = new THREE.Raycaster();
+      mouse = new THREE.Vector2();
+
+      buildNodes();
+      buildLinks();
+      buildLabelPins();
+
+      // Mouse drag rotation & raycasting
+      let dragging = false;
+      let prevMouse = { x: 0, y: 0 };
+      let dragDistance = 0;
+
+      container.addEventListener('mousedown', e => {
+        dragging = true;
+        dragDistance = 0;
+        prevMouse = { x: e.clientX, y: e.clientY };
+      });
+
+      window.addEventListener('mouseup', e => {
+        if (dragging && dragDistance < 5) {
+          handlePointerClick(e, container);
+        }
+        dragging = false;
+      });
+
+      container.addEventListener('mousemove', e => {
+        const rect = container.getBoundingClientRect();
+        mouse.x = ((e.clientX - rect.left) / container.clientWidth) * 2 - 1;
+        mouse.y = -((e.clientY - rect.top) / container.clientHeight) * 2 + 1;
+
+        if (dragging) {
+          const dx = e.clientX - prevMouse.x;
+          const dy = e.clientY - prevMouse.y;
+          dragDistance += Math.abs(dx) + Math.abs(dy);
+          nodesGroup.rotation.y += dx * 0.005;
+          linksGroup.rotation.y += dx * 0.005;
+          grid.rotation.y += dx * 0.005;
+          prevMouse = { x: e.clientX, y: e.clientY };
+        } else {
+          handlePointerHover();
+        }
+      });
+
+      container.addEventListener('wheel', e => {
+        e.preventDefault();
+        camera.position.multiplyScalar(e.deltaY > 0 ? 1.05 : 0.95);
+      });
+
+      window.addEventListener('resize', onWindowResize);
+      renderLoop();
+    }
+
+    function onWindowResize() {
+      const container = document.getElementById('three-viewport');
+      if (!container || !renderer || !camera) return;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+
+    function buildNodes() {
+      const geo = new THREE.CylinderGeometry(5.5, 5.5, 4, 16);
+      topologyNodes.forEach(n => {
+        const mat = new THREE.MeshLambertMaterial({
+          color: n.color
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.set(n.x, 0, n.z);
+        mesh.userData = n;
+
+        const wireGeo = new THREE.EdgesGeometry(geo);
+        const wireMat = new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.25, transparent: true });
+        const wire = new THREE.LineSegments(wireGeo, wireMat);
+        mesh.add(wire);
+
+        nodesGroup.add(mesh);
+      });
+    }
+
+    function buildLinks() {
+      const nodeMap = {};
+      nodesGroup.children.forEach(m => {
+        if (m.userData && m.userData.id) nodeMap[m.userData.id] = m;
+      });
+
+      topologyLinks.forEach(([fromId, toId]) => {
+        const from = nodeMap[fromId];
+        const to = nodeMap[toId];
+        if (from && to) {
+          const points = [
+            from.position.clone(),
+            to.position.clone()
+          ];
+          const geo = new THREE.BufferGeometry().setFromPoints(points);
+          const mat = new THREE.LineBasicMaterial({
+            color: 0x334155,
+            transparent: true,
+            opacity: 0.6
+          });
+          const line = new THREE.Line(geo, mat);
+          line.userData = { from: fromId, to: toId };
+          linksGroup.add(line);
+        }
+      });
+    }
+
+    function buildLabelPins() {
+      const layer = document.getElementById('label-layer');
+      if (!layer) return;
+      layer.innerHTML = '';
+
+      topologyNodes.forEach(n => {
+        const pin = document.createElement('div');
+        pin.className = 'node-label-pin';
+        pin.id = 'pin-' + n.id;
+        const colorHex = '#' + n.color.toString(16).padStart(6, '0');
+        pin.innerHTML = `<span class="pin-dot" style="background:${colorHex}"></span>${n.name}`;
+        layer.appendChild(pin);
+      });
+    }
+
+    function updateLabelPins() {
+      const container = document.getElementById('three-viewport');
+      if (!container || !camera) return;
+
+      const halfW = container.clientWidth / 2;
+      const halfH = container.clientHeight / 2;
+
+      nodesGroup.children.forEach(mesh => {
+        const n = mesh.userData;
+        if (!n || !n.id) return;
+        const pin = document.getElementById('pin-' + n.id);
+        if (!pin) return;
+
+        const pos = mesh.position.clone();
+        mesh.localToWorld(pos);
+        pos.y += 5.5; // sit above puck
+
+        pos.project(camera);
+
+        if (pos.z < 1) {
+          pin.style.display = 'block';
+          const x = (pos.x * halfW) + halfW;
+          const y = -(pos.y * halfH) + halfH;
+          pin.style.left = x + 'px';
+          pin.style.top = y + 'px';
+        } else {
+          pin.style.display = 'none';
+        }
+      });
+    }
+
+    function setCameraIsometric() {
+      camera.position.set(130, 110, 130);
+      camera.lookAt(0, 0, 0);
+    }
+
+    function setViewMode(mode) {
+      cameraMode = mode;
+      document.getElementById('btn-view-iso').classList.toggle('active', mode === 'iso');
+      document.getElementById('btn-view-top').classList.toggle('active', mode === 'top');
+
+      if (mode === 'top') {
+        camera.position.set(0, 190, 0.1);
+        camera.lookAt(0, 0, 0);
+      } else {
+        setCameraIsometric();
+      }
+    }
+
+    function resetCamera() {
+      nodesGroup.rotation.y = 0;
+      linksGroup.rotation.y = 0;
+      const g = scene.children.find(c => c.type === 'GridHelper');
+      if (g) g.rotation.y = 0;
+      setCameraIsometric();
+    }
+
+    function handlePointerHover() {
+      if (!raycaster || !camera || !nodesGroup) return;
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(nodesGroup.children);
+      const viewport = document.getElementById('three-viewport');
+      if (intersects.length > 0) {
+        viewport.style.cursor = 'pointer';
+      } else {
+        viewport.style.cursor = 'default';
+      }
+    }
+
+    function handlePointerClick(e, container) {
+      if (!raycaster || !camera || !nodesGroup) return;
+      const rect = container.getBoundingClientRect();
+      const clickMouse = new THREE.Vector2(
+        ((e.clientX - rect.left) / container.clientWidth) * 2 - 1,
+        -((e.clientY - rect.top) / container.clientHeight) * 2 + 1
+      );
+      raycaster.setFromCamera(clickMouse, camera);
+      const intersects = raycaster.intersectObjects(nodesGroup.children);
+
+      if (intersects.length > 0) {
+        const targetMesh = intersects[0].object;
+        selectNode(targetMesh.userData);
+      }
+    }
+
+    function selectNode(nodeData) {
+      document.getElementById('hud-tier').innerText = nodeData.tier;
+      document.getElementById('hud-name').innerText = nodeData.name;
+      document.getElementById('hud-owner').innerText = `Owner: ${nodeData.owner} &middot; P99: ${nodeData.p99} &middot; Circuit: NORMAL`;
+      document.getElementById('hud-fanout').innerText = `${nodeData.downstream} Direct Services`;
+      document.getElementById('hud-rev').innerText = nodeData.rev;
+      document.getElementById('hud-sla').innerText = nodeData.sla;
+
+      // Highlight links connected to this node
+      linksGroup.children.forEach(line => {
+        const isConnected = line.userData.from === nodeData.id || line.userData.to === nodeData.id;
+        line.material.color.setHex(isConnected ? 0x818cf8 : 0x242a38);
+        line.material.opacity = isConnected ? 1.0 : 0.3;
+      });
+    }
+
+    function toggleBlastSimulation() {
+      simulationActive = !simulationActive;
+      const banner = document.getElementById('sim-status-banner');
+
+      if (simulationActive) {
+        banner.innerText = 'ALERT: BLAST RADIUS ACTIVE &middot; 4 SERVICES EXPOSED';
+        banner.style.color = 'var(--color-pros)';
+
+        // Dim unrelated nodes and highlight affected
+        const affected = ['pricing-engine', 'checkout-service', 'redis-cache', 'promotions-engine'];
+        nodesGroup.children.forEach(m => {
+          const isAff = affected.includes(m.userData.id);
+          m.material.opacity = isAff ? 1.0 : 0.2;
+          m.material.transparent = !isAff;
+          if (m.userData.id === 'pricing-engine') {
+            m.material.color.setHex(0xf43f5e);
+          }
+        });
+
+        linksGroup.children.forEach(line => {
+          const isAffLink = affected.includes(line.userData.from) && affected.includes(line.userData.to);
+          line.material.color.setHex(isAffLink ? 0xf43f5e : 0x1f2430);
+          line.material.opacity = isAffLink ? 1.0 : 0.15;
+        });
+
+        document.getElementById('metric-rev-exposure').innerText = '$9,200/min';
+      } else {
+        banner.innerText = 'STATUS: NOMINAL TOPOLOGY';
+        banner.style.color = 'var(--color-def)';
+
+        nodesGroup.children.forEach(m => {
+          m.material.color.setHex(m.userData.color);
+          m.material.opacity = 1.0;
+          m.material.transparent = false;
+        });
+
+        linksGroup.children.forEach(line => {
+          line.material.color.setHex(0x334155);
+          line.material.opacity = 0.6;
+        });
+
+        document.getElementById('metric-rev-exposure').innerText = '$15,200/min';
+      }
+    }
+
+    function renderLoop() {
+      requestAnimationFrame(renderLoop);
+      if (nodesGroup) {
+        nodesGroup.children.forEach((c, i) => {
+          c.position.y = Math.sin(Date.now() * 0.0015 + i) * 0.6;
+        });
+        updateLabelPins();
+      }
+      if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+      }
+    }
+
+    // =========================================================================
+    // 3. Adversarial Case Adjudication Logic
+    // =========================================================================
+    function loadScenario(idx, btn) {
+      document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      const taskInput = document.getElementById('task_input');
+      const repoInput = document.getElementById('repo_input');
+
+      if (idx === 1) {
+        taskInput.value = "Dynamic checkout pricing rollout with ML price optimization model";
+        repoInput.value = "acme/shop (PR #482)";
+      } else if (idx === 2) {
+        taskInput.value = "Drop database table user_sessions during active peak hours without backup";
+        repoInput.value = "acme/shop (PR #512)";
+      } else if (idx === 3) {
+        taskInput.value = "Add Redis caching to product search queries with 60s TTL and automatic DB fallback";
+        repoInput.value = "acme/shop (PR #499)";
+      } else {
+        taskInput.value = "Deploy parallel earth blast-radius simulation engine to production canary";
+        repoInput.value = "acme/shop (PR #530)";
+      }
+    }
+
+    async function conveneLiveTrial() {
+      const task = document.getElementById('task_input').value.trim();
+      const repo = document.getElementById('repo_input').value.trim();
+      const judge = document.getElementById('judge_input').value.trim();
+      const token = document.getElementById('pipe-token').value.trim();
+
+      if (!task) return;
+
+      const btn = document.getElementById('btn-run-court');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Cross-examining petition across LLM agents...';
+      document.getElementById('court-status-tag').innerText = 'CROSS-EXAMINATION ACTIVE';
+
+      const feed = document.getElementById('court-feed');
+      feed.innerHTML = `
+        <div class="court-speech-entry clk">
+          <div class="speech-meta">
+            <span class="speech-speaker clk">@court-clerk (Bailiff)</span>
+            <span class="speech-time">${new Date().toLocaleTimeString()}</span>
+          </div>
+          <div class="speech-content">Case convened. Subpoenaing past failure records and evaluating risk model...</div>
+        </div>
+      `;
+
+      try {
+        const resp = await fetch('/api/debate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({ task, repo, judge })
+        });
+
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || 'Evaluation failed');
+
+        const pScore = data.prosecution_power || 50;
+        const dScore = data.defense_power || 50;
+        const total = Math.max(1, pScore + dScore);
+        const pPct = Math.round((pScore / total) * 100);
+        const dPct = 100 - pPct;
+
+        document.getElementById('gauge-bar-pros').style.width = pPct + '%';
+        document.getElementById('gauge-bar-def').style.width = dPct + '%';
+        document.getElementById('gauge-pros-text').innerText = `Prosecution: ${pScore} pts (${pPct}%)`;
+        document.getElementById('gauge-def-text').innerText = `Defense: ${dScore} pts (${dPct}%)`;
+        document.getElementById('court-status-tag').innerText = `VERDICT: ${data.verdict}`;
+
+        renderVerdictGateCard(data);
+
+        feed.innerHTML = '';
+        if (data.messages && data.messages.length) {
+          data.messages.forEach(m => {
+            const div = document.createElement('div');
+            let type = 'clk';
+            let sClass = 'clk';
+            if (m.sender.includes('prosecutor')) { type = 'pros'; sClass = 'pros'; }
+            else if (m.sender.includes('defender')) { type = 'def'; sClass = 'def'; }
+            else if (m.sender.includes('judge')) { type = 'jdg'; sClass = 'jdg'; }
+
+            div.className = 'court-speech-entry ' + type;
+            div.innerHTML = `
+              <div class="speech-meta">
+                <span class="speech-speaker ${sClass}">@${m.sender}</span>
+                <span class="speech-time">${new Date(m.timestamp * 1000).toLocaleTimeString()}</span>
+              </div>
+              <div class="speech-content">${escapeHtml(m.content)}</div>
+            `;
+            feed.appendChild(div);
+          });
+          feed.scrollTop = feed.scrollHeight;
+        }
+
+      } catch (err) {
+        feed.innerHTML += `
+          <div class="court-speech-entry pros">
+            <div class="speech-meta"><span class="speech-speaker pros">Error</span></div>
+            <div class="speech-content">${escapeHtml(err.message)}</div>
+          </div>
+        `;
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Run Adversarial Evaluation';
+      }
+    }
+
+    function renderVerdictGateCard(data) {
+      const slot = document.getElementById('verdict-gate-slot');
+      slot.style.display = 'block';
+
+      const v = (data.verdict || 'CONDITIONS').toUpperCase();
+      let modeClass = 'conditions';
+      let title = 'STATUS: MANDATORY OPERATIONAL CONDITIONS REQUIRED';
+      if (v === 'BLOCK') {
+        modeClass = 'block';
+        title = 'STATUS: RELEASE PERMANENTLY BLOCKED';
+      } else if (v === 'APPROVE') {
+        modeClass = 'approve';
+        title = 'STATUS: APPROVED FOR CANARY DEPLOYMENT';
+      }
+
+      const conds = data.conditions || [
+        "Canary deployment capped at 5% traffic for 30 minutes",
+        "Automated metric interlock: p99 latency < 200ms and 5xx < 0.01%",
+        "Rollback operator on standby with verified 1-click abort (1.8s SLA)"
+      ];
+
+      const tasks = data.tasks || [
+        "Deploy to canary replica capped at 5% (Owner: SRE-Team)",
+        "Arm real-time anomaly alarm and rollback killswitch (Owner: Platform-Ops)"
+      ];
+
+      slot.innerHTML = `
+        <div class="verdict-gate-card ${modeClass}">
+          <div class="verdict-gate-header">${title}</div>
+          <div class="verdict-body">
+            <strong>Binding Enforceable Conditions:</strong>
+            <ul>
+              ${conds.map(c => `<li>${escapeHtml(c)}</li>`).join('')}
+            </ul>
+            <div style="margin-top:8px;">
+              <strong>Assigned Operational Tasks:</strong>
+              <ul>
+                ${tasks.map(t => `<li>${escapeHtml(t)}</li>`).join('')}
+              </ul>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 4. Boardroom OS Floor Queue & VAD Spectrum
+    // =========================================================================
+    function initVadCanvas() {
+      const cvs = document.getElementById('vad-canvas');
+      if (!cvs) return;
+      const ctx = cvs.getContext('2d');
+      const bars = 18;
+
+      function drawSpectrum() {
+        requestAnimationFrame(drawSpectrum);
+        ctx.clearRect(0, 0, cvs.width, cvs.height);
+        const w = (cvs.width / bars) - 1;
+        const now = Date.now() * 0.005;
+
+        for (let i = 0; i < bars; i++) {
+          const h = Math.abs(Math.sin(now + i * 0.4)) * (cvs.height - 4) + 2;
+          ctx.fillStyle = i > 12 ? '#f59e0b' : '#10b981';
+          ctx.fillRect(i * (w + 1), cvs.height - h, w, h);
+        }
+      }
+      drawSpectrum();
+    }
+
+    function queueFloorItem(type, pitch) {
+      const tbody = document.getElementById('floor-queue-tbody');
+      const tr = document.createElement('tr');
+      const tUpper = type.toUpperCase();
+      let color = 'var(--color-warn)';
+      if (type === 'hazard') color = 'var(--color-pros)';
+      if (type === 'mitigation') color = 'var(--color-def)';
+
+      tr.innerHTML = `
+        <td><span style="color:${color}; font-weight:600;">${tUpper}</span></td>
+        <td>"${escapeHtml(pitch)}"</td>
+        <td><span style="color:var(--text-secondary);">WAITING</span></td>
+        <td><span style="font-family:var(--font-mono); color:var(--text-muted);">90s remaining</span></td>
+        <td><button class="action-btn-sm" onclick="grantFloorAction(this)">Grant Floor (30s)</button></td>
+      `;
+      tbody.prepend(tr);
+    }
+
+    function grantFloorAction(btn) {
+      const td = btn.parentElement;
+      const statusTd = td.previousElementSibling.previousElementSibling;
+      statusTd.innerHTML = '<span style="color:var(--color-def); font-weight:600;">SPEAKING (30s)</span>';
+      td.innerHTML = '<button class="action-btn-sm" onclick="yieldFloorAction(this)">Yield Floor</button>';
+    }
+
+    function yieldFloorAction(btn) {
+      const td = btn.parentElement;
+      const statusTd = td.previousElementSibling.previousElementSibling;
+      statusTd.innerHTML = '<span style="color:var(--text-muted);">YIELDED</span>';
+      td.innerHTML = '<span style="color:var(--text-muted); font-size:10px;">DONE</span>';
+    }
+
+    // =========================================================================
+    // 5. Gated GitHub Pipeline & Cryptographic Audit
+    // =========================================================================
+    async function callApi(endpoint, body, method = 'POST') {
+      const token = document.getElementById('pipe-token').value.trim();
+      const resp = await fetch(endpoint, {
+        method: body ? method : 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: body ? JSON.stringify(body) : undefined
+      });
+      const res = await resp.json();
+      const term = document.getElementById('pipe-terminal');
+      term.textContent = JSON.stringify(res, null, 2);
+      if (!resp.ok) throw new Error(res.error || 'Execution failed');
+      return res;
+    }
+
+    async function runStepOpen() {
+      const pr = document.getElementById('pipe-pr').value.trim();
+      const res = await callApi('/api/cases', { pr_url: pr, services: ['checkout-service'] });
+      document.getElementById('pipe-case').value = res.case_id;
+    }
+
+    async function runStepReview() {
+      const caseId = document.getElementById('pipe-case').value.trim();
+      if (!caseId) { alert('Please open a case first.'); return; }
+      await callApi('/api/cases/review', { case_id: caseId });
+    }
+
+    async function runStepVerdict() {
+      const caseId = document.getElementById('pipe-case').value.trim();
+      const cond = document.getElementById('pipe-conditions').value.trim();
+      await callApi('/api/verdicts', { case_id: caseId, command: 'CONDITIONS ' + cond });
+    }
+
+    let storedPlanHash = null;
+    async function runStepPlan() {
+      const caseId = document.getElementById('pipe-case').value.trim();
+      const res = await callApi('/api/github/plan', { case_id: caseId });
+      storedPlanHash = res.plan_hash;
+      document.getElementById('pipe-hash-label').innerText = 'PLAN HASH: ' + storedPlanHash.substring(0, 16) + '...';
+      document.getElementById('step-exec').disabled = false;
+    }
+
+    async function runStepExecute() {
+      const caseId = document.getElementById('pipe-case').value.trim();
+      await callApi('/api/github/execute', { case_id: caseId, plan_hash: storedPlanHash });
+      document.getElementById('step-exec').disabled = true;
+    }
+
+    async function runStepAudit() {
+      await callApi('/api/audit/events', null, 'GET');
+    }
+
+    // =========================================================================
+    // 6. Ring 1 Antigravity Scope Simulation
+    // =========================================================================
+    function simulateBoundaryFreeze() {
+      alert("PreToolUse Hook Intercept: 'teammate-3-checkout' attempted unauthorized edit to 'services/pricing/engine.py'. Execution frozen. Case CASE-AG-101 subpoenaed to Ship Court in Switch and Discord.");
+    }
+
+    function resetBoundaryFreeze() {
+      alert("All agent scopes verified and synchronized.");
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initTopologyScene();
+      initVadCanvas();
+    });
+  </script>
+</body>
+</html>
