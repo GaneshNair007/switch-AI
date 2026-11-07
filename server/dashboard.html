@@ -1044,6 +1044,338 @@
       box-shadow: 0 6px 24px rgba(0,0,0,0.4);
       z-index: 100;
     }
+  
+    /* Feature Launch Cards (Command Center) */
+    .switch-launch-card {
+      background: linear-gradient(145deg, #121A24 0%, #0D131B 100%);
+      border: 1px solid var(--sl);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+    }
+    .switch-launch-card:hover {
+      border-color: rgba(216, 255, 66, 0.35);
+      transform: translateY(-2px);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.42);
+    }
+    .switch-launch-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .switch-glyph-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: -0.5px;
+      flex-shrink: 0;
+    }
+    .switch-glyph-badge.blue {
+      background: rgba(120, 168, 255, 0.12);
+      border: 1px solid rgba(120, 168, 255, 0.3);
+      color: var(--blue);
+    }
+    .switch-glyph-badge.lime {
+      background: rgba(216, 255, 66, 0.12);
+      border: 1px solid rgba(216, 255, 66, 0.3);
+      color: var(--lime);
+    }
+    .switch-launch-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--si);
+      letter-spacing: -0.2px;
+      margin-bottom: 3px;
+    }
+    .switch-launch-sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+    .switch-tag-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .switch-tag-badge.orange-pulse {
+      background: rgba(255, 105, 71, 0.12);
+      border: 1px solid rgba(255, 105, 71, 0.32);
+      color: var(--orange);
+    }
+    .switch-tag-badge.lime-pulse {
+      background: rgba(216, 255, 66, 0.12);
+      border: 1px solid rgba(216, 255, 66, 0.32);
+      color: var(--lime);
+    }
+    .switch-launch-body p {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    .switch-launch-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--sl);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+    }
+    .switch-launch-metrics div {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .switch-launch-metrics span {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: var(--font-mono);
+    }
+    .switch-launch-metrics strong {
+      font-size: 12px;
+      color: var(--si);
+      font-family: var(--font-mono);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .switch-launch-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 10px;
+      border-top: 1px solid var(--sl);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--si);
+    }
+    .switch-launch-foot span:first-child {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--lime);
+    }
+    .switch-launch-foot:hover span:first-child {
+      text-decoration: underline;
+    }
+
+    /* GitHub Control & Parallel Earth Custom Layouts */
+    .switch-scope-banner {
+      background: linear-gradient(90deg, rgba(255, 105, 71, 0.08) 0%, rgba(13, 19, 27, 0.6) 100%);
+      border: 1px solid rgba(255, 105, 71, 0.3);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12.5px;
+      color: #E2E8F0;
+    }
+    .switch-scope-banner.lime-theme {
+      background: linear-gradient(90deg, rgba(216, 255, 66, 0.08) 0%, rgba(13, 19, 27, 0.6) 100%);
+      border: 1px solid rgba(216, 255, 66, 0.3);
+    }
+    .switch-scope-banner .banner-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    /* Multiverse Visualisation */
+    .switch-multiverse-box {
+      background: radial-gradient(circle at 50% 50%, #152232 0%, #080B10 100%);
+      border: 1px solid var(--sl);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .switch-universe-card {
+      background: #0E1520;
+      border: 1px solid var(--sl);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .switch-universe-card:hover {
+      border-color: rgba(207, 226, 242, 0.35);
+    }
+    .switch-universe-card.selected {
+      border-color: var(--lime);
+      box-shadow: 0 0 16px rgba(216, 255, 66, 0.15);
+      background: #111A27;
+    }
+    .switch-universe-card.selected.danger {
+      border-color: var(--orange);
+      box-shadow: 0 0 16px rgba(255, 105, 71, 0.15);
+    }
+
+    /* Side-by-Side Comparison Matrix */
+    .switch-comp-matrix {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 12.5px;
+    }
+    .switch-comp-matrix th, .switch-comp-matrix td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--sl);
+      text-align: left;
+    }
+    .switch-comp-matrix th {
+      background: rgba(0, 0, 0, 0.3);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    .switch-comp-matrix tr:hover td {
+      background: rgba(255, 255, 255, 0.015);
+    }
+    .switch-comp-matrix td.col-baseline {
+      color: #CAD5E2;
+      font-family: var(--font-mono);
+    }
+    .switch-comp-matrix td.col-univ-a {
+      color: var(--orange);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    .switch-comp-matrix td.col-univ-b {
+      color: var(--lime);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    /* Diff View */
+    .switch-diff-box {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: #080C12;
+      border: 1px solid var(--sl);
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+    .switch-diff-line {
+      display: flex;
+      padding: 2px 10px;
+    }
+    .switch-diff-line.add {
+      background: rgba(46, 160, 67, 0.15);
+      color: #7EE787;
+    }
+    .switch-diff-line.del {
+      background: rgba(248, 81, 73, 0.15);
+      color: #FFA198;
+    }
+    .switch-diff-num {
+      width: 40px;
+      color: var(--text-muted);
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    /* Simulation Parameter Sliders */
+    .switch-slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .switch-slider-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-family: var(--font-mono);
+    }
+    .switch-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #192330;
+      outline: none;
+    }
+    .switch-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--lime);
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(216, 255, 66, 0.6);
+    }
+
+    /* Mobile Navigation Bar */
+    .switch-mobile-bar {
+      display: none;
+      background: #080B10;
+      border-bottom: 1px solid var(--sl);
+      padding: 10px 16px;
+      overflow-x: auto;
+      white-space: nowrap;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .switch-mobile-bar::-webkit-scrollbar { display: none; }
+    .switch-mobile-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--sl);
+      color: var(--text-secondary);
+      font-size: 11.5px;
+      font-weight: 500;
+      margin-right: 6px;
+      cursor: pointer;
+    }
+    .switch-mobile-pill.active {
+      background: rgba(216, 255, 66, 0.12);
+      border-color: var(--lime);
+      color: var(--si);
+    }
+
+    @media (max-width: 1024px) {
+      .switch-mobile-bar { display: flex; }
+      .switch-launch-metrics { grid-template-columns: repeat(2, 1fr); }
+    }
+
   </style>
 </head>
 <body>
@@ -1120,6 +1452,27 @@
       </ul>
     </div>
 
+    <!-- Extensions Navigation Group -->
+    <div class="switch-nav-group" style="margin-top: 14px;">
+      <span class="switch-nav-label">Extensions</span>
+      <ul class="switch-nav">
+        <li>
+          <button class="switch-nav-item" id="tab-github" onclick="showView('github')">
+            <span class="switch-nav-glyph" style="font-weight: 700; color: var(--blue);">GH</span>
+            <span>GitHub Control</span>
+            <span class="switch-nav-badge" style="color: var(--orange); border-color: rgba(255,105,71,0.3); font-size: 8.5px;">PREVIEW</span>
+          </button>
+        </li>
+        <li>
+          <button class="switch-nav-item" id="tab-earth" onclick="showView('earth')">
+            <span class="switch-nav-glyph" style="font-weight: 700; color: var(--lime); font-size: 14px;">&infin;</span>
+            <span>Parallel Earth</span>
+            <span class="switch-nav-badge" style="color: var(--lime); border-color: rgba(216,255,66,0.3); font-size: 8.5px;">SIM</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+
     <div class="switch-nav-group" style="margin-top: 10px;">
       <span class="switch-nav-label">System</span>
       <ul class="switch-nav">
@@ -1152,6 +1505,19 @@
        MAIN VIEWPORT
        ========================================================================== -->
   <main class="switch-main">
+    <!-- Mobile Navigation Bar -->
+    <div class="switch-mobile-bar" id="mobile-nav-bar">
+      <button class="switch-mobile-pill active" id="mpill-overview" onclick="showView('overview')">01 Overview</button>
+      <button class="switch-mobile-pill" id="mpill-switchroom" onclick="showView('switchroom')">02 Switch Room</button>
+      <button class="switch-mobile-pill" id="mpill-scopeguard" onclick="showView('scopeguard')">03 Scope Guard</button>
+      <button class="switch-mobile-pill" id="mpill-courtroom" onclick="showView('courtroom')">04 Ship Court</button>
+      <button class="switch-mobile-pill" id="mpill-graph" onclick="showView('graph')">05 Impact Field</button>
+      <button class="switch-mobile-pill" id="mpill-brief" onclick="showView('brief')">06 Release Brief</button>
+      <button class="switch-mobile-pill" id="mpill-ledger" onclick="showView('ledger')">07 Audit Ledger</button>
+      <button class="switch-mobile-pill" id="mpill-github" onclick="showView('github')" style="color: var(--blue);">GH GitHub Control</button>
+      <button class="switch-mobile-pill" id="mpill-earth" onclick="showView('earth')" style="color: var(--lime);">&infin; Parallel Earth</button>
+      <button class="switch-mobile-pill" id="mpill-settings" onclick="showView('settings')">08 Settings</button>
+    </div>
     <!-- Topbar -->
     <header class="switch-topbar">
       <div class="switch-breadcrumb">
@@ -1367,6 +1733,67 @@
             <div class="switch-stat-value">84% Readiness</div>
             <div class="switch-stat-sub">
               <span>&bull;</span> Step Verification Required
+            </div>
+          </div>
+        </div>
+
+        <!-- Prominent Extensions & Scenario Launch Cards -->
+        <div class="switch-grid two" style="margin-bottom: 24px;">
+          <!-- GitHub Control Launch Card -->
+          <div class="switch-launch-card" onclick="showView('github')" style="cursor: pointer;">
+            <div>
+              <div class="switch-launch-head">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <span class="switch-glyph-badge blue">GH</span>
+                  <div>
+                    <div class="switch-launch-title">GitHub Control</div>
+                    <div class="switch-launch-sub">Repository operations, branch control, PR review & governed write-back</div>
+                  </div>
+                </div>
+                <span class="switch-tag-badge orange-pulse">Integration preview &bull; not connected</span>
+              </div>
+              <div class="switch-launch-body" style="margin-top: 14px;">
+                <p>Governed engineering control plane for <code>GaneshNair007/switch-AI</code>. Inspect branches, analyze pull requests, observe GitHub Actions, and gate repository write-back behind cryptographic human magistrate consensus.</p>
+                <div class="switch-launch-metrics">
+                  <div><span>Target Repo</span><strong>switch-AI</strong></div>
+                  <div><span>Default Branch</span><strong>main (protected)</strong></div>
+                  <div><span>Active PR</span><strong>#482 (held)</strong></div>
+                  <div><span>Write-Back Gate</span><strong style="color: var(--orange);">PREVIEW ONLY</strong></div>
+                </div>
+              </div>
+            </div>
+            <div class="switch-launch-foot">
+              <span>Open GitHub Command Console &rarr;</span>
+              <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">EXT-01</span>
+            </div>
+          </div>
+
+          <!-- Parallel Earth Launch Card -->
+          <div class="switch-launch-card" onclick="showView('earth')" style="cursor: pointer;">
+            <div>
+              <div class="switch-launch-head">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <span class="switch-glyph-badge lime">&infin;</span>
+                  <div>
+                    <div class="switch-launch-title">Parallel Earth</div>
+                    <div class="switch-launch-sub">Multiple possible worlds, alternate change scenarios & risk exploration</div>
+                  </div>
+                </div>
+                <span class="switch-tag-badge lime-pulse">Simulation concept &bull; not running</span>
+              </div>
+              <div class="switch-launch-body" style="margin-top: 14px;">
+                <p>Simulate branching outcomes before production merge. Compare Baseline Earth-0 against Candidate Universes A & B with synthetic canary stress models, financial exposure forecasting, and automated rollback sentinel verification.</p>
+                <div class="switch-launch-metrics">
+                  <div><span>Universes</span><strong>Earth-0 / A / B</strong></div>
+                  <div><span>Exposure Model</span><strong>-$340K vs Baseline</strong></div>
+                  <div><span>Canary Pass Rate</span><strong style="color: var(--lime);">99.8% (Univ B)</strong></div>
+                  <div><span>Environment Mode</span><strong style="color: var(--lime);">MODELED SANDBOX</strong></div>
+                </div>
+              </div>
+            </div>
+            <div class="switch-launch-foot">
+              <span>Launch Multiverse Simulator &rarr;</span>
+              <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">EXT-02</span>
             </div>
           </div>
         </div>
@@ -1885,6 +2312,661 @@
         </div>
       </section>
 
+
+      <!-- ==========================================================================
+           08. GITHUB CONTROL (Repository Operations & Governed Write-Back)
+           ========================================================================== -->
+      <section class="view-section" id="section-github">
+        <div class="switch-section-header">
+          <div>
+            <div class="switch-eyebrow">
+              <span class="dot" style="background: var(--blue);"></span>
+              <span>GOVERNED REPOSITORY INFRASTRUCTURE &bull; SWITCH AI</span>
+            </div>
+            <h2 class="switch-page-title">GITHUB CONTROL</h2>
+            <p class="switch-page-desc">
+              Repository operations, branch control, PR review, GitHub Actions visibility and cryptographically governed write-back.
+            </p>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+            <span class="switch-tag-badge orange-pulse">
+              <span class="switch-pulse" style="background: var(--orange);"></span>
+              INTEGRATION PREVIEW &bull; NOT CONNECTED
+            </span>
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">TARGET: GaneshNair007/switch-AI</span>
+          </div>
+        </div>
+
+        <!-- Scope & Safety Disclaimer Banner -->
+        <div class="switch-scope-banner">
+          <div class="banner-icon">&#9888;</div>
+          <div>
+            <strong>GOVERNED REPOSITORY BOUNDARY (PREVIEW MODE):</strong> Switch AI continuously observes and correlates activity from <code>https://github.com/GaneshNair007/switch-AI</code>. In this preview release, all outbound branch write-backs, release tagging, and PR labeling are gated behind Ship Court consensus and human magistrate token verification. Automated live write-back API is intentionally disarmed to prevent unauthorized repository modifications.
+          </div>
+        </div>
+
+        <!-- Repository Overview Grid -->
+        <div class="switch-grid four" style="margin-bottom: 24px;">
+          <div class="switch-stat-card">
+            <div class="switch-stat-label">Target Repository</div>
+            <div class="switch-stat-value" style="font-size: 16px; margin-top: 4px;">
+              <a href="https://github.com/GaneshNair007/switch-AI" target="_blank" style="color: var(--blue); text-decoration: none;">GaneshNair007/switch-AI &nearr;</a>
+            </div>
+            <div class="switch-stat-sub">
+              <span>&bull;</span> Public / Monitored by Scope Guard
+            </div>
+          </div>
+          <div class="switch-stat-card">
+            <div class="switch-stat-label">Default / Active Branch</div>
+            <div class="switch-stat-value" style="font-size: 15px; margin-top: 4px;">
+              main &bull; <span style="color: var(--lime); font-size: 13px;">feat/switch-ai-ui</span>
+            </div>
+            <div class="switch-stat-sub">
+              <span>&bull;</span> HEAD: <code>9f984c6</code>
+            </div>
+          </div>
+          <div class="switch-stat-card">
+            <div class="switch-stat-label">Verified Contributors</div>
+            <div class="switch-stat-value" style="color: var(--lime);">3 Verified</div>
+            <div class="switch-stat-sub">
+              <span>&bull;</span> @GaneshNair007, @arjit, @jayvee
+            </div>
+          </div>
+          <div class="switch-stat-card">
+            <div class="switch-stat-label">Governed Write-Back Gate</div>
+            <div class="switch-stat-value" style="color: var(--orange);">ARMED / GATED</div>
+            <div class="switch-stat-sub">
+              <span>&bull;</span> Dual-Key Token Required
+            </div>
+          </div>
+        </div>
+
+        <!-- Branch Management & GitHub Actions (2-Col Grid) -->
+        <div class="switch-grid two" style="margin-bottom: 24px;">
+          <!-- Branch Management Table -->
+          <div class="switch-panel">
+            <div class="switch-panel-header">
+              <div class="switch-panel-title">
+                <span>Branch Management</span>
+                <span class="switch-panel-badge">8 Monitored Branches</span>
+              </div>
+              <button class="switch-btn-ghost" onclick="showToast('Refreshed local branch index')">&#8635; Sync</button>
+            </div>
+            <div class="switch-table-wrap" style="max-height: 280px; overflow-y: auto;">
+              <table class="switch-table">
+                <thead>
+                  <tr>
+                    <th>Branch Ref</th>
+                    <th>Commit</th>
+                    <th>Policy Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <strong style="color: var(--lime); font-family: var(--font-mono); font-size: 12px;">feat/switch-ai-command-theatre-ui</strong>
+                      <div style="font-size: 11px; color: var(--text-muted);">Current Active Worktree</div>
+                    </td>
+                    <td><code style="font-family: var(--font-mono); color: var(--text-secondary);">9f984c6</code></td>
+                    <td><span class="sw-tag lime">VERIFIED</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <strong style="color: #F2F4EF; font-family: var(--font-mono); font-size: 12px;">main</strong>
+                      <div style="font-size: 11px; color: var(--text-muted);">Production Default Branch</div>
+                    </td>
+                    <td><code style="font-family: var(--font-mono); color: var(--text-secondary);">9debeb4</code></td>
+                    <td><span class="sw-tag blue">PROTECTED</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <strong style="color: #F2F4EF; font-family: var(--font-mono); font-size: 12px;">arjit</strong>
+                      <div style="font-size: 11px; color: var(--text-muted);">Unified Pipeline Integration</div>
+                    </td>
+                    <td><code style="font-family: var(--font-mono); color: var(--text-secondary);">3f5dcd9</code></td>
+                    <td><span class="sw-tag lime">SYNCED</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <strong style="color: #F2F4EF; font-family: var(--font-mono); font-size: 12px;">courtroom-ship-court</strong>
+                      <div style="font-size: 11px; color: var(--text-muted);">Adversarial Engine Core</div>
+                    </td>
+                    <td><code style="font-family: var(--font-mono); color: var(--text-secondary);">da47895</code></td>
+                    <td><span class="sw-tag lime">AUDITED</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <strong style="color: #F2F4EF; font-family: var(--font-mono); font-size: 12px;">feat/audit-ledger</strong>
+                      <div style="font-size: 11px; color: var(--text-muted);">Forensic SHA-256 Merkle Block</div>
+                    </td>
+                    <td><code style="font-family: var(--font-mono); color: var(--text-secondary);">51a6817</code></td>
+                    <td><span class="sw-tag lime">ANCHORED</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <strong style="color: #F2F4EF; font-family: var(--font-mono); font-size: 12px;">feat/rollback-sentinel</strong>
+                      <div style="font-size: 11px; color: var(--text-muted);">Canary Verification Watchdog</div>
+                    </td>
+                    <td><code style="font-family: var(--font-mono); color: var(--text-secondary);">7a997df</code></td>
+                    <td><span class="sw-tag lime">VERIFIED</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <strong style="color: #F2F4EF; font-family: var(--font-mono); font-size: 12px;">feat/blast-radius-graph</strong>
+                      <div style="font-size: 11px; color: var(--text-muted);">Dependency Topology Matrix</div>
+                    </td>
+                    <td><code style="font-family: var(--font-mono); color: var(--text-secondary);">a6f0acb</code></td>
+                    <td><span class="sw-tag lime">AUDITED</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- GitHub Actions & Workflow Visibility -->
+          <div class="switch-panel">
+            <div class="switch-panel-header">
+              <div class="switch-panel-title">
+                <span>GitHub Actions / Workflows</span>
+                <span class="switch-panel-badge">CI/CD Governance</span>
+              </div>
+              <span class="switch-theatre-live"><span class="switch-pulse"></span><span>WEBHOOKS OK</span></span>
+            </div>
+            <div class="switch-table-wrap">
+              <table class="switch-table">
+                <thead>
+                  <tr>
+                    <th>Workflow</th>
+                    <th>Execution Trigger</th>
+                    <th>Outcome</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div style="font-weight: 600; color: #F2F4EF;">Ship Court Verification Suite</div>
+                      <div style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">.github/workflows/ci.yml</div>
+                    </td>
+                    <td><code style="font-family: var(--font-mono); font-size: 11px;">push [feat/*]</code></td>
+                    <td><span class="sw-tag lime">PASSED (95/95)</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div style="font-weight: 600; color: #F2F4EF;">AST Mutation Boundary Guard</div>
+                      <div style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">.github/workflows/ast-guard.yml</div>
+                    </td>
+                    <td><code style="font-family: var(--font-mono); font-size: 11px;">pull_request</code></td>
+                    <td><span class="sw-tag lime">0 VIOLATIONS</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div style="font-weight: 600; color: #F2F4EF;">SHA-256 Ledger Anchor Run</div>
+                      <div style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">.github/workflows/audit.yml</div>
+                    </td>
+                    <td><code style="font-family: var(--font-mono); font-size: 11px;">scheduled [hourly]</code></td>
+                    <td><span class="sw-tag lime">CHAIN VALID</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div style="font-weight: 600; color: #F2F4EF;">Governed Repository Write-Back</div>
+                      <div style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">.github/workflows/writeback.yml</div>
+                    </td>
+                    <td><code style="font-family: var(--font-mono); font-size: 11px;">court_verdict</code></td>
+                    <td><span class="sw-tag orange">HELD / MAGISTRATE</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pull Request Review & Changed-File Diff Inspector (2-Col Grid) -->
+        <div class="switch-grid two" style="margin-bottom: 24px;">
+          <!-- Pull Request Review Detail -->
+          <div class="switch-panel">
+            <div class="switch-panel-header">
+              <div class="switch-panel-title">
+                <span>Pull Request Review Docket</span>
+                <span class="sw-tag orange">HELD IN COURT</span>
+              </div>
+              <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">PR #482</span>
+            </div>
+            
+            <div style="margin-bottom: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                <h3 style="font-size: 14px; font-weight: 700; color: #F2F4EF; margin: 0;">feat(pricing): dynamic algorithmic margin adjustments</h3>
+                <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">main &larr; feature/dynamic-margin</span>
+              </div>
+              <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">
+                Submitted by <code>ai-agent/copilot-autonomy</code>. Proposes real-time price tuning on <code>checkout-service</code>. Held by Switch AI under Case <code>SC-0482</code> due to financial blast radius.
+              </p>
+              <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;">
+                <span class="sw-tag red">BLAST: $654K</span>
+                <span class="sw-tag orange">UNAPPROVED MARGIN</span>
+                <span class="sw-tag blue">5 REVIEWS ATTACHED</span>
+              </div>
+            </div>
+
+            <!-- Agent Review Matrix -->
+            <div style="background: rgba(0, 0, 0, 0.25); border: 1px solid var(--sl); border-radius: var(--radius-sm); padding: 12px;">
+              <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; font-family: var(--font-mono);">Swarm Review Deliberation</div>
+              <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span>Court Clerk:</span>
+                  <span style="color: var(--lime); font-family: var(--font-mono);">Docket Validated (Scope Defined)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span>Incident Historian:</span>
+                  <span style="color: var(--orange); font-family: var(--font-mono);">2 Past Incidents Located (INC-901, INC-412)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span>Prosecutor:</span>
+                  <span style="color: var(--orange); font-family: var(--font-mono);">Filed High-Severity Objection OBJ-01</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span>Defender:</span>
+                  <span style="color: #78A8FF; font-family: var(--font-mono);">Conceded: 1% Canary + Clamp Required</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span>Rollback Sentinel:</span>
+                  <span style="color: var(--lime); font-family: var(--font-mono);">Canary Sentinel Pre-Computed (RB-0482)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Changed-File Inspection (Diff Viewer) -->
+          <div class="switch-panel">
+            <div class="switch-panel-header">
+              <div class="switch-panel-title">
+                <span>Changed-File Diff Inspector</span>
+                <span class="switch-panel-badge">server/dashboard.html</span>
+              </div>
+              <div style="font-family: var(--font-mono); font-size: 11px; color: var(--lime);">+1,814 &bull; -1,704</div>
+            </div>
+
+            <div class="switch-diff-box" style="height: 240px;">
+              <div class="switch-diff-line" style="color: var(--text-muted); background: rgba(0,0,0,0.4);">
+                <span class="switch-diff-num">---</span><span>@@ -1070,12 +1070,26 @@ Command Theatre Layout</span>
+              </div>
+              <div class="switch-diff-line">
+                <span class="switch-diff-num">1072</span><span>   &lt;!-- Active Command System --&gt;</span>
+              </div>
+              <div class="switch-diff-line del">
+                <span class="switch-diff-num">1073</span><span>-  &lt;div class="legacy-card"&gt;Ordinary SaaS Card View&lt;/div&gt;</span>
+              </div>
+              <div class="switch-diff-line add">
+                <span class="switch-diff-num">1074</span><span>+  &lt;!-- Command Theatre: 5-Role Orbital Constellation --&gt;</span>
+              </div>
+              <div class="switch-diff-line add">
+                <span class="switch-diff-num">1075</span><span>+  &lt;section class="view-section" id="section-github"&gt;</span>
+              </div>
+              <div class="switch-diff-line add">
+                <span class="switch-diff-num">1076</span><span>+    &lt;div class="switch-section-header"&gt;GITHUB CONTROL&lt;/div&gt;</span>
+              </div>
+              <div class="switch-diff-line add">
+                <span class="switch-diff-num">1077</span><span>+  &lt;/section&gt;</span>
+              </div>
+              <div class="switch-diff-line add">
+                <span class="switch-diff-num">1078</span><span>+  &lt;section class="view-section" id="section-earth"&gt;</span>
+              </div>
+              <div class="switch-diff-line add">
+                <span class="switch-diff-num">1079</span><span>+    &lt;div class="switch-section-header"&gt;PARALLEL EARTH&lt;/div&gt;</span>
+              </div>
+              <div class="switch-diff-line add">
+                <span class="switch-diff-num">1080</span><span>+  &lt;/section&gt;</span>
+              </div>
+              <div class="switch-diff-line">
+                <span class="switch-diff-num">1081</span><span>   &lt;!-- Verified Scope Boundary: 0 AST Mutations --&gt;</span>
+              </div>
+            </div>
+
+            <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; color: var(--text-secondary);">
+              <span>Protected Core Status: <code>server/main.py</code> (0 modifications)</span>
+              <span class="sw-tag lime">AST COMPLIANT</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Governed Repository Write-Back & Human Approval Checkpoint -->
+        <div class="switch-panel" style="border-color: rgba(255, 105, 71, 0.35);">
+          <div class="switch-panel-header">
+            <div class="switch-panel-title">
+              <span style="color: var(--orange);">&#9881;</span>
+              <span>Governed Repository Write-Back & Human Approval Checkpoint</span>
+              <span class="sw-tag orange">PREVIEW GATE</span>
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">POLICY: RFC-MAGISTRATE-01</span>
+          </div>
+
+          <div class="switch-grid two">
+            <div>
+              <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">
+                Repository write-back applies verdict labels (e.g., <code>ship-court:conditional</code>), creates audit tracking issues, and authorizes release tags. In this preview release, this action executes under local verified simulation to demonstrate governance safety.
+              </p>
+              <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--si);">
+                  <input type="checkbox" id="wb-agree-check" checked style="accent-color: var(--lime);">
+                  <span>I certify that Ship Court conditions (REQ-01 to REQ-03) have been formally reviewed.</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--si);">
+                  <input type="checkbox" id="wb-audit-check" checked style="accent-color: var(--lime);">
+                  <span>Record write-back intent to verified SHA-256 Merkle Audit Ledger.</span>
+                </label>
+              </div>
+            </div>
+
+            <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid var(--sl); border-radius: var(--radius-sm); padding: 16px;">
+              <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase; margin-bottom: 8px;">
+                Magistrate Sign-Off Token
+              </div>
+              <input type="password" id="wb-token-input" placeholder="Enter SHIPCOURT_TOKEN operator bearer..." value="__TOKEN_PLACEHOLDER__" style="width: 100%; padding: 10px 12px; background: #080B10; border: 1px solid var(--sl); border-radius: var(--radius-sm); color: #F2F4EF; font-family: var(--font-mono); font-size: 12px; margin-bottom: 12px;">
+              <div style="display: flex; gap: 10px;">
+                <button class="switch-btn-lime" onclick="handleWriteBackAction('label')" style="flex: 1;">
+                  Publish Governed Label &rarr;
+                </button>
+                <button class="switch-btn-ghost" onclick="handleWriteBackAction('audit')">
+                  Simulate Write-Back
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           09. PARALLEL EARTH (Multi-World Scenario Exploration & Simulation)
+           ========================================================================== -->
+      <section class="view-section" id="section-earth">
+        <div class="switch-section-header">
+          <div>
+            <div class="switch-eyebrow">
+              <span class="dot" style="background: var(--lime);"></span>
+              <span>MULTIVERSE SCENARIO EXPLORATION &bull; SWITCH AI</span>
+            </div>
+            <h2 class="switch-page-title">PARALLEL EARTH</h2>
+            <p class="switch-page-desc">
+              Explore multiple possible worlds, compare alternate change scenarios, simulate dependency blast impact, and verify rollback readiness before production merge.
+            </p>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+            <span class="switch-tag-badge lime-pulse">
+              <span class="switch-pulse" style="background: var(--lime);"></span>
+              SIMULATION CONCEPT &bull; NOT RUNNING
+            </span>
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">ENVIRONMENT: MODELED SANDBOX</span>
+          </div>
+        </div>
+
+        <!-- Scope & Safety Disclaimer Banner -->
+        <div class="switch-scope-banner lime-theme">
+          <div class="banner-icon">&#8734;</div>
+          <div>
+            <strong>SIMULATED MULTIVERSE EXPLORATION &mdash; NOT LIVE INFRASTRUCTURE:</strong> Parallel Earth computes speculative state branches, synthetic canary failure probabilities, and hypothetical financial exposure modeled from repository dependency graphs. No actual cloud infrastructure, staging clusters, or live customer traffic are provisioned in this concept preview.
+          </div>
+        </div>
+
+        <!-- Custom Orbital Multi-World Visualisation (SVG) -->
+        <div class="switch-multiverse-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div>
+              <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--lime); letter-spacing: 0.8px;">ORBITAL MULTIVERSE CONSTELLATION</span>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">Interactive scenario trajectories radiating from Baseline Earth-0</div>
+            </div>
+            <span class="switch-theatre-live"><span class="switch-pulse"></span><span>MODELED OSCILLATION</span></span>
+          </div>
+
+          <div style="position: relative; width: 100%; height: 260px; display: flex; justify-content: center; align-items: center;">
+            <svg viewBox="0 0 800 260" preserveAspectRatio="xMidYMid meet" style="width: 100%; height: 100%;">
+              <defs>
+                <linearGradient id="orbitMain" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#78A8FF" stop-opacity="0.2"/>
+                  <stop offset="50%" stop-color="#78A8FF" stop-opacity="0.8"/>
+                  <stop offset="100%" stop-color="#78A8FF" stop-opacity="0.2"/>
+                </linearGradient>
+                <linearGradient id="orbitRiskA" x1="0%" y1="100%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#78A8FF" stop-opacity="0.4"/>
+                  <stop offset="60%" stop-color="#FF6947" stop-opacity="0.9"/>
+                  <stop offset="100%" stop-color="#FF6947" stop-opacity="0.3"/>
+                </linearGradient>
+                <linearGradient id="orbitSafeB" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#78A8FF" stop-opacity="0.4"/>
+                  <stop offset="60%" stop-color="#D8FF42" stop-opacity="0.9"/>
+                  <stop offset="100%" stop-color="#D8FF42" stop-opacity="0.3"/>
+                </linearGradient>
+              </defs>
+
+              <!-- Central Harmonic Axis -->
+              <line x1="80" y1="130" x2="720" y2="130" stroke="rgba(207,226,242,0.12)" stroke-dasharray="4 8"/>
+
+              <!-- Baseline Earth-0 Ring -->
+              <circle cx="200" cy="130" r="48" fill="rgba(120, 168, 255, 0.06)" stroke="url(#orbitMain)" stroke-width="1.8"/>
+              <circle cx="200" cy="130" r="6" fill="#78A8FF"/>
+
+              <!-- Universe A Trajectory (Upward Divergence - Risky) -->
+              <path d="M200 130 C320 130, 380 40, 560 50" fill="none" stroke="url(#orbitRiskA)" stroke-width="2.2" stroke-dasharray="6 4"/>
+              <circle cx="560" cy="50" r="38" fill="rgba(255, 105, 71, 0.08)" stroke="#FF6947" stroke-width="1.6"/>
+              <circle cx="560" cy="50" r="5" fill="#FF6947"/>
+
+              <!-- Universe B Trajectory (Downward Convergence - Governed) -->
+              <path d="M200 130 C320 130, 380 220, 560 210" fill="none" stroke="url(#orbitSafeB)" stroke-width="2.2"/>
+              <circle cx="560" cy="210" r="38" fill="rgba(216, 255, 66, 0.08)" stroke="#D8FF42" stroke-width="1.6"/>
+              <circle cx="560" cy="210" r="5" fill="#D8FF42"/>
+
+              <!-- Pulsing Trajectory Telemetry Dots -->
+              <circle cx="360" cy="85" r="3" fill="#FF6947">
+                <animate attributeName="opacity" values="0.2;1;0.2" dur="2s" repeatCount="indefinite"/>
+              </circle>
+              <circle cx="360" cy="175" r="3" fill="#D8FF42">
+                <animate attributeName="opacity" values="0.2;1;0.2" dur="2s" repeatCount="indefinite"/>
+              </circle>
+
+              <!-- Node Text Annotations -->
+              <text x="200" y="90" text-anchor="middle" fill="#CAD5E2" font-family="Space Grotesk" font-size="12" font-weight="700">Earth-0 (Baseline)</text>
+              <text x="200" y="105" text-anchor="middle" fill="#718293" font-family="IBM Plex Mono" font-size="9.5">Stable Mainline (9debeb4)</text>
+
+              <text x="560" y="25" text-anchor="middle" fill="#FF6947" font-family="Space Grotesk" font-size="12" font-weight="700">Candidate Universe A</text>
+              <text x="560" y="98" text-anchor="middle" fill="#FF6947" font-family="IBM Plex Mono" font-size="9.5">Direct Merge &bull; 84% Canary &bull; $654K Risk</text>
+
+              <text x="560" y="240" text-anchor="middle" fill="#D8FF42" font-family="Space Grotesk" font-size="12" font-weight="700">Candidate Universe B (Recommended)</text>
+              <text x="560" y="255" text-anchor="middle" fill="#D8FF42" font-family="IBM Plex Mono" font-size="9.5">Governed Canary &bull; 99.8% Pass &bull; -$340K Exposure</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Multi-World Universe Switcher Cards (3-Col Grid) -->
+        <div class="switch-grid" style="grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px;">
+          <!-- Earth-0 Card -->
+          <div class="switch-universe-card" id="ucard-0" onclick="selectUniverse('0')">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span class="sw-tag blue">PRODUCTION BENCHMARK</span>
+              <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">REF-0</span>
+            </div>
+            <h4 style="font-size: 14px; font-weight: 700; color: #F2F4EF; margin: 0 0 6px 0;">Earth-0: Baseline</h4>
+            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4; margin: 0 0 10px 0;">Current deployed production state on <code>main</code>. 0 unmitigated risks, 100% telemetry stability.</p>
+            <div style="font-family: var(--font-mono); font-size: 11.5px; color: #78A8FF;">
+              Canary: 100% &bull; Exposure: $0
+            </div>
+          </div>
+
+          <!-- Universe A Card -->
+          <div class="switch-universe-card danger" id="ucard-a" onclick="selectUniverse('a')">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span class="sw-tag orange">HIGH RISK &bull; UNGUARDED</span>
+              <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">SCENARIO-A</span>
+            </div>
+            <h4 style="font-size: 14px; font-weight: 700; color: #F2F4EF; margin: 0 0 6px 0;">Universe A: Direct Rollout</h4>
+            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4; margin: 0 0 10px 0;">Immediate 100% rollout of PR #482 without canary soak. Uncapped margin volatility.</p>
+            <div style="font-family: var(--font-mono); font-size: 11.5px; color: var(--orange);">
+              Canary: 84.2% &bull; Exposure: $654,000
+            </div>
+          </div>
+
+          <!-- Universe B Card -->
+          <div class="switch-universe-card selected" id="ucard-b" onclick="selectUniverse('b')">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span class="sw-tag lime">SHIP COURT OPTIMIZED</span>
+              <span style="font-family: var(--font-mono); font-size: 11px; color: var(--lime);">&#10003; RECOMMENDED</span>
+            </div>
+            <h4 style="font-size: 14px; font-weight: 700; color: #F2F4EF; margin: 0 0 6px 0;">Universe B: Governed Canary</h4>
+            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4; margin: 0 0 10px 0;">1% progressive canary soak, &plusmn;5% margin clamp, automated Sentinel watchdog active.</p>
+            <div style="font-family: var(--font-mono); font-size: 11.5px; color: var(--lime);">
+              Canary: 99.8% &bull; Exposure: &lt;$8,200
+            </div>
+          </div>
+        </div>
+
+        <!-- Side-by-Side Change & Impact Comparisons Matrix -->
+        <div class="switch-panel" style="margin-bottom: 24px;">
+          <div class="switch-panel-header">
+            <div class="switch-panel-title">
+              <span>Side-by-Side Change & Risk Matrix</span>
+              <span class="switch-panel-badge">3 Alternate Universes</span>
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 11.5px; color: var(--text-muted);">MAT-SCENARIO-0482</span>
+          </div>
+
+          <div class="switch-table-wrap">
+            <table class="switch-comp-matrix">
+              <thead>
+                <tr>
+                  <th style="width: 25%;">Evaluation Dimension</th>
+                  <th style="width: 25%;">Earth-0 (Baseline)</th>
+                  <th style="width: 25%;">Candidate Universe A (Direct)</th>
+                  <th style="width: 25%; color: var(--lime);">Candidate Universe B (Governed)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Deployment Pattern</strong></td>
+                  <td class="col-baseline">Static Current Release</td>
+                  <td class="col-univ-a">100% Immediate Traffic</td>
+                  <td class="col-univ-b">1% Phased Canary + 15m Soak</td>
+                </tr>
+                <tr>
+                  <td><strong>Projected Blast Radius</strong></td>
+                  <td class="col-baseline">0 Services Affected</td>
+                  <td class="col-univ-a">14 Services (5 Tiers Exhausted)</td>
+                  <td class="col-univ-b">1 Service (Isolated Edge Tier)</td>
+                </tr>
+                <tr>
+                  <td><strong>Synthetic Canary Pass Rate</strong></td>
+                  <td class="col-baseline">100.0% Nominal</td>
+                  <td class="col-univ-a" id="mat-canary-a">84.2% [CANARY BREACH]</td>
+                  <td class="col-univ-b" id="mat-canary-b">99.8% [HEALTHY PASS]</td>
+                </tr>
+                <tr>
+                  <td><strong>Projected Monetary Exposure</strong></td>
+                  <td class="col-baseline">$0.00 Normal Ops</td>
+                  <td class="col-univ-a" id="mat-expo-a">$654,000 [CRITICAL RISK]</td>
+                  <td class="col-univ-b" id="mat-expo-b">$8,200 [INSURED CAP]</td>
+                </tr>
+                <tr>
+                  <td><strong>Rollback Recovery Latency</strong></td>
+                  <td class="col-baseline">N/A (Steady State)</td>
+                  <td class="col-univ-a">432s (Manual Operator)</td>
+                  <td class="col-univ-b">11.4s (Automated Sentinel)</td>
+                </tr>
+                <tr>
+                  <td><strong>P99 Latency Delta</strong></td>
+                  <td class="col-baseline">+0.0 ms Baseline</td>
+                  <td class="col-univ-a" id="mat-lat-a">+142.5 ms Degradation</td>
+                  <td class="col-univ-b" id="mat-lat-b">+3.8 ms Nominal</td>
+                </tr>
+                <tr>
+                  <td><strong>Ship Court Adjudication</strong></td>
+                  <td class="col-baseline"><span class="sw-tag blue">PRODUCTION</span></td>
+                  <td class="col-univ-a"><span class="sw-tag red">BLOCKED BY SENTINEL</span></td>
+                  <td class="col-univ-b"><span class="sw-tag lime">CONDITIONAL APPROVAL</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Dependency Impact Simulation Controls & Rollback Readiness (2-Col Grid) -->
+        <div class="switch-grid two" style="margin-bottom: 24px;">
+          <!-- Simulation Parameter Controls -->
+          <div class="switch-panel">
+            <div class="switch-panel-header">
+              <div class="switch-panel-title">
+                <span>Multiverse Stress Simulator</span>
+                <span class="switch-panel-badge">ParallelEarthSimulator</span>
+              </div>
+              <button class="switch-btn-ghost" onclick="resetSimParams()">Reset Defaults</button>
+            </div>
+
+            <div class="switch-slider-row">
+              <div class="switch-slider-labels">
+                <span>Estimated Downtime Window</span>
+                <strong id="val-downtime" style="color: var(--lime);">15 minutes</strong>
+              </div>
+              <input type="range" class="switch-slider" id="slider-downtime" min="1" max="60" value="15" oninput="updateSimCalculations()">
+            </div>
+
+            <div class="switch-slider-row">
+              <div class="switch-slider-labels">
+                <span>Synthetic Request Volume</span>
+                <strong id="val-requests" style="color: var(--lime);">1,000 req/s</strong>
+              </div>
+              <input type="range" class="switch-slider" id="slider-requests" min="100" max="10000" step="100" value="1000" oninput="updateSimCalculations()">
+            </div>
+
+            <div class="switch-slider-row">
+              <div class="switch-slider-labels">
+                <span>Injected Failure Probability</span>
+                <strong id="val-failure" style="color: var(--orange);">1.0%</strong>
+              </div>
+              <input type="range" class="switch-slider" id="slider-failure" min="0.1" max="10.0" step="0.1" value="1.0" oninput="updateSimCalculations()">
+            </div>
+
+            <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--sl); border-radius: var(--radius-sm); padding: 12px; margin-top: 12px; font-size: 11.5px; color: var(--text-secondary); font-family: var(--font-mono);">
+              Calculated using <code>server.parallel_earth.EarthSimulationReport</code> model specifications.
+            </div>
+          </div>
+
+          <!-- Rollback Readiness & Sentinel Verification -->
+          <div class="switch-panel">
+            <div class="switch-panel-header">
+              <div class="switch-panel-title">
+                <span>Rollback Readiness & Sentinel</span>
+                <span class="sw-tag lime">CANARY READY</span>
+              </div>
+              <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">WATCHDOG: ARMED</span>
+            </div>
+
+            <div style="margin-bottom: 14px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 12px; color: var(--text-secondary);">Recovery Confidence Score:</span>
+                <strong style="font-family: var(--font-mono); font-size: 14px; color: var(--lime);">98.4% (Universe B)</strong>
+              </div>
+              <div class="sw-meter-track">
+                <div class="sw-meter-fill lime" style="width: 98.4%;"></div>
+              </div>
+            </div>
+
+            <div style="background: rgba(0, 0, 0, 0.25); border: 1px solid var(--sl); border-radius: var(--radius-sm); padding: 12px; font-size: 12px;">
+              <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase; margin-bottom: 8px;">Pre-Computed Rollback Plan (RB-0482)</div>
+              <div style="display: flex; flex-direction: column; gap: 6px; font-family: var(--font-mono); font-size: 11.5px;">
+                <div style="color: var(--lime);">&#10003; 1. Automated circuit breaker trip on &gt;0.5% error rate (1.2s)</div>
+                <div style="color: var(--lime);">&#10003; 2. Edge traffic rerouted to Earth-0 Baseline (4.5s)</div>
+                <div style="color: var(--lime);">&#10003; 3. Git rollback branch snapshot verified (5.7s)</div>
+              </div>
+            </div>
+
+            <!-- Human Decision Hand-off Buttons -->
+            <div style="margin-top: 14px; display: flex; gap: 10px;">
+              <button class="switch-btn-lime" onclick="adoptTargetUniverse('b')" style="flex: 1;">
+                Adopt Universe B as Target &rarr;
+              </button>
+              <button class="switch-btn-ghost" onclick="exportMultiverseReport()">
+                Export Report (.json)
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   </main>
 
@@ -1901,9 +2983,15 @@
       const targetSec = document.getElementById('section-' + viewId);
       if (targetSec) targetSec.classList.add('active-section');
 
+      // Update sidebar nav items
       document.querySelectorAll('.switch-nav-item').forEach(b => b.classList.remove('active'));
       const targetBtn = document.getElementById('tab-' + viewId);
       if (targetBtn) targetBtn.classList.add('active');
+
+      // Update mobile pill active state
+      document.querySelectorAll('.switch-mobile-pill').forEach(p => p.classList.remove('active'));
+      const targetPill = document.getElementById('mpill-' + viewId);
+      if (targetPill) targetPill.classList.add('active');
 
       const titleMap = {
         'overview': 'Command Center',
@@ -1913,6 +3001,8 @@
         'graph': 'Impact Field',
         'brief': 'Release Brief',
         'ledger': 'Audit Ledger',
+        'github': 'GitHub Control',
+        'earth': 'Parallel Earth',
         'settings': 'Settings & Keys'
       };
       const crumb = document.getElementById('crumb-active');
@@ -1925,7 +3015,7 @@
       }
     }
 
-    // Keyboard Shortcuts (1-8 and / or Ctrl+K for search)
+    // Keyboard Shortcuts (1-8, 9 for GitHub Control, 0 for Parallel Earth, / for Search)
     window.addEventListener('keydown', (e) => {
       if ((e.ctrlKey && e.key.toLowerCase() === 'k') || (e.key === '/' && document.activeElement.tagName !== 'INPUT')) {
         e.preventDefault();
@@ -1942,13 +3032,108 @@
         '5': 'graph',
         '6': 'brief',
         '7': 'ledger',
-        '8': 'settings'
+        '8': 'settings',
+        '9': 'github',
+        '0': 'earth'
       };
       if (keyMap[e.key]) {
         e.preventDefault();
         showView(keyMap[e.key]);
       }
     });
+
+    // Multiverse Universe Selection
+    function selectUniverse(uid) {
+      ['0', 'a', 'b'].forEach(u => {
+        const c = document.getElementById('ucard-' + u);
+        if (c) c.classList.remove('selected');
+      });
+      const selected = document.getElementById('ucard-' + uid);
+      if (selected) selected.classList.add('selected');
+      const names = { '0': 'Earth-0 (Baseline)', 'a': 'Candidate Universe A', 'b': 'Candidate Universe B' };
+      showToast('Multiverse telemetry focused on ' + (names[uid] || uid));
+    }
+
+    // Multiverse Simulation Calculation (reusing ParallelEarthSimulator model)
+    function updateSimCalculations() {
+      const downtime = parseFloat(document.getElementById('slider-downtime').value) || 15;
+      const requests = parseFloat(document.getElementById('slider-requests').value) || 1000;
+      const failureRate = parseFloat(document.getElementById('slider-failure').value) || 1.0;
+
+      document.getElementById('val-downtime').innerText = downtime + ' minutes';
+      document.getElementById('val-requests').innerText = requests.toLocaleString() + ' req/s';
+      document.getElementById('val-failure').innerText = failureRate.toFixed(1) + '%';
+
+      const loadFactor = requests / 1000;
+      const timeFactor = downtime / 15;
+      const failFactor = failureRate / 1.0;
+
+      const rawExposureA = Math.round(654000 * loadFactor * timeFactor * failFactor);
+      const rawExposureB = Math.round(8200 * (1 + 0.1 * (loadFactor - 1)) * (1 + 0.05 * (timeFactor - 1)));
+      const canaryA = Math.max(0, Math.min(99.9, (100 - (15.8 * failFactor * loadFactor)).toFixed(1)));
+      const canaryB = Math.max(90, Math.min(99.9, (99.8 - (0.1 * failFactor)).toFixed(1)));
+      const latDeltaA = (142.5 * loadFactor).toFixed(1);
+      const latDeltaB = (3.8 * (1 + 0.1 * (loadFactor - 1))).toFixed(1);
+
+      document.getElementById('mat-expo-a').innerText = '$' + rawExposureA.toLocaleString() + ' [CRITICAL RISK]';
+      document.getElementById('mat-expo-b').innerText = '$' + rawExposureB.toLocaleString() + ' [INSURED CAP]';
+      document.getElementById('mat-canary-a').innerText = canaryA + '% [CANARY BREACH]';
+      document.getElementById('mat-canary-b').innerText = canaryB + '% [HEALTHY PASS]';
+      document.getElementById('mat-lat-a').innerText = '+' + latDeltaA + ' ms Degradation';
+      document.getElementById('mat-lat-b').innerText = '+' + latDeltaB + ' ms Nominal';
+    }
+
+    function resetSimParams() {
+      document.getElementById('slider-downtime').value = 15;
+      document.getElementById('slider-requests').value = 1000;
+      document.getElementById('slider-failure').value = 1.0;
+      updateSimCalculations();
+      showToast('Simulation parameters restored to baseline specifications');
+    }
+
+    function adoptTargetUniverse(uid) {
+      showToast('Candidate Universe B adopted as target specification for Case SC-0482');
+      showView('brief');
+    }
+
+    function exportMultiverseReport() {
+      const downtime = document.getElementById('slider-downtime').value;
+      const report = {
+        simulation_id: "SIM-EARTH-" + Math.floor(100000 + Math.random() * 900000),
+        target_repository: "GaneshNair007/switch-AI",
+        case_id: "SC-0482",
+        mode: "MODELED_CONCEPT",
+        universes: {
+          "earth_0": { status: "baseline", canary_pass_rate: 100.0, exposure_usd: 0 },
+          "universe_a": { status: "rejected", canary_pass_rate: 84.2, exposure_usd: 654000, rollback_seconds: 432 },
+          "universe_b": { status: "recommended", canary_pass_rate: 99.8, exposure_usd: 8200, rollback_seconds: 11.4 }
+        },
+        governance_recommendation: "MANDATORY_CANARY_SOAK_15M",
+        verified_by: "Priya (Magistrate)"
+      };
+      const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'parallel-earth-report-SC-0482.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Exported parallel-earth-report-SC-0482.json');
+    }
+
+    function handleWriteBackAction(action) {
+      const agree = document.getElementById('wb-agree-check').checked;
+      const token = document.getElementById('wb-token-input').value.trim();
+      if (!agree) {
+        showToast('Please check agreement to Ship Court conditions before proceeding');
+        return;
+      }
+      if (!token || token === '__TOKEN_PLACEHOLDER__') {
+        showToast('Valid SHIPCOURT_TOKEN required for governed write-back sign-off');
+        return;
+      }
+      showToast('Preview Mode Active: Write-back action verified locally (Simulated Guard)');
+    }
 
     // Dynamic API Keys Loader (Never displays actual keys or partial fragments)
     async function loadApiKeys() {
