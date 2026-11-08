@@ -1,0 +1,34 @@
+{
+  "date": "2026-11-08",
+  "kind": "read_only_static_product_preview",
+  "url": "https://ship-court-hq.onrender.com",
+  "provider": "Render",
+  "service_type": "static_site",
+  "service_id": "srv-dbnvemdg1s2s73dq02g0",
+  "deploy_id": "dep-dbnvemlg1s2s73dq030g",
+  "source_commit": "efa03c6eaab9b5c2e934bcc3ef5b548d939b0d82",
+  "render_status": "live",
+  "finished_at_utc": "2026-11-08T04:15:52.46722Z",
+  "auto_deploy": false,
+  "verification": {
+    "https_status": 200,
+    "ship_court_title": true,
+    "read_only_no_backend_notice": true,
+    "published_screenshot_tabs": "verified in browser",
+    "both_screenshot_assets_status": 200,
+    "api_hq_status": 404,
+    "dotenv_status": 404,
+    "local_python_tests": 137,
+    "local_node_tests": 10,
+    "github_actions_url": "https://github.com/GaneshNair007/switch-AI/actions/runs/42446037512",
+    "github_actions_conclusion": "success",
+    "github_actions_jobs_passed": 7
+  },
+  "limitations": [
+    "No cloud backend, agent connections, database, voice gateway or write endpoints.",
+    "Functional workspace remains on the laptop.",
+    "Full cloud migration requires durable application state and the matching official Switch database and encryption keys."
+  ],
+  "paid_compute_disk_database_or_worker_created": false,
+  "runtime_secrets_uploaded": false
+}

@@ -2,6 +2,8 @@
 
 ## Free public preview on Render
 
+**Published:** [ship-court-hq.onrender.com](https://ship-court-hq.onrender.com). The initial deployment of commit `efa03c6` reached Render status `live`; HTTPS and the screenshot navigation were verified. See [the deployment record](../docs/evidence/render-preview-2026-11-08.json). This is a static preview, not the complete runtime. Auto-deploy is off: future source changes require a manual Render deploy.
+
 The zero-cost deployment path is a **read-only static product preview**, built with:
 
 ~~~bash

@@ -434,7 +434,7 @@ Restart the affected backend/gateway after configuration changes. The optional h
 
 ### 7 · Host the complete workspace
 
-For a **free public product preview**, use the [Render static-site instructions](deploy/README.md#free-public-preview-on-render). The preview shows the real screenshots, workflow and setup links; agents, voice and the authenticated workspace continue to run locally. It has no secrets or write endpoints. Free Render web services discard local SQLite data on restart and sleep when idle, so they cannot safely host this complete runtime unchanged.
+Open the **[free public Ship Court preview](https://ship-court-hq.onrender.com)**, deployed and verified on Render on November 8, 2026. It shows the real screenshots, workflow and setup links; agents, voice and the authenticated workspace continue to run locally. It has no secrets or write endpoints. Reproduce it with the [Render static-site instructions](deploy/README.md#free-public-preview-on-render). Free Render web services discard local SQLite data on restart and sleep when idle, so they cannot safely host this complete runtime unchanged.
 
 For always-on operation, use the [Linux VPS deployment package](deploy/README.md): separate Python/Node containers, HTTPS through Caddy, persistent SQLite, private Switch/Postgres, scoped runtime secrets, backup checks and automatic transport reconnection. The backend remains a single instance; adding replicas would require a different session/database design.
 
