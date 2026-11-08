@@ -33,3 +33,11 @@ Redacted external receipts and status evidence: [hq-live-2026-11-08.json](eviden
 4. No manual real GitHub write test was performed, following the user's instruction. Exact plan/SHA/approval/result behavior is tested with controlled GitHub transports. A future authorized write requires a real target and reviewed plan.
 
 No optional paid harness is required or reported online. Parallel Earth remains a labeled model, not measured deployment telemetry. Arbitrary background processes/nested shell effects are not comprehensively contained by a pre-tool path hook.
+
+## Branding and always-on deployment preparation
+
+The dashboard name, title, sidebar and headings now read **Ship Court**. Its README screenshot was refreshed from the actual running app. The Linux deployment package is documented in [deploy/README.md](../deploy/README.md): nonroot backend/voice images, persistent runtime data, Caddy HTTPS, private Switch/Postgres access, least-privilege environment separation, consistent migration/backup helpers and CI container/proxy checks. Public-origin configuration rejects insecure/malformed origins and mismatched hosts. Binding a second backend fails before it opens duplicate bot/agent sessions; Switch transport reconnects with capped backoff through prolonged outages.
+
+The local regression suite now has **137 passing tests**. A real VPS, hostname, restored Switch database/encryption keys and hosted workflow checks remain required; deployment files alone are not a claim that the cloud app is live.
+
+The free-only hosting option is a separately labelled static preview (`deploy/preview`), built from an explicit allowlist with `node deploy/build-preview.mjs`. It contains the two public screenshots and setup/evidence links, with no backend connection, runtime state or credentials. Full cloud operation remains pending; Render's disposable free-service filesystem cannot safely store the current SQLite workspace.

@@ -1,0 +1,69 @@
+# Linux VPS only. One backend owns the in-process sessions and SQLite database.
+name: shipcourt
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: "3"
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: deploy/backend.Dockerfile
+    image: shipcourt-backend:local
+    init: true
+    restart: unless-stopped
+    network_mode: host
+    env_file: ${SHIPCOURT_CONFIG_DIR:?Set SHIPCOURT_CONFIG_DIR}/backend.env
+    environment:
+      SHIPCOURT_STATE_PATH: /app/.runtime/shipcourt.sqlite3
+      SHIPCOURT_PUBLIC_ORIGIN: https://${SHIPCOURT_DOMAIN:?Set SHIPCOURT_DOMAIN}
+    volumes:
+      - ${SHIPCOURT_STATE_DIR:?Set SHIPCOURT_STATE_DIR}:/app/.runtime
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    stop_grace_period: 30s
+    logging: *logging
+  voice:
+    profiles: [voice]
+    build:
+      context: ..
+      dockerfile: deploy/voice.Dockerfile
+    image: shipcourt-voice:local
+    init: true
+    restart: unless-stopped
+    network_mode: host
+    env_file: ${SHIPCOURT_CONFIG_DIR:?Set SHIPCOURT_CONFIG_DIR}/voice.env
+    environment:
+      SHIPCOURT_URL: http://127.0.0.1:8080
+    volumes:
+      - ${SHIPCOURT_STATE_DIR:?Set SHIPCOURT_STATE_DIR}/discord_channels.json:/app/.runtime/discord_channels.json:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    stop_grace_period: 30s
+    logging: *logging
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      SHIPCOURT_DOMAIN: ${SHIPCOURT_DOMAIN:?Set SHIPCOURT_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL:?Set ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      backend:
+        condition: service_healthy
+    logging: *logging
+volumes:
+  caddy_data:
+  caddy_config:

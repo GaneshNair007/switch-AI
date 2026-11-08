@@ -1,6 +1,6 @@
 <p align="center"><img src="assets/banner.svg" alt="SHIP COURT HQ — Human decisions. Shared evidence." width="100%"></p>
 
-<p align="center"><img src="assets/badges.svg" alt="Business and creative workflows · 128 local Python tests · official Switch protocol · Groq · MIT" width="100%"></p>
+<p align="center"><img src="assets/badges.svg" alt="Business and creative workflows · 137 local Python tests · official Switch protocol · Groq · MIT" width="100%"></p>
 
 <p align="center"><b><i>“Your AI team investigates together. You make the decision.”</i></b></p>
 
@@ -10,7 +10,7 @@
 
 <p align="center">Built for <a href="https://www.wemakedevs.org/hackathons/switch"><b>Flip the Switch</b></a> by <b>WeMakeDevs</b> × <b>DevTools Academy</b> · powered by <a href="https://docs.switchagents.ai/"><b>Switch</b></a></p>
 
-<p align="center"><img src="assets/stats.svg" alt="128 local Python tests · 10 Node tests · 5 custom agents · 7 Discord categories · 17 channels" width="100%"></p>
+<p align="center"><img src="assets/stats.svg" alt="137 local Python tests · 10 Node tests · 5 custom agents · 7 Discord categories · 17 channels" width="100%"></p>
 
 > [!IMPORTANT]
 > **Free-first agent runtime. Human-controlled actions.** Five custom Python agents use your configured Groq API key and the official Switch HTTP/SSE protocol. No Claude Code or Codex subscription is required. Provider quotas still apply. Agents cannot approve themselves, execute a release, or silently turn a recommendation into a GitHub write.
@@ -179,7 +179,7 @@ flowchart TB
 | Discord HQ | **Live** | Seven categories, 17 channels, working panel, two mission threads and 16 related receipt-backed deliveries |
 | Restart/persistence | **Live + locally tested** | Both native results survived restart; all five clients reconnected |
 | Dashboard | **Live UI + tested API** | Actual counts, authenticated screenshot, five-minute HttpOnly sessions and protected mutations |
-| Local Python suite | **128 passed** | Workflow, scope, identity, persistence, transport, exact-plan and HTTP tests; live-provider modules are run separately |
+| Local Python suite | **137 passed** | Workflow, scope, identity, persistence, transport, exact-plan and HTTP tests; live-provider modules are run separately |
 | Voice/audio suite | **10 passed** | PCM/Opus, speech filtering, interruption and floor input checks |
 | Antigravity event pipeline | **Contract tested** | Authenticated hook → evidence/case → real-worker dispatcher; an actual IDE-originated tool event remains to be captured |
 | Full voice meeting | **Live verification pending** | Gateway running; an earlier audio check was heard. Full microphone → transcript → hand → grant → speech → interruption → recap still needs a human call |
@@ -431,6 +431,14 @@ Watch actual agent messages in `#ship-court`, and use HQ's agent view or authent
 | **Research** | Explicit HTTPS source URLs and `SHIPCOURT_RESEARCH_HOSTS` allowlist | Use HQ **Verify sources**; unsupported factual claims stay unverified |
 
 Restart the affected backend/gateway after configuration changes. The optional harness names `antigravity`, `claude_code`, `codex` and `opencode` are compatibility/configuration points, not claims that those sessions are implemented and online. The operational agent runtime here is `groq_custom`.
+
+### 7 · Host the complete workspace
+
+For a **free public product preview**, use the [Render static-site instructions](deploy/README.md#free-public-preview-on-render). The preview shows the real screenshots, workflow and setup links; agents, voice and the authenticated workspace continue to run locally. It has no secrets or write endpoints. Free Render web services discard local SQLite data on restart and sleep when idle, so they cannot safely host this complete runtime unchanged.
+
+For always-on operation, use the [Linux VPS deployment package](deploy/README.md): separate Python/Node containers, HTTPS through Caddy, persistent SQLite, private Switch/Postgres, scoped runtime secrets, backup checks and automatic transport reconnection. The backend remains a single instance; adding replicas would require a different session/database design.
+
+The package is ready for server deployment; a purchased/configured VPS, DNS hostname and migration verification are still required. Do not deploy only a static copy of this dashboard and label the local Switch/voice services cloud-hosted. Preserve the real Switch database and encryption keys as well as the Ship Court database. GitHub Actions builds the container images and checks protected routes/codecs/proxy configuration without live secrets.
 
 <details>
 <summary><b>CLI, voice tests and common setup failures</b></summary>

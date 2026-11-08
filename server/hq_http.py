@@ -11,8 +11,12 @@ def sessions(handler):
 
 
 def origin(handler):
+    from .hosting import public_origin, validate_host
+    validate_host(handler)
     value=handler.headers.get('Origin');host=handler.headers.get('Host','')
-    if value and value not in ('http://'+host,'https://'+host):
+    configured=public_origin()
+    allowed=(configured,) if configured and host==configured.split('://',1)[1] else ('http://'+host,'https://'+host)
+    if value and value not in allowed:
         raise PermissionError('Cross-origin request rejected')
 
 

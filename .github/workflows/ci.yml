@@ -148,3 +148,39 @@ jobs:
       - run: node --test voice/audio.test.mjs voice/transcription.test.mjs
       - run: node --check voice/gateway.mjs
       - run: node --check assets/hq.js
+
+  hosting-containers:
+    name: Hosting container (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [backend, voice]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build deployment image without local secrets
+        run: docker build -f deploy/${{ matrix.service }}.Dockerfile -t shipcourt-${{ matrix.service }}:ci .
+      - name: Verify backend container and protected routes
+        if: matrix.service == 'backend'
+        run: |
+          docker run -d --name shipcourt-smoke --read-only --tmpfs /tmp --tmpfs /app/.runtime:uid=10001,gid=10001 shipcourt-backend:ci
+          docker exec shipcourt-smoke python deploy/container_smoke.py
+      - name: Verify voice codecs in deployment image
+        if: matrix.service == 'voice'
+        run: docker run --rm --read-only --tmpfs /tmp shipcourt-voice:ci node --test voice/audio.test.mjs voice/transcription.test.mjs
+
+  hosting-proxy:
+    name: Hosting proxy and Compose configuration
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Caddy configuration
+        run: |
+          docker run --rm -e SHIPCOURT_DOMAIN=shipcourt.example.com -e ACME_EMAIL=ops@example.com -v "$PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+      - name: Validate Compose without real credentials
+        run: |
+          mkdir -p .runtime/hosting-ci .runtime/hosting-state
+          touch .runtime/hosting-ci/backend.env .runtime/hosting-ci/voice.env .runtime/hosting-state/discord_channels.json
+          export SHIPCOURT_DOMAIN=shipcourt.example.com ACME_EMAIL=ops@example.com
+          export SHIPCOURT_CONFIG_DIR="$PWD/.runtime/hosting-ci" SHIPCOURT_STATE_DIR="$PWD/.runtime/hosting-state"
+          docker compose -f deploy/compose.yaml config --quiet

@@ -55,6 +55,10 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
         return principal(self)
 
     def do_GET(self):
+        from .hosting import validate_host
+        try:validate_host(self)
+        except PermissionError:
+            self._json_response(403,{'error':'Unexpected request host'});return
         from .hq_http import get
         if get(self): return
         if self.path in ('/api/keys', '/status', '/tasks', '/decisions'):
@@ -168,6 +172,10 @@ class ShipCourtHTTPHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({"error": "Not Found"}).encode("utf-8"))
 
     def do_POST(self):
+        from .hosting import validate_host
+        try:validate_host(self)
+        except PermissionError:
+            self._json_response(403,{'error':'Unexpected request host'});return
         try:
             content_length = int(self.headers.get('Content-Length', 0))
             if not 0 <= content_length <= 1048576:
@@ -359,13 +367,24 @@ class ShipCourtServer(ThreadingHTTPServer):
     allow_reuse_address = os.name != 'nt'
 
 def start_server(host="127.0.0.1", port=8080):
-    room = setup_live_courtroom()
+    from .hosting import public_origin
+    public_origin()  # Refuse an invalid public origin before opening gateways.
+    # A duplicate process must fail before changing persisted workflow state
+    # or opening external bot/agent sessions.
+    httpd = ShipCourtServer((host, port), ShipCourtHTTPHandler)
     from .unified_pipeline import UnifiedBoardroomCourtPipeline
     state_path = Path(os.getenv('SHIPCOURT_STATE_PATH', '.runtime/shipcourt.sqlite3'))
     state_path.parent.mkdir(parents=True, exist_ok=True)
-    workflow = UnifiedBoardroomCourtPipeline(db_path=state_path)
+    try:
+        workflow = UnifiedBoardroomCourtPipeline(db_path=state_path)
+    except Exception:
+        httpd.server_close()
+        raise
     mgr = workflow.manager
     room = workflow.room
+    ShipCourtHTTPHandler.workflow = workflow
+    ShipCourtHTTPHandler.room = room
+    ShipCourtHTTPHandler.mgr = mgr
     if os.getenv('DISCORD_PUBLIC_KEY'):
         from .discord_interactions import DiscordInteractions
         ShipCourtHTTPHandler.discord = DiscordInteractions(workflow, os.environ['DISCORD_PUBLIC_KEY'],
@@ -377,10 +396,6 @@ def start_server(host="127.0.0.1", port=8080):
     from .switch_worker import start_workers
     workflow.switch_workers = start_workers(workflow, json.loads(os.getenv('SWITCH_CLIENTS','[]')),
                                             json.loads(os.getenv('SWITCH_PARTICIPANTS', '{}')))
-    ShipCourtHTTPHandler.workflow = workflow
-    ShipCourtHTTPHandler.room = room
-    ShipCourtHTTPHandler.mgr = mgr
-    httpd = ShipCourtServer((host, port), ShipCourtHTTPHandler)
     print(f"[SERVER ONLINE] Ship Court HTTP API listening on http://{host}:{port}")
     try:
         httpd.serve_forever()

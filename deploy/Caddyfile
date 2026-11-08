@@ -1,0 +1,30 @@
+{
+    email {$ACME_EMAIL}
+    admin off
+    servers {
+        timeouts {
+            read_header 10s
+            read_body 30s
+            idle 60s
+        }
+    }
+}
+
+{$SHIPCOURT_DOMAIN} {
+    encode zstd gzip
+    request_body {
+        max_size 1MB
+    }
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy same-origin
+        Content-Security-Policy "frame-ancestors 'none'; object-src 'none'; base-uri 'self'"
+        -Server
+    }
+    # The voice gateway uses loopback; legacy previews do not need public routes.
+    @private path /api/voice/* /api/keys /metrics /status /tasks /decisions /webhook /api/debate /api/llm/* /api/case/*
+    respond @private 404
+    reverse_proxy 127.0.0.1:8080
+}

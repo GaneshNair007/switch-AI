@@ -110,8 +110,11 @@ class SwitchProtocolClient:
                     beat.join(timeout=3)
                 self.stream = None
 
-    def run(self, handler, max_reconnects=5):
-        for attempt in range(max_reconnects + 1):
+    def run(self, handler, max_reconnects=None):
+        # A long-lived host must recover even after a prolonged Switch outage.
+        # Explicit finite budgets remain available for tests/one-shot callers.
+        attempt=0
+        while max_reconnects is None or attempt<=max_reconnects:
             try:
                 self.listen_once(handler)
                 raise ConnectionError("Switch event stream closed")
@@ -120,5 +123,6 @@ class SwitchProtocolClient:
                 if attempt == max_reconnects:
                     raise
                 self.stop.clear()
-                if self.stop.wait(min(2 ** attempt, 10)):
+                if self.stop.wait(min(2 ** min(attempt,5), 30)):
                     return
+                attempt+=1

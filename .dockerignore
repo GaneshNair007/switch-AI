@@ -1,0 +1,16 @@
+.git
+.env
+.env.*
+!.env.example
+.runtime
+.venv
+.agents
+.codex
+.aws
+**/node_modules
+**/__pycache__
+.pytest_cache
+*.sqlite3*
+*.pem
+*.key
+*.log

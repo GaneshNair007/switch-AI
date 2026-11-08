@@ -1,0 +1,18 @@
+# Merge with the reviewed official standalone Compose file. Core and database
+# stay bound to loopback; operator access uses SSH forwarding, not a public port.
+services:
+  postgres:
+    restart: unless-stopped
+    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
+  init-db:
+    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
+  switch:
+    restart: unless-stopped
+    environment:
+      GATEWAY_SIGNUP_MODE: invite_only
+      GATEWAY_COOKIE_SECURE: "false"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
